@@ -1,0 +1,1344 @@
+/* Kissmark reader / editor — Flexoki ink, MarkText element rhythm. DESIGN.md */
+
+@font-face {
+  font-family: "Pretendard Variable";
+  src: url("PretendardVariable.woff2") format("woff2"),
+       url("../Fonts/PretendardVariable.woff2") format("woff2"),
+       url("Fonts/PretendardVariable.woff2") format("woff2");
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Keep Hangul on the bundled face while Latin text uses the OS font. */
+@font-face {
+  font-family: "Pretendard Hangul";
+  src: url("PretendardVariable.woff2") format("woff2"),
+       url("../Fonts/PretendardVariable.woff2") format("woff2"),
+       url("Fonts/PretendardVariable.woff2") format("woff2");
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+1100-11FF, U+3130-318F, U+A960-A97F, U+AC00-D7FF, U+FFA0-FFDC;
+}
+
+/* English body face (Settings › English font › Inter); only used when Swift sets --km-font-body. */
+@font-face {
+  font-family: "Inter Variable";
+  src: url("InterVariable.ttf") format("truetype"),
+       url("../Fonts/InterVariable.ttf") format("truetype"),
+       url("Fonts/InterVariable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Inter Variable";
+  src: url("InterVariable-Italic.ttf") format("truetype"),
+       url("../Fonts/InterVariable-Italic.ttf") format("truetype"),
+       url("Fonts/InterVariable-Italic.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Jetendard;
+  src: url("Jetendard-Regular.woff2") format("woff2"),
+       url("../Fonts/Jetendard-Regular.woff2") format("woff2"),
+       url("Fonts/Jetendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: Jetendard;
+  src: url("Jetendard-Bold.woff2") format("woff2"),
+       url("../Fonts/Jetendard-Bold.woff2") format("woff2"),
+       url("Fonts/Jetendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Motion (1.7): the numeric Settings overrides are typed, so a slider or
+   Text Size change interpolates the number at :root instead of jumping. The
+   initial values ARE the shipped defaults (DesignOverrides.displayDefault* in
+   Swift mirrors them); units are applied in :root below so `em` still
+   resolves where each token is used. */
+@property --km-font-scale { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-line-height { syntax: "<number>"; inherits: true; initial-value: 1.7; }
+@property --km-user-letter-spacing { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --km-user-code-letter-spacing { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --km-user-paragraph-spacing { syntax: "<number>"; inherits: true; initial-value: 1.05; }
+@property --km-user-indent { syntax: "<number>"; inherits: true; initial-value: 1.4; }
+@property --km-user-body-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-h1-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-h2-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-h3-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-h4-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-h5-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-h6-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-code-block-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-inline-code-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-blockquote-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --km-user-table-size { syntax: "<number>"; inherits: true; initial-value: 1; }
+
+:root {
+  color-scheme: light dark;
+
+  /* Document theme layer (ADR 0021): Swift sends --km-theme-* for the chosen
+     theme, or the system window colors. The Flexoki values are the fallback
+     when no theme variables are set (e.g. a raw preview of this stylesheet). */
+  --km-bg: var(--km-theme-bg, #FCFCFB);
+  --km-bg-elevated: var(--km-theme-bg-elevated, #F2F0E5);
+  --km-code-bg: var(--km-theme-code-bg, #F2F0E5);
+  /* Code colour (polish 1.5, item 8): derived from the accent, not the body
+     text, so inline code never blends into the paragraph — in every theme and
+     both color schemes, because --km-accent is already theme-aware. */
+  --km-code-fg: color-mix(in srgb, var(--km-accent) 60%, var(--km-text));
+  --km-text: var(--km-theme-text, #100F0F);
+  --km-muted: var(--km-theme-muted, #6F6E69);
+  --km-border: var(--km-theme-border, #DAD8CE);
+  /* Swift supplies the selected theme/appearance accent without brightness remapping. */
+  --km-accent: var(--km-theme-accent, #205EA6);
+  --km-accent-soft: var(--km-theme-accent-soft, color-mix(in srgb, var(--km-accent) 12%, var(--km-bg)));
+  --km-danger: var(--km-theme-danger, #AF3029);
+  --km-success: var(--km-theme-success, #66800B);
+  --km-warn: var(--km-theme-warn, #AD8301);
+
+  --km-font-body: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  /* Code face: Jetendard (OFL, see Jetendard-OFL.txt) — drawn to sit next to
+     Pretendard, so its x-height matches the body face without a size penalty. */
+  --km-font-mono: "Jetendard", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --km-font-size: 1.0625rem; /* 17px — Toss body */
+  --km-font-scale: 1;
+  /* Overridable globals: the registered `--km-user-*` numbers above default to
+     the shipped values; the units live here so each token keeps resolving
+     `em` / `ch` at its use site. The measure has no single default (100% below
+     600px, 45rem above), so it stays a plain override with a `-base`. */
+  --km-line-height: var(--km-user-line-height);
+  --km-letter-spacing: calc(var(--km-user-letter-spacing) * 1em); /* Jev: body tracking 0 */
+  /* Code tracking is its own channel (user request): the code leaves pin it
+     below, so the body 자간 override never leaks into mono text and the
+     코드 자간 slider moves only the code. */
+  --km-code-letter-spacing: calc(var(--km-user-code-letter-spacing) * 1em);
+  --km-line-width-base: 100%;
+  --km-line-width: var(--km-user-measure, var(--km-line-width-base));
+  --km-paragraph-spacing: calc(var(--km-user-paragraph-spacing) * 1em);
+  /* List nesting: one marker (~1em) plus its gap (0.4em), so nested lists step
+     in shallowly. The Settings › 들여쓰기 slider drives the same token. */
+  --km-indent: calc(var(--km-user-indent) * 1em);
+  --km-radius: 8px;
+  --km-radius-code: 6px;
+  /* Column = measure + 2 × pad; the measure is the text width, which is what
+     Swift's window math and the 장폭 override both mean. */
+  --km-pad-top: 1.25rem;
+  --km-pad-x: 1rem;
+  --km-pad-bottom: 3rem;
+  --km-pad: var(--km-pad-top) var(--km-pad-x) var(--km-pad-bottom);
+
+  /* Motion tokens: one family with the Swift chrome (KissmarkMotion).
+     --km-spring   = SwiftUI .smooth(duration: 0.38): critically damped, sampled
+                     over its 0.56 s settle time; moves, resizes, accordions.
+     --km-spring-snappy = .snappy(duration: 0.24) (bounce 0.15): chevrons, marks.
+     A browser without linear() treats the var as invalid and eases instead. */
+  --km-dur-quick: 160ms;
+  --km-dur: 240ms;
+  --km-dur-snappy: 340ms;
+  --km-dur-spring: 560ms;
+  --km-dur-theme: 420ms;
+  --km-ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --km-spring: linear(0, 0.079, 0.236, 0.403, 0.551, 0.672, 0.764, 0.833, 0.884, 0.919, 0.945, 0.962, 0.974, 0.983, 0.988, 0.992, 0.995, 0.997, 0.998, 0.998, 1);
+  --km-dur-pulse: 900ms; /* the 저장 중 dot breathes while a save runs */
+  --km-spring-snappy: linear(0, 0.075, 0.234, 0.412, 0.574, 0.708, 0.811, 0.885, 0.935, 0.968, 0.988, 0.999, 1.004, 1.006, 1.006, 1.005, 1.004, 1.003, 1.002, 1.002, 1);
+  --km-stagger: 40ms;
+  --km-rise: 6px;
+  --km-blur: 4px;
+  --km-pop-scale: 0.96;
+
+  /* Settings overrides and Text Size glide instead of jumping (the numbers
+     are registered above). No transition runs on the first style, so a
+     freshly opened Document never animates into its saved design. */
+  transition-property: --km-font-scale, --km-user-line-height, --km-user-letter-spacing,
+    --km-user-code-letter-spacing, --km-user-paragraph-spacing, --km-user-indent,
+    --km-user-body-size,
+    --km-user-h1-size, --km-user-h2-size, --km-user-h3-size, --km-user-h4-size,
+    --km-user-h5-size, --km-user-h6-size, --km-user-code-block-size,
+    --km-user-inline-code-size, --km-user-blockquote-size, --km-user-table-size;
+  transition-duration: var(--km-dur-spring);
+  transition-timing-function: var(--km-spring);
+  --km-word-break: keep-all;
+
+  /* Derived from the body token so headings keep their ratio to body copy at
+     every --km-font-size (the 600–1024px query raises it to 1.125rem):
+     28/22/21/17 at the 17px base. */
+  --km-h1: calc(var(--km-font-size) * 28 / 17);
+  --km-h2: calc(var(--km-font-size) * 22 / 17);
+  --km-h3: calc(var(--km-font-size) * 21 / 17);
+  --km-h4: var(--km-font-size);
+  --km-h1-lh: 1.5;
+  --km-h2-lh: 1.36;
+  --km-h3-lh: 1.44;
+  --km-h1-ls: -0.03em;
+  /* Jev rule: body and mid-and-lower headings track at zero; only the title
+     H1 keeps a tightened tracking. */
+  --km-h2-ls: 0;
+  --km-h3-ls: 0;
+}
+
+/* One measure for every viewport at or above 600px (spec item 1): the column no
+   longer narrows as the window grows. 45rem = 720px of text at the 16px root,
+   about 42 Hangul characters at the 17px body. */
+@media (min-width: 600px) {
+  :root {
+    --km-font-size: 1.125rem;
+    --km-line-width-base: 45rem;
+    --km-pad-top: 2rem;
+    --km-pad-x: 1.75rem;
+    --km-pad-bottom: 4rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  :root {
+    --km-font-size: 1.0625rem;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --km-bg: var(--km-theme-bg, #100F0F);
+    --km-bg-elevated: var(--km-theme-bg-elevated, #1C1B1A);
+    --km-code-bg: var(--km-theme-code-bg, #1C1B1A);
+    --km-text: var(--km-theme-text, #CECDC3);
+    --km-muted: var(--km-theme-muted, #878580);
+    --km-border: var(--km-theme-border, #343331);
+    --km-accent: var(--km-theme-accent, #4385BE);
+    --km-accent-soft: var(--km-theme-accent-soft, color-mix(in srgb, var(--km-accent) 18%, var(--km-bg)));
+    --km-danger: var(--km-theme-danger, #D14D41);
+    --km-success: var(--km-theme-success, #879A39);
+    --km-warn: var(--km-theme-warn, #D0A215);
+  }
+}
+
+/* A fixed theme sets the Document color scheme; without data-km-scheme the
+   prefers-color-scheme query above decides. */
+html[data-km-scheme="dark"] { color-scheme: dark; }
+html[data-km-scheme="light"] { color-scheme: light; }
+
+html {
+  font-family: var(--km-font-body);
+  font-size: calc(100% * var(--km-font-scale, 1));
+  font-weight: 300;
+  line-height: var(--km-line-height);
+  letter-spacing: var(--km-letter-spacing);
+  /* 좌측 정렬이 기본(명시 선언)이고, 설정 › 디자인 › 정렬에서 양끝 맞춤을 고를 수
+     있다. 줄바꿈은 keep-all(어절 단위) — 단어 한 단어보다 긴 URL/영어만
+     break-word로 구제. */
+  text-align: var(--km-text-align, start);
+  word-break: var(--km-word-break);
+  overflow-wrap: break-word;
+  line-break: auto;
+  /* Elastic overscroll off: a focus- or click-induced scroll must not
+     rubber-band the page — the bounce reads as a gap flashing in between
+     the action bar and the document info card. */
+  overscroll-behavior-y: none;
+  background: var(--km-bg);
+  color: var(--km-user-body-color, var(--km-text));
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  box-sizing: border-box;
+  background: var(--km-bg);
+  color: var(--km-user-body-color, var(--km-text));
+  font-family: var(--km-font-body);
+  font-weight: 300;
+  letter-spacing: var(--km-letter-spacing);
+  word-break: var(--km-word-break);
+  overflow-wrap: break-word;
+}
+
+/* Reduce Motion: no travel, scale, blur, stagger, or spring. Crossfades and
+   opacity feedback stay, shortened to KissmarkMotion.reducedFadeDuration. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --km-dur-quick: 120ms;
+    --km-dur: 120ms;
+    --km-dur-snappy: 0s;
+    --km-dur-spring: 0s;
+    --km-dur-theme: 120ms;
+    --km-stagger: 0ms;
+    --km-rise: 0px;
+    --km-blur: 0px;
+    --km-pop-scale: 1;
+  }
+}
+
+/* The measure (장폭) and the weight pickers glide as well. max-width and
+   font-weight are set on these boxes themselves (never inherited into them),
+   so each animates once, without a parent/child lag. */
+#document,
+.km-document,
+.milkdown .ProseMirror,
+#docinfo,
+#review,
+#frontmatter,
+.km-source,
+h1, h2, h3, h4, h5, h6 {
+  /* Longhands: without linear() only the timing function falls back (to ease). */
+  transition-property: max-width, font-weight;
+  transition-duration: var(--km-dur-spring);
+  transition-timing-function: var(--km-spring);
+}
+
+/* View transitions (Safari 18+; older engines switch instantly). Swift runs a
+   palette change (theme, accent, light/dark) through one: the whole page
+   crossfades with the chrome's KissmarkMotion.theme. The 코드 보기 switch
+   resolves through a short blur. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--km-dur-theme);
+  animation-timing-function: ease-in-out;
+}
+html[data-km-transition="view"]::view-transition-old(root) {
+  animation: km-vt-out var(--km-dur) var(--km-ease-out) both;
+}
+html[data-km-transition="view"]::view-transition-new(root) {
+  animation: km-vt-in var(--km-dur-spring) var(--km-ease-out) both;
+}
+@keyframes km-vt-out { to { opacity: 0; filter: blur(var(--km-blur)); } }
+@keyframes km-vt-in { from { opacity: 0; filter: blur(var(--km-blur)); } }
+
+/* Reading progress (Safari 26+ scroll-driven animation; absent elsewhere): a
+   hairline of the accent under the action bar that fills with the scroll. It
+   follows the scroll 1:1, so it stays under Reduce Motion. */
+@supports (animation-timeline: scroll()) {
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 30;
+    height: 2px;
+    background: var(--km-accent);
+    opacity: 0.7;
+    transform-origin: 0 50%;
+    scale: 0 1;
+    pointer-events: none;
+    animation: km-progress linear both;
+    animation-timeline: scroll(root block);
+  }
+  @keyframes km-progress { to { scale: 1 1; } }
+}
+
+/* Column: centered, measure wide (text) plus the horizontal pad. The padding
+   lives here once — `#editor` used to add a second copy. */
+#document,
+.km-document {
+  box-sizing: border-box;
+  max-width: min(100%, calc(var(--km-line-width) + 2 * var(--km-pad-x)));
+  margin: 0 auto;
+  color: var(--km-user-body-color, var(--km-text));
+  font-family: var(--km-font-body);
+  font-weight: 300;
+  letter-spacing: var(--km-letter-spacing);
+  word-break: var(--km-word-break);
+  overflow-wrap: break-word;
+  line-break: auto;
+}
+
+.milkdown .ProseMirror {
+  box-sizing: border-box;
+  max-width: min(100%, calc(var(--km-line-width) + 2 * var(--km-pad-x)));
+  margin: 0 auto;
+  padding: var(--km-pad-top) var(--km-pad-x) var(--km-pad-bottom);
+  color: var(--km-user-body-color, var(--km-text));
+  font-family: var(--km-font-body);
+  font-weight: 300;
+  letter-spacing: var(--km-letter-spacing);
+  word-break: var(--km-word-break);
+  overflow-wrap: break-word;
+  line-break: auto;
+}
+
+/* Headings — MarkText: air above, title-like first H1, no boxed chrome */
+h1, h2, h3, h4, h5, h6,
+.milkdown .ProseMirror h1,
+.milkdown .ProseMirror h2,
+.milkdown .ProseMirror h3,
+.milkdown .ProseMirror h4,
+.milkdown .ProseMirror h5,
+.milkdown .ProseMirror h6,
+.milkdown .ProseMirror p.km-strong-heading {
+  font-family: var(--km-font-body) !important;
+  color: var(--km-text);
+  line-height: var(--km-h2-lh);
+  margin: 1.85em 0 0.28em; /* Jev hierarchy: heading↔body is the smallest gap */
+  font-weight: 500 !important;
+  letter-spacing: var(--km-h2-ls);
+  word-break: keep-all;
+}
+
+h1, .milkdown .ProseMirror h1 {
+  font-size: calc(var(--km-h1) * var(--km-user-h1-size, 1));
+  font-weight: var(--km-user-h1-weight, 550) !important;
+  color: var(--km-user-h1-color, var(--km-text));
+  line-height: var(--km-h1-lh);
+  letter-spacing: var(--km-h1-ls);
+  margin-bottom: 0.85em;
+}
+
+h2, .milkdown .ProseMirror h2 {
+  font-size: calc(var(--km-h2) * var(--km-user-h2-size, 1));
+  font-weight: var(--km-user-h2-weight, 500) !important;
+  color: var(--km-user-h2-color, var(--km-text));
+  line-height: var(--km-h2-lh);
+  letter-spacing: var(--km-h2-ls);
+}
+
+h3, .milkdown .ProseMirror h3, .milkdown .ProseMirror p.km-strong-heading {
+  font-size: calc(var(--km-h3) * var(--km-user-h3-size, 1)) !important;
+  font-weight: var(--km-user-h3-weight, 500) !important;
+  color: var(--km-user-h3-color, var(--km-text));
+  line-height: var(--km-h3-lh) !important;
+  letter-spacing: var(--km-h3-ls);
+}
+/* A wholly bold top-level paragraph is a visual subheading, not a Markdown rewrite. */
+.milkdown .ProseMirror p.km-strong-heading {
+  margin: 1.85em 0 0.28em !important;
+  padding-block: 0;
+}
+/* Keep after variant margins: the first block sits at the top padding.
+   Crepe's leading cursor widget does not count as a content block. */
+h1:first-child, h2:first-child, h3:first-child,
+.milkdown .ProseMirror > :is(h1, h2, h3, h4, h5, p, ul, ol, blockquote):first-child,
+.milkdown .ProseMirror > .ProseMirror-widget:first-child + :is(h1, h2, h3, h4, h5, p, ul, ol, blockquote) { margin-top: 0 !important; }
+
+/* One rule per level: each level carries its own size / weight / color override. */
+h4, .milkdown .ProseMirror h4 {
+  font-size: calc(var(--km-h4) * var(--km-user-h4-size, 1));
+  font-weight: var(--km-user-h4-weight, 400) !important;
+  color: var(--km-user-h4-color, var(--km-text));
+}
+h5, .milkdown .ProseMirror h5 {
+  font-size: calc(var(--km-h4) * var(--km-user-h5-size, 1));
+  font-weight: var(--km-user-h5-weight, 300) !important;
+  color: var(--km-user-h5-color, var(--km-muted));
+}
+h6, .milkdown .ProseMirror h6 {
+  font-size: calc(var(--km-h4) * var(--km-user-h6-size, 1));
+  font-weight: var(--km-user-h6-weight, 300) !important;
+  color: var(--km-user-h6-color, var(--km-muted));
+}
+
+.km-agent-section {
+  border-inline-start: none;
+  padding-inline-start: 0;
+  margin-inline-start: 0;
+}
+
+p { margin: 0 0 var(--km-paragraph-spacing); line-height: var(--km-line-height); }
+p:last-child { margin-bottom: 0; }
+
+strong, b { font-weight: 600; }
+em, i { font-style: italic; }
+del, s { text-decoration: line-through; color: var(--km-muted); }
+
+u,
+.milkdown .ProseMirror u {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-skip-ink: auto;
+}
+
+a {
+  color: var(--km-user-link-color, var(--km-accent));
+  font-weight: var(--km-user-link-weight, inherit);
+  text-decoration: none;
+  text-underline-offset: 0.15em;
+}
+a:hover { text-decoration: underline; text-decoration-thickness: 1px; }
+
+hr,
+.milkdown .ProseMirror hr {
+  border: 0 !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: 2.25em 0 !important;
+  background: var(--km-user-rule-color, var(--km-border)) !important;
+}
+
+ul, ol,
+.milkdown .ProseMirror ul,
+.milkdown .ProseMirror ol {
+  margin: 0 0 var(--km-paragraph-spacing);
+  /* Crepe's `.milkdown *` reset zeroes list padding, so the indent has to be
+     asserted at ProseMirror specificity (spec item 5: marker 1em + 0.4em gap). */
+  padding-inline-start: var(--km-indent);
+}
+
+li {
+  margin: 0.22em 0;
+  padding-inline-start: 0.2em;
+  line-height: var(--km-line-height);
+}
+li > ul, li > ol {
+  margin-top: 0.2em;
+  margin-bottom: 0.2em;
+}
+
+li > input[type="checkbox"] {
+  margin-inline-end: 0.45em;
+  vertical-align: middle;
+}
+
+/* Crepe renders list items as `ul > div.milkdown-list-item-block > li.list-item`
+   with a flex label slot. Spec item 5: markers take the body text colour, are
+   one em wide and sit on the first line box; nesting steps by the marker width
+   plus the 0.4em gap, which `--km-indent` (1.4em) already carries. */
+.milkdown .milkdown-list-item-block li.list-item {
+  gap: 0.4em;
+  padding-inline-start: 0;
+  margin: 0.22em 0;
+}
+.milkdown .milkdown-list-item-block li.list-item > .label-wrapper {
+  width: 1em;
+  height: calc(1em * var(--km-line-height));
+  align-items: center;
+  color: var(--km-text);
+}
+.milkdown .milkdown-list-item-block li.list-item > .label-wrapper > .label {
+  box-sizing: content-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: auto;
+  min-width: 1em;
+  height: auto;
+  padding: 0;
+  text-align: right;
+  font-size: 1em;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.milkdown .milkdown-list-item-block li.list-item > .label-wrapper svg {
+  width: 1em;
+  height: 1em;
+  fill: var(--km-text);
+}
+/* Jev rule: bullets and checkboxes ride centered on the first text line and
+   numbers share its baseline. The label wrapper IS that line box (1em ×
+   line-height), so the item's text must start at the item top: Crepe pads
+   every paragraph 4px top and bottom, which dropped the text below the
+   markers. No per-label nudges; the shared line box does the alignment. */
+.milkdown .milkdown-list-item-block li.list-item > .children p {
+  padding-block: 0;
+}
+.milkdown .milkdown-list-item-block li.list-item > .label-wrapper > .label.ordered {
+  display: block;
+  line-height: var(--km-line-height);
+}
+/* Checked box: filled with the body colour, the check knocked out to the page. */
+.milkdown .milkdown-list-item-block li.list-item > .label-wrapper svg .km-check {
+  stroke: var(--km-bg);
+}
+
+/* Blockquote — MarkText: muted bar, no wash */
+blockquote,
+.milkdown .ProseMirror blockquote {
+  margin: 1.4em 0 !important;
+  padding: 0 0 0 calc(var(--km-indent) * 0.7) !important;
+  border: none !important;
+  border-inline-start: 3px solid var(--km-border) !important;
+  color: var(--km-user-blockquote-color, var(--km-muted)) !important;
+  font-size: calc(1em * var(--km-user-blockquote-size, 1)) !important;
+  font-family: var(--km-font-body) !important;
+  background: transparent !important;
+  position: relative;
+}
+
+.milkdown .ProseMirror blockquote::before { display: none !important; }
+
+blockquote p { margin-bottom: 0.5em; }
+blockquote p:last-child { margin-bottom: 0; }
+
+code, kbd, samp {
+  font-family: var(--km-font-mono);
+  /* Jetendard tracks Pretendard's metrics; a small step down keeps its
+     x-height on the body text's (verified against the real fonts). */
+  font-size: calc(0.9em * var(--km-user-inline-code-size, 1));
+  /* Pin the code channel: an explicit value here also cuts the inherited
+     body 자간 (letter-spacing inherits), so code never follows it. */
+  letter-spacing: var(--km-code-letter-spacing);
+  color: var(--km-user-inline-code-color, var(--km-code-fg));
+  background: var(--km-code-bg);
+  border-radius: var(--km-radius-code);
+  padding: 0.1em 0.32em;
+}
+
+/* Fenced code — quiet wash with one gray hairline frame. Polish: more air
+   inside (top/bottom and sides) and a block gap above/below at least the
+   paragraph spacing. */
+pre,
+.milkdown .ProseMirror pre,
+.milkdown .milkdown-code-block {
+  margin: 1.6em 0 !important;
+  padding: 1.25em 1.5rem !important;
+  overflow-x: auto;
+  background: var(--km-code-bg) !important;
+  color: var(--km-user-code-block-color, var(--km-code-fg)) !important;
+  border: 1px solid var(--km-border) !important;
+  border-radius: var(--km-radius-code) !important;
+  line-height: 1.55;
+  font-family: var(--km-font-mono) !important;
+  letter-spacing: var(--km-code-letter-spacing);
+}
+
+/* Crepe mounts a plain `pre` placeholder inside the block before CodeMirror
+   initializes; the block's own frame already styles it. */
+.milkdown .milkdown-code-block > pre.milkdown-code-block-placeholder {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+
+/* Language label: the editor mirrors each code block's `language` attr onto
+   the wrapper as `data-language`. Read Mode hides Crepe's hover tools row
+   (language picker, Copy — editing chrome, like the rest of Read Mode) and
+   labels the block with the badge instead; Edit Mode keeps Crepe's own tools
+   (the language shows there on hover), so the badge stays Read-only. */
+body.km-mode-read .milkdown .milkdown-code-block .tools {
+  display: none !important;
+}
+body.km-mode-read .milkdown .milkdown-code-block {
+  position: relative;
+}
+body.km-mode-read .milkdown .milkdown-code-block[data-language]:not([data-language=""])::after {
+  content: attr(data-language);
+  position: absolute;
+  top: 0.55em;
+  right: 0.75em;
+  max-width: calc(100% - 1.5em);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--km-font-mono);
+  font-size: 0.72em;
+  line-height: 1;
+  letter-spacing: var(--km-code-letter-spacing);
+  color: var(--km-muted);
+  background: var(--km-bg);
+  border: 1px solid var(--km-border);
+  border-radius: 5px;
+  padding: 0.3em 0.55em;
+  pointer-events: none;
+}
+
+pre code,
+.milkdown .ProseMirror pre code {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 0;
+  border-radius: 0;
+  font-size: 0.9em;
+  font-family: inherit !important;
+}
+
+.milkdown .milkdown-code-block .cm-editor,
+.milkdown .milkdown-code-block .cm-gutters,
+.milkdown .milkdown-code-block .cm-content {
+  background: var(--km-code-bg) !important;
+  color: var(--km-user-code-block-color, var(--km-code-fg)) !important;
+  font-family: var(--km-font-mono) !important;
+}
+
+/* Size only the leaves: the multiplier lands once, not squared through
+   `.cm-editor` → `.cm-content` inheritance. */
+.milkdown .milkdown-code-block .cm-gutters,
+.milkdown .milkdown-code-block .cm-content {
+  font-size: calc(0.9em * var(--km-user-code-block-size, 1)) !important;
+}
+
+.milkdown .milkdown-code-block .cm-gutters {
+  color: var(--km-muted) !important;
+  border-right: none !important;
+}
+
+/* Tables — hairline, no zebra */
+table,
+.milkdown .ProseMirror table,
+.milkdown .milkdown-table-block table {
+  display: table !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin: 1.35em 0 !important;
+  border-collapse: collapse !important;
+  table-layout: auto !important;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--km-font-body) !important;
+  /* One document text size (polish 1.5, item 2): the table starts from the
+     body size whatever Crepe's frame theme puts on its wrapper. */
+  font-size: calc(1em * var(--km-user-table-size, 1)) !important;
+}
+
+th, td,
+.milkdown .ProseMirror th,
+.milkdown .ProseMirror td,
+.milkdown .milkdown-table-block th,
+.milkdown .milkdown-table-block td {
+  border: 1px solid var(--km-border) !important;
+  padding: 0.45rem 0.7rem !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  font-family: var(--km-font-body) !important;
+  background: transparent !important;
+  font-size: 1em !important;
+  color: var(--km-user-table-color, inherit) !important;
+}
+
+th,
+.milkdown .ProseMirror th,
+.milkdown .milkdown-table-block th {
+  background: var(--km-bg-elevated) !important;
+  font-weight: 500 !important;
+}
+
+th p, td p,
+.milkdown .ProseMirror th p,
+.milkdown .ProseMirror td p,
+.milkdown .milkdown-table-block th p,
+.milkdown .milkdown-table-block td p {
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.45 !important;
+}
+
+th, td,
+.milkdown .ProseMirror th,
+.milkdown .ProseMirror td {
+  line-height: 1.45;
+}
+
+.km-table-scroll {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+.image-placeholder {
+  display: inline-block;
+  font-style: italic;
+  color: var(--km-muted);
+  background: transparent;
+  border: 0;
+  padding: 0;
+}
+
+/* Callouts (spec item 7): a blockquote whose first paragraph is an
+   `[!type]` marker. entry.js decorates the ProseMirror DOM with
+   `callout callout-<type>` on the quote and `callout-label` on the marker
+   paragraph, so the marker reads as a title line. The declaration list
+   mirrors the blockquote rule above, which is `!important`, hence the
+   `!important` here too. */
+.callout,
+.milkdown .ProseMirror blockquote.callout {
+  --km-callout-accent: var(--km-accent);
+  margin: 1.35em 0 !important;
+  padding: 0.7rem 0.95rem !important;
+  padding-inline-start: calc(var(--km-indent) * 0.7) !important;
+  border-inline-start: 3px solid var(--km-callout-accent) !important;
+  background: color-mix(in srgb, var(--km-callout-accent) 10%, var(--km-bg)) !important;
+  border-radius: 0 var(--km-radius-code) var(--km-radius-code) 0;
+  color: var(--km-user-body-color, var(--km-text)) !important;
+  font-family: var(--km-font-body) !important;
+}
+
+/* One accent token per callout kind; `!important` so the kind wins over the
+   default set on `.callout` above. */
+.callout-note,
+.callout-info,
+.callout-abstract,
+.callout-summary,
+.callout-tldr { --km-callout-accent: var(--km-accent) !important; }
+
+.callout-tip,
+.callout-hint,
+.callout-success,
+.callout-check,
+.callout-done { --km-callout-accent: var(--km-success) !important; }
+
+.callout-warning,
+.callout-caution,
+.callout-attention { --km-callout-accent: var(--km-warn) !important; }
+
+.callout-danger,
+.callout-error,
+.callout-failure,
+.callout-fail,
+.callout-bug,
+.callout-important { --km-callout-accent: var(--km-danger) !important; }
+
+.callout-todo,
+.callout-question,
+.callout-faq,
+.callout-example { --km-callout-accent: var(--km-muted) !important; }
+
+/* The marker paragraph is the callout's label line, marker text included, so
+   the document stays valid Obsidian Markdown. */
+.callout > .callout-label:first-child,
+.milkdown .ProseMirror blockquote.callout > p.callout-label:first-child,
+.callout > strong:first-child {
+  display: block;
+  margin: 0 0 0.3em !important;
+  /* One document text size (polish 1.5, item 2): the label line reads at the
+     body size; the accent colour and the bold marker carry the hierarchy. */
+  font-size: 1em !important;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--km-callout-accent, var(--km-text)) !important;
+  text-transform: none;
+}
+
+.callout p { margin-bottom: 0.4em; }
+.callout p:last-child { margin-bottom: 0; }
+
+.milkdown {
+  background: var(--km-bg);
+  color: var(--km-user-body-color, var(--km-text));
+  min-height: 100%;
+  font-family: var(--km-font-body);
+  --crepe-font-title: var(--km-font-body);
+  --crepe-font-default: var(--km-font-body);
+  --crepe-font-code: var(--km-font-mono);
+  --crepe-color-background: var(--km-bg);
+  --crepe-color-on-background: var(--km-text);
+  --crepe-color-surface: var(--km-bg-elevated);
+  --crepe-color-surface-low: var(--km-code-bg);
+  --crepe-color-on-surface: var(--km-text);
+  --crepe-color-on-surface-variant: var(--km-muted);
+  --crepe-color-outline: var(--km-border);
+  --crepe-color-primary: var(--km-accent);
+  --crepe-color-inline-code: var(--km-code-fg);
+  --crepe-color-inline-area: var(--km-code-bg);
+}
+
+.milkdown .ProseMirror {
+  outline: none;
+  min-height: 60vh;
+  font-family: var(--km-font-body) !important;
+  /* `--km-font-size` is a rem token and `html` already carries `--km-font-scale`,
+     so the scale must not be applied a second time here. */
+  font-size: calc(var(--km-font-size) * var(--km-user-body-size, 1)) !important;
+  font-weight: var(--km-user-body-weight, 300) !important;
+  line-height: var(--km-line-height) !important;
+}
+
+.milkdown .ProseMirror-focused { outline: none; }
+
+.milkdown .ProseMirror p.is-editor-empty:first-child::before {
+  color: var(--km-muted);
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+/* Hidden HTML comments. Only parsed HTML comment nodes (`span[data-type="html"]`
+   whose value starts with `<!--`) are hidden; a literal `<!-- ... -->` inside a
+   code block or inline code is plain text, not an html node, so it stays visible.
+   The document model and the saved Markdown keep the comments untouched. */
+.milkdown .ProseMirror span[data-type="html"][data-value^="<!--"] {
+  display: none !important;
+}
+.milkdown .ProseMirror p:has(> span[data-type="html"][data-value^="<!--"]:only-child) {
+  display: none !important;
+}
+
+/* Document info bar (polish 1.5, item 1; one card since 1.7): the first
+   element of the scroll flow, above the frontmatter box, same column as the
+   text. It scrolls away with the content; the details follow `info.expanded`
+   from Swift. Built with textContent by _editor-build/docinfo.mjs, which
+   updates it in place so the motion below is never cut by a rebuild. */
+#docinfo {
+  box-sizing: border-box;
+  max-width: min(100%, calc(var(--km-line-width) + 2 * var(--km-pad-x)));
+  margin: 0 auto;
+  padding: var(--km-pad-top) var(--km-pad-x) 0;
+  font-family: var(--km-font-body);
+}
+#docinfo[hidden],
+#review[hidden] { display: none !important; }
+/* The bar carries the top padding; what follows does not double it. */
+:is(#docinfo, #review):not([hidden]) + #frontmatter,
+#docinfo:not([hidden]) + #review[hidden] + #frontmatter { padding-top: 0.75em; }
+
+/* 검토 card (round 3): the same card, directly under 문서 정보. It sits close
+   under the info card; with the info card hidden it carries the top padding. */
+#review {
+  box-sizing: border-box;
+  max-width: min(100%, calc(var(--km-line-width) + 2 * var(--km-pad-x)));
+  margin: 0 auto;
+  padding: 0.75em var(--km-pad-x) 0;
+  font-family: var(--km-font-body);
+}
+#docinfo[hidden] + #review:not([hidden]) { padding-top: var(--km-pad-top); }
+
+/* Header row and, below a hairline, the details. They open and close on the
+   Document spring: grid rows 0fr ↔ 1fr (Safari has no interpolate-size). */
+:is(#docinfo, #review) .km-di-card {
+  display: grid;
+  grid-template-rows: auto 0fr;
+  overflow: hidden;
+  background: var(--km-bg-elevated);
+  border: 1px solid var(--km-border);
+  border-radius: var(--km-radius);
+  transition-property: grid-template-rows;
+  transition-duration: var(--km-dur-spring);
+  transition-timing-function: var(--km-spring);
+}
+:is(#docinfo, #review) .km-di-card[data-open] { grid-template-rows: auto 1fr; }
+
+:is(#docinfo, #review) .km-di-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0.6em 0.9em;
+  font: inherit;
+  font-size: 0.8em;
+  line-height: 1.55;
+  color: var(--km-muted);
+  text-align: start;
+  background: transparent;
+  border: 0;
+  cursor: default;
+  transition: background-color var(--km-dur-quick) var(--km-ease-out);
+}
+@media (hover: hover) {
+  :is(#docinfo, #review) .km-di-head:hover { background: color-mix(in srgb, var(--km-text) 4%, transparent); }
+}
+:is(#docinfo, #review) .km-di-head:active { background: color-mix(in srgb, var(--km-text) 7%, transparent); }
+:is(#docinfo, #review) .km-di-head:focus-visible { outline: 2px solid var(--km-accent); outline-offset: -2px; }
+/* Fixed title (문서 정보), never the file name: the action bar shows that. */
+:is(#docinfo, #review) .km-di-summary {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--km-text);
+}
+/* Save state: a status dot (saved / saving pulses / failed) and the label,
+   which docinfo.mjs crossfades when it changes. */
+#docinfo .km-di-save {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+}
+#docinfo .km-di-save[hidden] { display: none; }
+#docinfo .km-di-save::before {
+  content: "";
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: var(--km-success);
+  transition: background-color var(--km-dur) var(--km-ease-out);
+}
+#docinfo .km-di-save[data-km-save-state="saving"]::before {
+  background: var(--km-accent);
+  animation: km-pulse var(--km-dur-pulse) ease-in-out infinite alternate;
+}
+#docinfo .km-di-save[data-km-save-state="failed"] { color: var(--km-danger); }
+#docinfo .km-di-save[data-km-save-state="failed"]::before { background: var(--km-danger); }
+@keyframes km-pulse { to { opacity: 0.3; } }
+@media (prefers-reduced-motion: reduce) {
+  #docinfo .km-di-save[data-km-save-state]::before { animation: none; }
+}
+:is(#docinfo, #review) .km-di-chevron {
+  flex: 0 0 auto;
+  display: inline-flex;
+  transition-property: rotate;
+  transition-duration: var(--km-dur-snappy);
+  transition-timing-function: var(--km-spring-snappy);
+}
+:is(#docinfo, #review) .km-di-head[aria-expanded="true"] .km-di-chevron { rotate: 180deg; }
+:is(#docinfo, #review) .km-di-chevron svg { width: 1em; height: 1em; display: block; }
+
+/* Closed: zero rows tall, invisible (out of the tab order and the
+   accessibility tree once the spring has finished), details lifted. */
+:is(#docinfo, #review) .km-di-panel {
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  transition: visibility 0s linear var(--km-dur-spring);
+}
+:is(#docinfo, #review) .km-di-card[data-open] .km-di-panel {
+  visibility: visible;
+  transition-delay: 0s;
+}
+:is(#docinfo, #review) :is(.km-di-grid, .km-rv-inner) {
+  padding: 0.7em 0.9em;
+  border-top: 1px solid var(--km-border);
+  opacity: 0;
+  translate: 0 calc(-1 * var(--km-rise));
+  transition-property: opacity, translate;
+  transition-duration: var(--km-dur), var(--km-dur-spring);
+  transition-timing-function: var(--km-ease-out), var(--km-spring);
+}
+:is(#docinfo, #review) .km-di-card[data-open] :is(.km-di-grid, .km-rv-inner) { opacity: 1; translate: 0 0; }
+
+/* 검토 rows (round 3). Kind colour lives in --km-rv-c: it tints the circle in
+   the card and the wash on the quote in the body. */
+#review .km-rv-row[data-kind],
+.km-review-mark { --km-rv-c: var(--km-accent); }
+#review .km-rv-row[data-kind="failure"], .km-review-failure { --km-rv-c: var(--km-danger); }
+#review .km-rv-row[data-kind="warning"], .km-review-warning { --km-rv-c: var(--km-warn); }
+#review .km-rv-row[data-kind="next"], #review .km-rv-row[data-kind="task"],
+.km-review-next, .km-review-task { --km-rv-c: var(--km-muted); }
+
+.km-review-mark {
+  background: color-mix(in srgb, var(--km-rv-c) 16%, transparent);
+  border-radius: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+#review .km-rv-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  font-size: 0.8em;
+  line-height: 1.55;
+}
+#review .km-rv-list { display: flex; flex-direction: column; gap: 0.7em; }
+#review .km-rv-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.75em;
+  align-items: start;
+  transition: opacity var(--km-dur) var(--km-ease-out);
+}
+#review .km-rv-row[data-checked] { opacity: 0.55; }
+#review .km-rv-check {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  margin: 0.15em 0 0;
+  padding: 0;
+  color: var(--km-bg);
+  background: transparent;
+  border: 1.5px solid var(--km-rv-c);
+  border-radius: 50%;
+  cursor: default;
+  transition: background-color var(--km-dur-quick) var(--km-ease-out);
+}
+#review .km-rv-check svg { width: 0.8em; height: 0.8em; opacity: 0; transition: opacity var(--km-dur-quick) var(--km-ease-out); }
+#review .km-rv-row[data-checked] .km-rv-check { background: var(--km-rv-c); }
+#review .km-rv-row[data-checked] .km-rv-check svg { opacity: 1; }
+#review .km-rv-check:focus-visible,
+#review .km-rv-quote:focus-visible,
+#review .km-rv-complete:focus-visible { outline: 2px solid var(--km-accent); outline-offset: 2px; }
+#review .km-rv-body { display: flex; flex-direction: column; gap: 0.15em; min-width: 0; }
+#review .km-rv-kind { color: var(--km-muted); }
+#review .km-rv-quote {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--km-text);
+  text-align: start;
+  background: transparent;
+  border: 0;
+  cursor: default;
+  overflow-wrap: anywhere;
+  word-break: var(--km-word-break);
+}
+#review .km-rv-note { color: var(--km-muted); font-size: 0.9em; overflow-wrap: anywhere; }
+#review .km-rv-note[hidden],
+#review .km-rv-comment[hidden],
+#review .km-rv-empty[hidden],
+#review .km-rv-done[hidden] { display: none; }
+#review .km-rv-comment {
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 0.3em;
+  padding: 0.3em 0.6em;
+  font: inherit;
+  color: var(--km-text);
+  background: var(--km-bg);
+  border: 1px solid var(--km-border);
+  border-radius: calc(var(--km-radius) / 2);
+}
+#review .km-rv-comment:focus-visible { outline: 2px solid var(--km-accent); outline-offset: -1px; }
+#review .km-rv-comment::placeholder { color: var(--km-muted); }
+#review .km-rv-empty { color: var(--km-muted); }
+#review .km-rv-foot { display: flex; align-items: center; gap: 0.75em; }
+#review .km-rv-complete {
+  margin: 0;
+  padding: 0.3em 0.9em;
+  font: inherit;
+  color: var(--km-text);
+  background: transparent;
+  border: 1px solid var(--km-border);
+  border-radius: calc(var(--km-radius) / 2);
+  cursor: default;
+  transition: background-color var(--km-dur-quick) var(--km-ease-out);
+}
+@media (hover: hover) {
+  #review .km-rv-complete:hover { background: color-mix(in srgb, var(--km-text) 4%, transparent); }
+}
+#review .km-rv-complete:active { background: color-mix(in srgb, var(--km-text) 7%, transparent); }
+#review .km-rv-done { color: var(--km-muted); }
+@media (prefers-reduced-motion: reduce) {
+  #review .km-rv-row,
+  #review .km-rv-check,
+  #review .km-rv-check svg { transition: none; }
+}
+
+/* Frontmatter properties box. Read-only: it mirrors the raw `---` block that
+   entry.js peeled off before mounting Crepe, and is never edited here. The
+   document info bar, when present, carries the column's top padding for it. */
+#frontmatter {
+  box-sizing: border-box;
+  max-width: min(100%, calc(var(--km-line-width) + 2 * var(--km-pad-x)));
+  margin: 0 auto;
+  padding: var(--km-pad-top) var(--km-pad-x) 0;
+}
+#frontmatter[hidden] { display: none !important; }
+#frontmatter .km-fm-box {
+  padding: 0.7em 0.9em;
+  background: var(--km-bg-elevated);
+  border: 1px solid var(--km-border);
+  border-radius: var(--km-radius);
+}
+
+/* One details grid for 문서 정보 and the Frontmatter box (1.7 lint). Every
+   row is a subgrid, so it sits on its own line and all values start at one x:
+   the label column fits the longest label (at least 5.5em, so the two boxes
+   line up; capped at 12em), then a 1.25em gutter. Labels and values share
+   the body face and size; figures are tabular so dates align. */
+#docinfo .km-di-grid,
+#frontmatter .km-fm-box {
+  display: grid;
+  grid-template-columns: fit-content(12em) minmax(0, 1fr);
+  column-gap: 1.25em;
+  row-gap: 0.5em;
+  font-family: var(--km-font-body);
+  font-size: 0.8em;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  color: var(--km-muted);
+}
+#docinfo .km-di-row,
+#frontmatter .km-fm-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: var(--km-word-break);
+}
+#docinfo .km-di-label,
+#frontmatter .km-fm-key { min-width: 5.5em; color: var(--km-muted); }
+#docinfo .km-di-value,
+#frontmatter .km-fm-value { min-width: 0; color: var(--km-text); }
+#frontmatter .km-fm-raw { grid-column: 1 / -1; color: var(--km-muted); }
+
+/* Source view: CodeMirror 6 over the raw Markdown, frontmatter included.
+   It shares the document column, type tokens and Jetendard with the rendered
+   surface; `body.km-view-source` swaps the two views. */
+.km-source {
+  box-sizing: border-box;
+  max-width: min(100%, calc(var(--km-line-width) + 2 * var(--km-pad-x)));
+  margin: 0 auto;
+  padding: var(--km-pad-top) var(--km-pad-x) var(--km-pad-bottom);
+  color: var(--km-user-body-color, var(--km-text));
+}
+.km-source[hidden] { display: none !important; }
+body.km-view-source #editor,
+body.km-view-source #frontmatter { display: none !important; }
+
+.km-source .cm-editor {
+  min-height: 60vh;
+  background: transparent;
+  color: inherit;
+}
+.km-source .cm-editor.cm-focused { outline: none; }
+.km-source .cm-scroller {
+  font-family: var(--km-font-mono);
+  line-height: var(--km-line-height);
+  letter-spacing: var(--km-code-letter-spacing);
+}
+.km-source .cm-content {
+  padding: 0;
+  font-family: var(--km-font-mono);
+  font-size: calc(var(--km-font-size) * 0.9);
+  caret-color: var(--km-accent);
+}
+.km-source .cm-line { padding: 0; }
+.km-source .cm-cursor { border-left-color: var(--km-accent); }
+.km-source .cm-selectionBackground,
+.km-source ::selection { background: var(--km-accent-soft); }
+
+/* Block menu (spec item 7): the popover behind the block handle and ⌘/. Built by
+   block-menu.mjs, anchored to the handle's rect, closed on Escape or a press
+   outside. Hidden in Read Mode (the handle is hidden there too). It grows out
+   of the handle side (data-side) and fades back faster than it arrived. */
+.km-block-menu {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 16rem;
+  padding: 0.35rem;
+  font-family: var(--km-font-body);
+  font-size: 0.9rem;
+  color: var(--km-text);
+  background: var(--km-bg-elevated);
+  border: 1px solid var(--km-border);
+  border-radius: var(--km-radius);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.18);
+  transform-origin: top left;
+}
+.km-block-menu[data-side="above"] { transform-origin: bottom left; }
+.km-block-menu[hidden] { display: none !important; pointer-events: none; }
+
+/* Popovers (the block menu; Crepe's slash menu, selection toolbar and link
+   bubbles, which flip data-show): pop in from the anchor on the snappy spring
+   (@starting-style, Safari 17.5+), fade out on the quick token while `display`
+   waits for it (allow-discrete, Safari 18+). Older engines just show/hide. */
+.km-block-menu,
+.milkdown-slash-menu,
+.milkdown-toolbar,
+.milkdown-link-preview,
+.milkdown-link-edit {
+  transition-property: opacity, scale, translate, display;
+  transition-duration: var(--km-dur-quick), var(--km-dur-snappy), var(--km-dur-snappy), var(--km-dur-quick);
+  transition-timing-function: var(--km-ease-out), var(--km-spring-snappy), var(--km-spring-snappy), linear;
+  transition-behavior: allow-discrete;
+}
+.milkdown-slash-menu,
+.milkdown-link-preview,
+.milkdown-link-edit { transform-origin: top left; }
+.milkdown-toolbar { transform-origin: bottom center; }
+.km-block-menu[hidden],
+:is(.milkdown-slash-menu, .milkdown-toolbar, .milkdown-link-preview, .milkdown-link-edit)[data-show="false"] {
+  opacity: 0;
+  scale: var(--km-pop-scale);
+}
+@starting-style {
+  .km-block-menu:not([hidden]),
+  :is(.milkdown-slash-menu, .milkdown-link-preview, .milkdown-link-edit)[data-show="true"] {
+    opacity: 0;
+    scale: var(--km-pop-scale);
+    translate: 0 calc(-1 * var(--km-rise));
+  }
+  .km-block-menu[data-side="above"]:not([hidden]),
+  .milkdown-toolbar[data-show="true"] {
+    opacity: 0;
+    scale: var(--km-pop-scale);
+    translate: 0 var(--km-rise);
+  }
+}
+
+.km-bm-search {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 0 0.25rem;
+  padding: 0.4rem 0.5rem;
+  font: inherit;
+  color: var(--km-text);
+  background: var(--km-bg);
+  border: 0;
+  border-radius: 6px;
+  appearance: none;
+}
+.km-bm-search::placeholder { color: var(--km-muted); }
+.km-bm-search:focus { outline: none; box-shadow: inset 0 0 0 1px var(--km-accent); }
+
+.km-bm-group-label {
+  padding: 0.3rem 0.5rem 0.2rem;
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--km-muted);
+}
+
+.km-bm-list {
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.km-bm-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: default;
+}
+.km-bm-item.is-active { background: var(--km-accent-soft); }
+
+.km-bm-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1.25em;
+  height: 1.25em;
+  font-size: 0.82em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--km-muted);
+}
+.km-bm-icon svg { display: block; width: 100%; height: 100%; }
+.km-bm-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.km-bm-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  color: var(--km-accent);
+}
+.km-bm-check svg { display: block; width: 100%; height: 100%; }

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>Kissmark Document</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'none'; connect-src 'none'; font-src 'self' data:; base-uri 'none'; form-action 'none'; frame-src 'none'">
+  <!-- Load order matters: the Crepe bundle ships a light-only .milkdown token
+       block; reader.css must come AFTER it so --km-* / --crepe-* overrides win. -->
+  <link rel="stylesheet" href="editor.bundle.css">
+  <link rel="stylesheet" href="reader.css">
+  <style>
+    /* Thin Crepe defeats only — tokens live in reader.css.
+       Re-assert theme tokens here (last in cascade) so no future bundle
+       update can silently flip the surface back to light. */
+    .milkdown {
+      --crepe-color-background: var(--km-bg) !important;
+      --crepe-color-on-background: var(--km-text) !important;
+      --crepe-color-surface: var(--km-bg-elevated) !important;
+      --crepe-color-surface-low: var(--km-code-bg) !important;
+      --crepe-color-on-surface: var(--km-text) !important;
+      --crepe-color-on-surface-variant: var(--km-muted) !important;
+      --crepe-color-outline: var(--km-border) !important;
+      --crepe-color-primary: var(--km-accent) !important;
+      --crepe-color-secondary: var(--km-bg-elevated) !important;
+      --crepe-color-on-secondary: var(--km-text) !important;
+      --crepe-color-inline-code: var(--km-code-fg) !important;
+      --crepe-color-inline-area: var(--km-code-bg) !important;
+      --crepe-color-hover: var(--km-bg-elevated) !important;
+      --crepe-color-selected: color-mix(in srgb, var(--km-accent) 22%, var(--km-bg)) !important;
+      --crepe-font-title: var(--km-font-body) !important;
+      --crepe-font-default: var(--km-font-body) !important;
+      --crepe-font-code: var(--km-font-mono) !important;
+      background: var(--km-bg) !important;
+      color: var(--km-user-body-color, var(--km-text)) !important;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      box-sizing: border-box;
+      background: var(--km-bg) !important;
+      color: var(--km-user-body-color, var(--km-text)) !important;
+      font-family: var(--km-font-body) !important;
+    }
+
+    #editor {
+      min-height: 100%;
+      background: inherit;
+      color: inherit;
+    }
+
+    /* Crepe resets every margin/padding to 0 — restore document rhythm.
+       The column padding lives here, once: reader.css gives `#editor` the
+       measure and no padding of its own. */
+    .milkdown .ProseMirror {
+      max-width: min(100%, calc(var(--km-line-width) + 2 * var(--km-pad-x))) !important;
+      margin: 0 auto !important;
+      padding: var(--km-pad-top) var(--km-pad-x) var(--km-pad-bottom) !important;
+      font-family: var(--km-font-body) !important;
+      font-size: calc(var(--km-font-size) * var(--km-user-body-size, 1)) !important;
+      line-height: var(--km-line-height) !important;
+      letter-spacing: var(--km-letter-spacing) !important;
+      word-break: var(--km-word-break) !important;
+      overflow-wrap: break-word !important;
+      color: var(--km-user-body-color, var(--km-text)) !important;
+      background: transparent !important;
+      caret-color: var(--km-accent);
+    }
+
+    /* Crepe 7.22.2 sizes body copy in `em` off `.milkdown`
+       (`p{font-size:1em;line-height:1.5}`). 1em resolves against `.ProseMirror`'s
+       `--km-font-size`, so the type tokens (and Text Size) govern paragraphs;
+       only the leading is re-asserted, because reader.css's `p` line-height loses
+       to Crepe's own `p` rule. */
+    .milkdown .ProseMirror p {
+      font-size: 1em !important;
+      line-height: var(--km-line-height) !important;
+    }
+    .milkdown .ProseMirror p { margin: 0 0 var(--km-paragraph-spacing) !important; }
+    /* Indentation is reader.css's `ul, ol { padding-inline-start: var(--km-indent) }`
+       (spec item 5): no second, wider padding here. */
+    .milkdown .ProseMirror ul,
+    .milkdown .ProseMirror ol {
+      margin: 0 0 var(--km-paragraph-spacing) !important;
+      list-style-position: outside !important;
+    }
+    .milkdown .ProseMirror ul { list-style-type: disc !important; }
+    .milkdown .ProseMirror ol { list-style-type: decimal !important; }
+    .milkdown .ProseMirror li { margin: 0.5em 0 !important; }
+    .milkdown .ProseMirror li p { margin: 0 !important; }
+    /* Nested lists live inside the item's content DOM, not directly under li. */
+    .milkdown .ProseMirror li :is(ul, ol) { margin: 0.2em 0 !important; }
+
+    /* Crepe's own inline-code and link rules out-specify reader.css's `code` / `a`
+       rules, so the user overrides have to be re-asserted at the same specificity
+       (these two are last in the cascade). Defaults equal what those Crepe rules
+       already resolved to — 87.5% of the parent, `--km-code-fg`, `--crepe-color-primary`
+       (== `--km-accent`) — so nothing moves until an override is set. */
+    .milkdown .ProseMirror code {
+      font-size: calc(84% * var(--km-user-inline-code-size, 1));
+      color: var(--km-user-inline-code-color, var(--km-code-fg));
+    }
+    .milkdown .ProseMirror a {
+      color: var(--km-user-link-color, var(--km-accent));
+      font-weight: var(--km-user-link-weight, inherit);
+    }
+
+    .milkdown .ProseMirror h1,
+    .milkdown .ProseMirror h2,
+    .milkdown .ProseMirror h3,
+    .milkdown .ProseMirror h4,
+    .milkdown .ProseMirror h5,
+    .milkdown .ProseMirror h6 {
+      font-family: var(--km-font-body) !important;
+      padding: 0 !important; /* Crepe adds 2px 0 */
+    }
+
+    /* Read Mode: hide Crepe editing chrome */
+    body.km-mode-read .milkdown-toolbar,
+    body.km-mode-read [class*="toolbar"],
+    body.km-mode-read .milkdown-slash-menu,
+    body.km-mode-read .slash-menu,
+    body.km-mode-read .milkdown-block-handle,
+    body.km-mode-read .crepe-block-edit {
+      display: none !important;
+    }
+    body.km-mode-read .milkdown .ProseMirror {
+      caret-color: transparent;
+    }
+
+    /* Source view: CodeMirror takes over the surface (spec item 6). */
+    body.km-view-source .milkdown-block-handle,
+    body.km-view-source .milkdown-slash-menu,
+    body.km-view-source .milkdown-toolbar {
+      display: none !important;
+    }
+
+  </style>
+</head>
+<body class="km-mode-edit">
+  <div id="docinfo" hidden></div>
+  <div id="review" hidden></div>
+  <div id="frontmatter" hidden></div>
+  <div id="editor" class="km-document" aria-label="문서"></div>
+  <div id="source" class="km-source" aria-label="원문" hidden></div>
+  <script>
+    // Only seed defaults when Swift WKUserScript did not already inject values.
+    if (typeof window.__KISSMARK_INITIAL_MARKDOWN__ === "undefined") {
+      window.__KISSMARK_INITIAL_MARKDOWN__ = "";
+    }
+    if (typeof window.__KISSMARK_INITIAL_MODE__ === "undefined") {
+      window.__KISSMARK_INITIAL_MODE__ = "edit";
+    }
+  </script>
+  <script src="editor.bundle.js"></script>
+</body>
+</html>
