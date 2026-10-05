@@ -1,133 +1,130 @@
 # Kissmark
 
-AI 에이전트가 만든 Markdown 문서를 보여 주는 macOS 앱입니다. 터미널이나 다른 앱에서 일하는 에이전트가 MCP로 문서를 이 창에 띄우고, 사용자가 확인해야 할 곳을 표시합니다. Kissmark는 한 번 보여 준 문서를 기억해 두었다가 다시 찾아 주고, 쓸수록 기록이 쌓입니다.
+AI 에이전트가 만든 Markdown 문서를 열고 편집하고 검토하는 macOS 앱입니다. 일반 Markdown 파일을 그대로 사용하며, 에이전트 연결은 함께 제공하는 MCP 도구를 통해 이뤄집니다.
 
-평범한 Markdown 폴더 뷰어와 편집기로도 쓸 수 있습니다. 파일은 늘 디스크에 있는 원본 그대로이고, 원본 파일에는 사용자가 편집할 때만 씁니다.
+Kissmark is a macOS app for opening, editing, and reviewing Markdown documents from AI agents. It uses ordinary Markdown files and connects to agents through its bundled MCP helper.
 
-## 할 수 있는 일
+## 설치 / Install
 
-- **폴더 탐색**: 고른 폴더의 Markdown 문서를 트리로 봅니다. iCloud Drive, Google Drive 같은 Finder 폴더도 됩니다.
-- **단독 문서에서 폴더 열기**: 사이드바의 **폴더 열기**에서 **현재 문서의 폴더 열기…**와 **다른 폴더 열기…**를 고를 수 있습니다. 다운로드 등 다른 폴더를 탐색하려면 두 번째 항목을 선택합니다.
-- **Markdown 기본 앱**: **설정 → 일반 → Markdown 기본 앱으로 설정**을 누르면 Finder에서 `.md`, `.markdown` 파일을 열 때 Kissmark를 사용합니다. 설치만으로 기존 기본 앱을 바꾸지 않으며, `.txt` 연결도 유지합니다.
-- **읽기와 편집**: 기본은 읽기 모드입니다. 잠금을 풀면 문서 모양 그대로 편집하고, 잠시 멈추면 자동 저장합니다. 원문 Markdown은 코드 보기로 봅니다.
-- **에이전트 연결 (MCP)**: **설정 → 연결**에서 로컬 도구를 감지하고 연결 설정을 시작합니다. 연결된 에이전트는 문서를 열고, 확인할 곳을 지정하고, 사용자가 무엇을 확인했는지 읽어 갑니다.
-- **검토 카드**: 문서 위 검토 카드에 확인할 곳을 모아 보여 주고, 본문의 해당 문장에 색을 칠합니다. 에이전트가 지정하지 않으면 결정, 경고, 실패, 할 일 같은 부분을 Kissmark가 직접 찾습니다. 동그라미를 눌러 확인하고, 코멘트를 남기고, 검토 완료로 마무리합니다.
-- **최근**: 사이드바 맨 위에 최근에 본 문서가 폴더와 상관없이 나옵니다. 에이전트가 연 문서는 로봇 아이콘으로 표시합니다.
-- **새로고침 (⌘R)**: 에이전트가 파일을 고친 뒤 창 전체를 디스크에서 다시 불러옵니다. 저장하지 않은 편집이 있으면 새로고침하지 않습니다.
-- **테마와 디자인**: 테마가 화면 모드에 맞춰 라이트와 다크 색상으로 바뀝니다. 글자 크기는 아주 작게부터 아주 크게까지 5개이며 기본은 중간입니다. **설정 → 디자인**의 간격 게이지는 같은 간격의 5개 기준점과 그 사이 값을 조절할 수 있고, 기본값은 가운데에 표시합니다.
-  포인트 컬러는 테마별, 라이트·다크 모드별로 따로 저장합니다. 선택한 색을 명도 보정 없이 그대로 사용하며, **테마 색으로**는 현재 테마와 화면 모드의 설정만 초기화합니다.
-  설정창은 여섯 탭(일반, 디자인 등)의 내용 폭을 같은 기준으로 맞춥니다. 영어 UI에서는 연결과 단축키 탭을 짧은 **Connect**, **Keys**로 표시합니다. 창을 넓혀도 이름과 조작부가 양 끝으로 벌어지지 않으며, 긴 설정은 스크롤해서 봅니다. 펼친 연결과 진단의 항목 시작선도 맞춰 두었습니다.
-- **앱 언어와 영어 글꼴**: 앱이 직접 그리는 화면(메뉴, 설정, 사이드바, 검토 카드, 안내와 CLI 출력)은 한국어와 영어를 모두 지원합니다. **설정 → 일반 → 앱 언어**에서 시스템, 한국어, 영어를 고르고, 영어일 때 글꼴을 OS 기본 또는 앱에 포함된 Inter로 정합니다. 바꾼 값은 다음 일반 실행부터 적용되며 앱을 자동으로 종료하지 않습니다. 문서 본문은 번역하지 않고 다시 불러오지도 않습니다. 코드와 CLI는 고정폭 글꼴을 유지합니다.
-- **문서 제목 단락**: H3 제목과 전체가 굵은 최상위 단락은 본문 17px 기준 21px로 표시합니다. 문장 안의 강조, 중첩 단락, 목록은 그대로이며 Markdown 원본은 바꾸지 않습니다.
-- **보관과 미러**: 문서를 Obsidian 같은 보관 폴더에 복사합니다. 미러 폴더를 정하면 문서를 잠그거나 닫을 때 그 폴더에 한 방향 사본을 둡니다.
+[최신 배포 파일 / Latest release](https://github.com/foxion37/kissmark-releases/releases/latest) · [설치 안내 / Installation](INSTALL.md) · [변경 사항 / Release notes](RELEASE_NOTES.md)
 
-## 요구 사항
+macOS 14 이상을 대상으로 하며 Apple Silicon과 Intel 바이너리를 제공합니다. 실제 실행 검증은 Apple Silicon의 macOS 27.0.1에서 진행했습니다. Intel과 macOS 14의 실제 실행은 미검증입니다. iOS 타깃은 포함하지만 배포하지 않습니다.
 
-- macOS 14 이상
-- Apple Silicon과 Intel Mac 모두 지원
+The app targets macOS 14 or later and includes Apple Silicon and Intel binaries. Runtime verification was performed on Apple Silicon with macOS 27.0.1. Intel and macOS 14 runtime remain unverified. An iOS target is included but is not distributed.
 
-이번 빌드의 실행 검증은 Apple Silicon Mac의 macOS 27.0.1에서 진행했습니다. Intel과 macOS 14에서의 실제 실행은 별도로 검증하지 않았습니다.
+현재 배포물은 ad-hoc 서명이며 Apple 공증은 없습니다. 처음 실행할 때는 배포 페이지의 보안 승인 안내를 따르세요. 앱 내장 iCloud 폴더 기능은 제외되어 있지만, Finder의 iCloud Drive 폴더를 직접 선택해 사용할 수 있습니다.
 
-## 설치
+Current releases are ad-hoc signed and not notarized by Apple. Follow the release page's security-approval instructions on first launch. The built-in iCloud folder is unavailable, but you can select an iCloud Drive folder through Finder.
 
-1. [Releases](https://github.com/foxion37/kissmark-releases/releases/latest)에서 `Kissmark-<버전>-adhoc-<커밋>.dmg`를 받습니다.
-2. DMG를 열고 `Kissmark`를 `Applications` 폴더로 끌어다 놓습니다.
-3. 터미널에서 다음 명령을 한 번 실행합니다.
+## 주요 기능 / Features
 
-   ```sh
-   xattr -dr com.apple.quarantine /Applications/Kissmark.app
-   ```
+- **읽기와 편집:** 폴더 탐색, 읽기·편집 모드, 자동 저장, Markdown 원문 보기.
+  - **Read and edit:** folder browsing, read/edit modes, autosave, and Markdown source view.
+- **검토와 기록:** 검토 카드, 본문 강조, 코멘트, 최근 문서와 로컬 검색.
+  - **Review and history:** review cards, highlights, comments, recent documents, and local search.
+- **문서 관리:** 보관 폴더로 복사하고, 선택한 미러 폴더에 한 방향 사본을 저장합니다.
+  - **Document management:** copy documents to an archive and maintain one-way copies in selected mirror folders.
+- **언어와 모양:** 한국어·영어 UI, 테마, 글자 크기와 간격, 영문 OS 기본·Inter 글꼴 선택. 언어와 영문 글꼴은 다음 실행부터 적용하며 문서 원문은 번역하지 않습니다.
+  - **Language and appearance:** Korean/English UI, themes, text size and spacing, and OS-default/Inter English fonts. Language and English-font changes apply on the next launch; document content is never translated.
 
-   이 빌드는 Apple 개발자 인증서로 서명하지 않았습니다. 그래서 macOS가 처음 실행을 막습니다. 위 명령은 인터넷에서 받은 파일에 붙는 격리 표시를 지웁니다. 앱과 에이전트 연결 도구가 함께 풀립니다.
+기록과 검토 정보는 이 Mac의 앱 컨테이너 안에 있는 SQLite에 저장됩니다. 문서 파일의 동기화와 앱의 로컬 검토 기록은 별개입니다.
 
-   터미널을 쓰지 않으려면 앱을 한 번 연 뒤, **시스템 설정 › 개인정보 보호 및 보안**에서 Kissmark의 **그래도 열기**를 누릅니다. 다만 이렇게 하면 앱만 풀리고 에이전트 연결 도구는 막힐 수 있으니, MCP를 쓸 거라면 위 명령을 실행하세요.
+History and review data are stored in SQLite inside the app container on this Mac. Document-file synchronization does not synchronize the app's local review history.
 
-4. Kissmark를 열고 **열기**(⌘O)로 폴더나 Markdown 파일을 고릅니다.
+## 에이전트 연결 / Agent integration
 
-## 에이전트 연결 (MCP)
+`kissmark-mcp`는 앱의 `Contents/Helpers/kissmark-mcp`에 포함되며, Claude Desktop 확장은 `Contents/Resources/kissmark.mcpb`에 있습니다.
 
-1. **설정 → 연결**(영어 UI: **Connect**) **→ CLI 설치…**에서 **검색 기능 준비**를 선택합니다. 명령을 복사해 터미널에서 실행하고, 설치 내용을 확인한 뒤 `yes`로 승인합니다. 현재 사용자용 연결 검색 기능이 로그인 시 실행되며 에이전트 MCP 설정은 아직 바꾸지 않습니다.
-2. **연결 검색**으로 이 Mac의 설치 도구와 탐색 가능한 실행 세션을 찾습니다. 원하는 후보의 **추가**를 누릅니다. 기본 목록에는 추가한 연결만 나오고, 꺾쇠로 상세를 펼칩니다. **진단**의 **검색**도 같은 연결 검색을 실제로 실행합니다.
-3. MCP 등록이 필요하면 **CLI 설치… → 에이전트 MCP 등록**에서 대상과 범위를 선택하고 복사한 명령을 터미널에서 실행합니다. **사용자 공통(global)**은 선택한 에이전트의 모든 프로젝트에 적용하는 범위이며, 모든 에이전트에 일괄 설치한다는 뜻이 아닙니다.
-4. 등록 후 해당 도구에서 MCP를 다시 불러오거나 새 세션을 시작합니다. Kissmark가 기존 세션을 강제로 종료하거나 새 대화를 만들지는 않습니다.
+The app bundles `kissmark-mcp` at `Contents/Helpers/kissmark-mcp` and the Claude Desktop extension at `Contents/Resources/kissmark.mcpb`.
 
-앱과 검색 버튼은 설치를 실행하지 않으며, 설치와 MCP 등록은 터미널에서 내용을 확인하고 승인한 뒤에만 진행합니다. **목록에서 제거**도 이 Mac의 표시만 해제하며 에이전트의 MCP 등록이나 실행 중인 세션은 유지합니다. 다른 Mac에서는 연결 검색 기능을 준비하고 다시 검색해 추가합니다.
-
-**설치됨**, **실행 중**, **로드됨**, **연결됨**은 다릅니다. 연결됨은 초기화를 마친 Kissmark MCP가 현재 응답한다는 뜻입니다. 설치 성공, 사용자 완료 버튼, 과거 초기화 기록만으로 연결됐다고 표시하지 않습니다. 여러 MCP 인스턴스와 대화 세션의 대응을 확인할 수 없으면 별도로 보여 줍니다.
-
-검색 범위에는 도구별 차이가 있습니다. Claude Code는 공식 세션 목록, OMP는 공유가 켜진 Collab 호스트, Codex는 접근 가능한 로컬 app-server의 로드된 스레드를 찾습니다. 로드된 스레드가 반드시 작업 중인 것은 아닙니다. GUI 도구는 설치 여부와 실제 Kissmark MCP 인스턴스를 확인하며, 앱 프로세스를 개별 대화로 취급하지 않습니다. 미지원 버전이나 접근 실패는 검색 0건과 구분합니다.
-
-Codex의 지원되는 로컬 서버를 확인했다면 상세의 **Codex MCP 다시 불러오기…**를 사용할 수 있습니다. 확인 창에 안내하듯 해당 서버의 모든 로드된 스레드에 적용하며 특정 대화 하나에만 적용하지 않습니다. 재로딩 요청 성공과 실제 연결 응답도 별도로 확인합니다.
-
-명령 예시:
-
-```sh
-# 연결 검색 기능 준비. 승인 전에 설치 내용을 보여 줍니다.
-/Applications/Kissmark.app/Contents/Helpers/kissmark-mcp setup
-
-# 선택한 에이전트의 사용자 공통 설정
-~/.local/bin/kissmark-mcp install --client claude-code --scope user
-~/.local/bin/kissmark-mcp install --client codex --scope user
-
-# 선택한 프로젝트에만 등록
-~/.local/bin/kissmark-mcp install --client omp --scope project --project /absolute/project
-
-# OMP의 이름 있는 사용자 프로필
-~/.local/bin/kissmark-mcp install --client omp --scope user --profile work
-```
-
-지원 대상 ID는 `claude-code`, `codex`, `omp`, `cursor`, `claude-desktop`, `vscode`입니다. Claude Desktop은 사용자 범위만 지원합니다. GUI 도구의 사용자 범위 등록은 공식 설치창으로 넘기며 그 앱에서 승인이 필요합니다. Codex의 별도 로컬 제어 소켓을 쓰면 `setup --codex-socket /absolute/socket`으로 지정합니다. 외부 네트워크 주소는 받지 않습니다.
-
-다른 MCP 설정은 보존합니다. 같은 이름의 `kissmark` 항목은 도구의 정책에 따라 교체하거나 충돌을 보고합니다. 현재 `kissmark-mcp`와 클라이언트 식별자가 등록되어 있다면 재등록하지 않아도 됩니다. 예전 수동 등록에 `KISSMARK_CLIENT_ID`가 없다면 도구는 동작해도 새 연결 목록에서 구분하지 못하므로 CLI 등록을 갱신하고 해당 세션을 다시 불러오세요. Claude Code의 같은 이름 충돌은 기존 설정을 확인한 뒤 명시적으로 제거·재등록해야 합니다. OMP는 사용자 프로필과 프로젝트의 우선순위를 따릅니다.
-
-기능 준비 파일은 앱의 `Contents/Helpers/kissmark-mcp`, Claude Desktop 확장은 `Contents/Resources/kissmark.mcpb`에 들어 있습니다. Claude Desktop은 이 파일을 복사하므로 앱 업데이트 후 확장도 다시 설치합니다. 기존 2.1.1 기록은 과거 이력으로만 보존하며, 새 연결 목록에는 연결 검색 후 직접 추가합니다.
-
-연결하면 에이전트가 다음 도구를 씁니다.
-
-| 도구 | 하는 일 |
+| 도구 / Tool | 기능 / Purpose |
 |---|---|
-| `open_document(path, points?)` | `.md` 문서를 Kissmark에 띄웁니다. 확인할 곳을 함께 넘길 수 있습니다. 앱이 꺼져 있으면 실행합니다. |
-| `add_review_points(path, points)` | 이미 띄운 문서에 확인할 곳을 더합니다. |
-| `review_status(path)` | 사용자가 확인한 곳, 남긴 코멘트, 검토 완료 시각을 읽습니다. |
-| `recent_documents(limit?, project?, agent?)` | 최근에 보여 준 문서 목록을 가져옵니다. |
-| `search_documents(query, ...)` | 보여 준 문서를 제목과 본문으로 찾습니다. 한글도 됩니다. |
+| `open_document` | 문서 열기 / Open a document |
+| `add_review_points` | 검토 항목 추가 / Add review points |
+| `review_status` | 검토 결과 읽기 / Read review status |
+| `recent_documents` | 최근 문서 조회 / List recent documents |
+| `search_documents` | 기록된 문서 검색 / Search recorded documents |
 
-에이전트에게 이렇게 말하면 됩니다: "보고서를 Kissmark로 열어 줘", "어제 본 배포 계획 다시 보여 줘", "내가 검토한 결과 확인해".
+설정 → 연결에서 후보를 검색하고 필요한 항목만 추가합니다. 설치와 MCP 등록은 CLI 안내를 확인한 뒤 사용자가 직접 승인합니다. 앱의 검색이나 목록 추가만으로 설치하거나 기존 세션을 강제로 바꾸지 않습니다.
 
-## 데이터와 개인정보
+Use Settings → Connect to find candidates and add only the connections you want. Installation and MCP registration require the user's explicit CLI approval. Searching or adding a list entry does not install anything or forcibly change existing sessions.
 
-- 문서 기록(메모리)은 이 Mac에만 저장됩니다: `~/Library/Containers/com.singandmong.kissmark/Data/Library/Application Support/Kissmark/`
-- 기록에는 연 문서의 경로, 제목, 본문 사본(검색용), 검토 포인트와 코멘트, 문서를 연 에이전트와 프로젝트 경로가 들어갑니다.
-- 연결 검색은 지원되는 공식 인터페이스에서 클라이언트·실행 인스턴스·세션 식별자와 상태만 추립니다. 대화 내용, 요약, 인증 정보, 공유 링크는 저장하지 않습니다. 선택 목록과 연결 검색 설정은 위 폴더의 `discovery/`에 저장합니다.
-- 앱의 외부 네트워크 사용은 업데이트 확인(GitHub)입니다. 로컬 연결 검색은 같은 OS 사용자의 Unix 소켓을 사용하며 외부 포트를 열지 않습니다. 에이전트 도구 자체의 네트워크 동작은 각 도구의 정책을 따릅니다.
-- 이 폴더 전체를 지우려면 먼저 `kissmark-mcp setup --remove`로 연결 검색 기능을 제거하고 앱을 닫습니다. 문서 기록뿐 아니라 연결 검색 설정과 선택 목록도 삭제됩니다.
+소스 빌드의 MCP 도구를 사용할 때는 `KISSMARK_BUNDLE_ID`와 `KISSMARK_STORE_DIR`로 대상 앱과 기록 저장소를 지정할 수 있습니다.
 
-## 이 빌드의 제한
+For a source-build helper, `KISSMARK_BUNDLE_ID` and `KISSMARK_STORE_DIR` can select another app bundle and memory store.
 
-- Developer ID 서명과 공증이 없는 빌드라 설치 3번 단계의 격리 해제 또는 macOS 보안 승인이 필요합니다.
-- 앱에 내장된 iCloud Kissmark 폴더 기능은 이 빌드에서 쓸 수 없습니다. iCloud Drive 안의 폴더를 직접 고르면 됩니다.
-- iPhone과 iPad용은 배포하지 않습니다.
+앱을 `/Applications`에 설치했다면 MCP 클라이언트의 실행 명령으로 `/Applications/Kissmark.app/Contents/Helpers/kissmark-mcp`를 사용합니다. 소스와 빌드 안내는 [이 공개 저장소](https://github.com/foxion37/kissmark-releases)에 있습니다.
 
-## 삭제
-앱을 지우기 전에 필요한 MCP 등록과 연결 검색 기능을 먼저 제거합니다. 선택한 클라이언트와 설치했던 범위를 정확히 지정하세요.
+When installed in `/Applications`, use `/Applications/Kissmark.app/Contents/Helpers/kissmark-mcp` as the MCP client's executable command. Source and build instructions are available in [this public repository](https://github.com/foxion37/kissmark-releases).
 
-```sh
-~/.local/bin/kissmark-mcp uninstall --client codex --scope user
-~/.local/bin/kissmark-mcp setup --remove
-```
+## 빌드와 테스트 / Build and test
 
-`uninstall`은 현재 앱의 `kissmark-mcp`를 가리키는 등록만 제거하며 다른 항목은 거절합니다. VS Code 사용자 프로필과 Claude Desktop 확장 제거는 해당 앱의 설정에서 진행합니다. 프로젝트에 따로 등록했다면 그 범위의 항목도 제거합니다. `setup --remove`는 연결 검색 기능과 CLI 링크만 제거하며 에이전트 세션과 MCP 설정은 유지합니다.
+macOS와 Xcode가 필요합니다. 확인한 개발 환경은 Xcode 27.0, Swift 6.4, Node 24.18.0입니다. 더 오래된 도구 버전에서의 빌드는 보장하지 않습니다.
 
-앱을 다른 위치로 옮기면 `kissmark-mcp` 경로가 달라집니다. 옮기기 전에 이전 앱의 `kissmark-mcp`로 `setup --remove`를 실행하세요. 이미 옮겨서 `config_unsafe`가 나온다면 기존 등록을 자동 삭제하지 않습니다. CLI가 표시한 등록 파일과 링크가 예전 Kissmark 설치인지 먼저 확인하고, 안내된 `launchctl bootout` 명령으로 해당 연결 검색 기능만 중지한 뒤 확인한 파일과 링크를 제거합니다. 이후 새 앱의 `kissmark-mcp`를 절대 경로로 실행해 `setup`을 다시 진행합니다. 에이전트에 남은 이전 경로도 해당 도구의 설정에서 확인한 뒤 재등록하세요.
+macOS and Xcode are required. The verified toolchain is Xcode 27.0, Swift 6.4, and Node 24.18.0. Older toolchains are not guaranteed to work.
 
+에디터의 사전 빌드 자원이 포함되어 있으므로 네이티브 앱 빌드에는 Node가 필요하지 않습니다. 아래 명령은 저장소 또는 압축을 푼 소스의 루트에서 실행합니다.
+
+Prebuilt editor assets are included, so the native app build does not require Node. Run these commands from the repository or extracted source root.
 
 ```sh
-rm -rf /Applications/Kissmark.app
-rm -rf ~/Library/Containers/com.singandmong.kissmark
+xcodebuild build -project Kissmark.xcodeproj -scheme Kissmark \
+  -configuration Release -destination 'generic/platform=macOS' \
+  -derivedDataPath /tmp/kissmark-build CODE_SIGNING_ALLOWED=NO
+
+xcodebuild test -project Kissmark.xcodeproj -scheme Kissmark \
+  -destination 'platform=macOS' -derivedDataPath /tmp/kissmark-tests \
+  CODE_SIGNING_ALLOWED=NO -only-testing:KissmarkTests
+
+swift test --package-path mcp
+bash mcp/check.sh
+swift scripts/check-list-alignment.swift
 ```
 
-위 앱·컨테이너 삭제 명령은 Kissmark의 문서 기록과 선택 목록도 지웁니다. 원본 Markdown 파일은 지우지 않습니다.
+`_editor-build/`의 JavaScript를 수정하거나 에디터 테스트를 실행하려면 잠금 파일에 맞는 의존성을 먼저 설치합니다.
 
-## 문제 신고
+To modify `_editor-build/` JavaScript or run editor tests, install the locked dependencies first.
 
-[Issues](https://github.com/foxion37/kissmark-releases/issues)에 남겨 주세요.
+```sh
+npm ci --prefix _editor-build
+npm test --prefix _editor-build
+bash scripts/build-editor-bundle.sh
+```
+
+## 로컬 설치와 패키징 / Local installation and packaging
+
+다음 설치 명령은 `/Applications/Kissmark.app`을 교체합니다. 실행 중인 앱은 정상 종료를 요청하고, 설치 실패 시 이전 앱으로 되돌립니다. 기존 설치본을 교체할지 확인한 뒤 실행하세요.
+
+The following command replaces `/Applications/Kissmark.app`. It requests a graceful quit and rolls back on installation failure. Run it only when you intend to replace the installed copy.
+
+```sh
+zsh scripts/install-macos.sh
+```
+
+설치본을 교체하지 않고 DMG만 만들려면 위에서 빌드한 앱을 지정합니다. 이 방식은 Git 이력이 없는 소스 스냅샷에서도 사용할 수 있습니다.
+
+To create a DMG without replacing the installed app, provide the app built above. This also works from a source snapshot without Git history.
+
+```sh
+bash scripts/package-macos.sh \
+  --app /tmp/kissmark-build/Build/Products/Release/Kissmark.app \
+  --output-dir /tmp/kissmark-dmg
+```
+
+Developer ID를 지정하지 않으면 제한된 권한으로 ad-hoc 서명합니다. 앱과 MCP 도구에 arm64와 x86_64를 포함하며, MIT 및 외부 구성요소 고지문도 패키지에 넣습니다.
+
+Without a Developer ID, packaging uses ad-hoc signing with reduced entitlements. The app and MCP helper include arm64 and x86_64, and the package includes project and third-party notices.
+
+## 라이선스 / License
+
+Kissmark 자체 코드는 [MIT License](LICENSE), `Copyright (c) 2026 foxion37`로 제공합니다. 무료 사용, 수정, 상업적 이용, 재배포와 판매를 허용합니다. 사본이나 상당 부분에는 저작권 고지와 MIT 전문을 유지해야 합니다. 파생 제품의 소스 공개나 별도 로고·화면 크레딧·웹사이트 링크는 의무가 아닙니다.
+
+Original Kissmark code is available under the [MIT License](LICENSE), `Copyright (c) 2026 foxion37`. Free use, modification, commercial use, redistribution, and sale are permitted. Keep the copyright and full MIT notice in copies or substantial portions. Derivatives need not be open source, and no separate logo, on-screen credit, or website link is required.
+
+외부 에디터 구성요소, 폰트와 아이콘은 각자의 라이선스를 유지합니다. [ThirdPartyNotices.txt](Kissmark/Resources/ThirdPartyNotices.txt)와 [폰트 고지문](Kissmark/Resources/Fonts/)을 함께 확인하세요. MIT 적용이 외부 구성요소의 조건을 없애지는 않습니다.
+
+Editor dependencies, fonts, and icons retain their own licenses. See [ThirdPartyNotices.txt](Kissmark/Resources/ThirdPartyNotices.txt) and the [font notices](Kissmark/Resources/Fonts/). The MIT grant does not replace third-party terms.
+
+## 문제 신고 / Issues
+
+[GitHub Issues](https://github.com/foxion37/kissmark-releases/issues)
