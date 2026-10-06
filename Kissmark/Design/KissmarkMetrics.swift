@@ -19,9 +19,12 @@ enum KissmarkMetrics {
     static let minTapTarget: CGFloat = 44
 
     static let settingsMinimumSize = CGSize(width: 560, height: 440)
-    static let settingsContentMaxWidth: CGFloat = 680
+    /// Launch width of the Settings window. The window resizes freely and the grouped
+    /// rows span it — a capped content column left dead margins and stranded the
+    /// scrollbar away from the window edge.
+    static let settingsDefaultWidth: CGFloat = 680
     /// One readable column, with room for longer panes to scroll.
-    static let settingsDefaultSize = CGSize(width: settingsContentMaxWidth, height: 600)
+    static let settingsDefaultSize = CGSize(width: settingsDefaultWidth, height: 600)
     static let settingsRowGap = KissmarkSpacing.space8
     static let settingsConnectionTextGap = KissmarkSpacing.space4
     static let settingsSheetInset = KissmarkSpacing.space20
@@ -70,6 +73,7 @@ enum KissmarkMetrics {
     static let toolbarCloseOpticalScale: CGFloat = 1.1
     static let toolbarLockOpticalScale: CGFloat = 0.9
     static let toolbarSettingsOpticalScale: CGFloat = 0.9
+    static let toolbarCopyOpticalScale: CGFloat = 0.9
     static let toolbarPanelOpticalScale: CGFloat = 0.95
     static let toolbarChevronOpticalScale: CGFloat = 1.1
 

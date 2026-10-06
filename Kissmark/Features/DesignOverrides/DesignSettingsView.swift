@@ -6,6 +6,7 @@ struct DesignSettingsView: View {
     @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
     @AppStorage(KissmarkTextSize.storageKey) private var textSizeID = KissmarkTextSize.medium.rawValue
     @AppStorage(KissmarkTextAlignment.storageKey) private var textAlignID = KissmarkTextAlignment.start.rawValue
+    @AppStorage(KissmarkEnglishFont.storageKey) private var englishFontID = KissmarkEnglishFont.system.rawValue
     @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var editingScheme: ColorScheme = .light
@@ -38,6 +39,25 @@ struct DesignSettingsView: View {
                 Text("본문")
             } footer: {
                 Text("글자 크기는 읽기와 편집 모두에 적용됩니다. 정렬은 문서 전체에 적용되고, 어절 단위로 줄이 바뀝니다.")
+            }
+
+            Section {
+                Picker("영문 글꼴", selection: $englishFontID) {
+                    ForEach(KissmarkEnglishFont.allCases) { font in
+                        Text(font.displayName).tag(font.rawValue)
+                    }
+                }
+                .accessibilityIdentifier("settings-english-font")
+                if KissmarkLocalization.languageCode == "en", KissmarkEnglishFont.active == .inter,
+                   !KissmarkType.interAvailable {
+                    Text("Inter 글꼴을 불러오지 못해 OS 기본 글꼴을 사용합니다.")
+                        .font(KissmarkType.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text("글꼴")
+            } footer: {
+                Text("한글은 Pretendard, 코드는 Jetendard로 표시됩니다. 영문 글꼴 선택은 앱을 다시 열면 적용됩니다.")
             }
 
             Section {
