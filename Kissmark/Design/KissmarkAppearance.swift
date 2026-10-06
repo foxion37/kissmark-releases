@@ -166,15 +166,16 @@ extension View {
 }
 #endif
 
-/// Settings root. macOS has resizable tabs, including local agent connections.
-/// iOS uses navigation rows for the shared sections (ADR 0021).
+/// Settings root. macOS has resizable tabs in the native glass capsule; iOS uses
+/// navigation rows for the shared sections (ADR 0021).
 ///
 /// On macOS Settings is its own `Window` scene, outside `AppRootView`, so it
 /// resolves the theme itself. The 화면 모드 (Appearance) always decides the scheme;
 /// the selected theme adapts its palette to it, and every tab's Form background,
 /// text, and accent follow. 시스템 keeps the native Settings look. iOS inherits
 /// all of it from the presenter.
-struct KissmarkSettingsView: View {    #if os(macOS)
+struct KissmarkSettingsView: View {
+    #if os(macOS)
     @AppStorage(KissmarkAppearance.storageKey) private var appearanceID = KissmarkAppearance.system.rawValue
     @AppStorage(DocumentTheme.storageKey) private var themeID = DocumentTheme.system.rawValue
     @AppStorage(ThemeAccentOverrides.storageKey) private var accentJSON = ""

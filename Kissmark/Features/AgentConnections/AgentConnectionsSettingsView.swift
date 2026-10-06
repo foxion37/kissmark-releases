@@ -27,7 +27,7 @@ struct AgentConnectionsSettingsView: View {
                         Spacer(minLength: 0)
                     }
                     if model.rows.isEmpty {
-                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsConnectionTextGap) {
+                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
                             Text("추가한 연결이 없습니다.").font(KissmarkType.font(.body, weight: .medium))
                             Text("이 Mac에서 검색한 후보를 직접 추가하세요.")
                                 .font(KissmarkType.caption).foregroundStyle(.secondary)
@@ -40,7 +40,7 @@ struct AgentConnectionsSettingsView: View {
             ForEach(model.rows) { key in
                 Section {
                     DisclosureGroup(isExpanded: expansionBinding(key)) {
-                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
+                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsContentGap) {
                             connectionDetails(key)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -72,7 +72,7 @@ struct AgentConnectionsSettingsView: View {
                         Spacer(minLength: 0)
                         KissmarkLucideImage(
                             icon: .chevronRight,
-                            pointSize: KissmarkMetrics.disclosureGlyphSize
+                            pointSize: KissmarkMetrics.settingsDisclosureGlyphSize
                         )
                         .foregroundStyle(.secondary)
                         .rotationEffect(.degrees(diagnosticsExpanded ? 90 : 0))
@@ -85,7 +85,7 @@ struct AgentConnectionsSettingsView: View {
                 .accessibilityIdentifier("settings-connections-diagnostics")
 
                 if diagnosticsExpanded {
-                    VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
+                    VStack(alignment: .leading, spacing: KissmarkMetrics.settingsContentGap) {
                         LabeledContent("연결 검색 기능", value: model.serviceAvailable ? String.kissmarkLocalized("응답 확인됨") : String.kissmarkLocalized("확인 필요"))
                         if let message = model.message { Text(message).font(KissmarkType.caption).foregroundStyle(.secondary) }
                         if let snapshot = model.snapshot {

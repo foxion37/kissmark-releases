@@ -25,16 +25,19 @@ enum KissmarkMetrics {
     static let settingsDefaultWidth: CGFloat = 680
     /// One readable column, with room for longer panes to scroll.
     static let settingsDefaultSize = CGSize(width: settingsDefaultWidth, height: 600)
-    static let settingsRowGap = KissmarkSpacing.space8
-    static let settingsConnectionTextGap = KissmarkSpacing.space4
+    static let settingsRowGap = KissmarkSpacing.space12
+    /// Vertical rhythm between content blocks inside one settings pane row.
+    static let settingsContentGap = KissmarkSpacing.space16
     static let settingsSheetInset = KissmarkSpacing.space20
+    /// Chevron size of a settings pane's disclosure row (진단).
+    static let settingsDisclosureGlyphSize: CGFloat = 16
     static let iconButtonOutlineWidth: CGFloat = 1
     static let iconButtonOutlineOpacity: CGFloat = 0.35
     static let iconButtonHoverOpacity: CGFloat = 0.06
     static let themeSwatchSize: CGFloat = 14
     static let settingsThemeRowVerticalInset = KissmarkSpacing.space8
     /// Compact Settings slider: full-width track, five non-interactive reference marks.
-    static let settingsSliderRowGap = KissmarkSpacing.space4
+    static let settingsSliderRowGap = KissmarkSpacing.space8
     static let settingsSliderTrackInset: CGFloat = 10
     static let settingsSliderHeight: CGFloat = 24
     static let settingsSliderTrackHeight: CGFloat = 4
