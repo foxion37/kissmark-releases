@@ -271,6 +271,23 @@ struct FolderSelectionModelTests {
         #expect(model.pendingGrant?.document.standardizedFileURL == document.standardizedFileURL)
     }
 
+    @Test("A repeated parent ask is a fresh request the presenter can show again")
+    func repeatedParentAskReplacesTheRequest() throws {
+        let folder = try temporaryFolder(named: "KM_Repeat_Ask")
+        let document = folder.appendingPathComponent("Note.md")
+        try "# Note\n".write(to: document, atomically: true, encoding: .utf8)
+        let model = FolderSelectionModel(bookmarks: try emptyBookmarks())
+        model.handle(.selected(url: document))
+        let first = try #require(model.pendingGrant)
+
+        model.requestParentGrant()
+        let second = try #require(model.pendingGrant)
+
+        #expect(first != second, "an equal value would leave a lost panel unrepeatable")
+        #expect(first.directory == second.directory)
+        #expect(first.document == second.document)
+    }
+
     @Test("Choosing a Folder saves it as the main Folder")
     func choosingAFolderSavesMain() throws {
         let bookmarks = try emptyBookmarks()

@@ -1,10 +1,10 @@
-# Kissmark 2.3.2 (18): 설치 / Installation
+# Kissmark 2.3.3 (19): 설치 / Installation
 
 ## 한국어
 
 ### 다운로드와 설치
 
-1. [2.3.2 릴리스](https://github.com/foxion37/kissmark-releases/releases/tag/v2.3.2)에서 DMG와 `SHA256SUMS`를 받습니다. 파일 이름에 있는 짧은 커밋 값과 전체 소스 커밋은 같은 릴리스의 `release-manifest.json`으로 확인할 수 있습니다.
+1. [2.3.3 릴리스](https://github.com/foxion37/kissmark-releases/releases/tag/v2.3.3)에서 DMG와 `SHA256SUMS`를 받습니다. 파일 이름에 있는 짧은 커밋 값과 전체 소스 커밋은 같은 릴리스의 `release-manifest.json`으로 확인할 수 있습니다.
 2. 다운로드한 폴더에서 아래 명령으로 DMG의 체크섬을 확인합니다. 결과가 `OK`일 때만 계속합니다. 소스 ZIP도 받았다면 같은 명령으로 함께 검사합니다.
 3. 기존 Kissmark에서 편집을 저장하고 앱을 종료합니다. DMG를 열고 `Kissmark.app`을 Applications로 복사합니다. 기존 설치본이 있다면 앱만 교체하며, 문서나 설정을 초기화할 필요는 없습니다.
 4. Applications의 Kissmark를 실행합니다. 설정 → 일반에서 한국어·영어와 영문 글꼴을 선택할 수 있습니다. 언어와 영문 글꼴 변경은 다음 실행부터 적용됩니다.
@@ -44,7 +44,7 @@ xattr -dr com.apple.quarantine /Applications/Kissmark.app
 
 ### Download and install
 
-1. Download the DMG and `SHA256SUMS` from the [2.3.2 release](https://github.com/foxion37/kissmark-releases/releases/tag/v2.3.2). The release's `release-manifest.json` records the full source commit corresponding to the short commit in the filename.
+1. Download the DMG and `SHA256SUMS` from the [2.3.3 release](https://github.com/foxion37/kissmark-releases/releases/tag/v2.3.3). The release's `release-manifest.json` records the full source commit corresponding to the short commit in the filename.
 2. Run the command below in the download directory to verify the DMG. Continue only when it reports `OK`. If you also downloaded the source ZIP, the same command checks it too.
 3. Save edits and quit the existing Kissmark app. Open the DMG and copy `Kissmark.app` to Applications. Replace only the existing app; documents and settings do not need to be reset.
 4. Launch Kissmark from Applications. Settings → General lets you choose Korean/English and an English font. Language and English-font changes take effect on the next launch.

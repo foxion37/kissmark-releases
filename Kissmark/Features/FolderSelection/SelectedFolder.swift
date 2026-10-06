@@ -76,7 +76,7 @@ struct SelectedFolder: Equatable {
         FolderAccess(url: url)
     }
 
-    private static var creationOptions: URL.BookmarkCreationOptions {
+    fileprivate static var creationOptions: URL.BookmarkCreationOptions {
         #if os(macOS)
         [.withSecurityScope]
         #else
@@ -127,8 +127,8 @@ enum FolderBookmarkKind: Hashable {
     }
 }
 
-/// Bookmark persistence for every Folder kind. Stale data clears itself;
-/// unresolvable data (unmounted disk, stopped File Provider) is kept.
+/// Bookmark persistence for every Folder kind. Stale data is re-persisted fresh on
+/// load; unresolvable data (unmounted disk, stopped File Provider) is kept.
 struct FolderBookmarks {
     private let defaults: UserDefaults
 
@@ -155,12 +155,35 @@ struct FolderBookmarks {
                 bookmarkDataIsStale: &stale
             )
             guard !stale else {
-                remove(kind)
-                return nil
+                // A stale bookmark still resolves (File Provider materialization and
+                // renames mark it so). Keep the Folder and re-persist fresh data;
+                // dropping it would silently switch the next launch to a fallback.
+                if let fresh = Self.refreshedBookmarkData(for: url) {
+                    defaults.set(fresh, forKey: kind.key)
+                    return SelectedFolder(url: url, bookmarkData: fresh)
+                }
+                return SelectedFolder(url: url, bookmarkData: data)
             }
             return SelectedFolder(url: url, bookmarkData: data)
         } catch {
             return nil
         }
+    }
+
+    /// Fresh bookmark data for a resolved (stale) URL; nil when new data cannot be made.
+    private static func refreshedBookmarkData(for url: URL) -> Data? {
+        let didStart = url.startAccessingSecurityScopedResource()
+        defer { if didStart { url.stopAccessingSecurityScopedResource() } }
+        let scoped = try? url.bookmarkData(
+            options: SelectedFolder.creationOptions,
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil
+        )
+        if let scoped { return scoped }
+        return try? url.bookmarkData(
+            options: [],
+            includingResourceValuesForKeys: nil,
+            relativeTo: nil
+        )
     }
 }

@@ -157,8 +157,7 @@ enum KissmarkTextLint {
 /// the selected theme adapts its palette to it, and every tab's Form background,
 /// text, and accent follow. 시스템 keeps the native Settings look. iOS inherits
 /// all of it from the presenter.
-struct KissmarkSettingsView: View {
-    #if os(macOS)
+struct KissmarkSettingsView: View {    #if os(macOS)
     @AppStorage(KissmarkAppearance.storageKey) private var appearanceID = KissmarkAppearance.system.rawValue
     @AppStorage(DocumentTheme.storageKey) private var themeID = DocumentTheme.system.rawValue
     @AppStorage(ThemeAccentOverrides.storageKey) private var accentJSON = ""
@@ -243,12 +242,13 @@ struct KissmarkSettingsView: View {
     #if os(macOS)
     /// A theme paints each tab's Form: the grouped scroll background is hidden
     /// over the palette background and text takes the palette color. 시스템 leaves
-    /// the Form untouched.
+    /// the Form untouched. The app adds no width cap of its own: the grouped Form
+    /// follows the window (the system style centers a readable column), so the
+    /// row washes and scrollbar never stop short of the margins.
     private func themedTab<Content: View>(_ content: Content) -> some View {
         content
             .scrollContentBackground(palette == nil ? .automatic : .hidden)
             .foregroundStyle(palette.map { AnyShapeStyle($0.chromePrimary) } ?? AnyShapeStyle(.primary))
-            .frame(maxWidth: KissmarkMetrics.settingsContentMaxWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(palette?.chromeBackground ?? .clear)
     }
@@ -260,7 +260,6 @@ struct KissmarkSettingsView: View {
 struct KissmarkGeneralSettingsView: View {
     @AppStorage(KissmarkTextLint.storageKey) private var isTextLintEnabled = true
     @State private var language = KissmarkLanguage.preference(in: .standard, domain: Bundle.main.bundleIdentifier ?? "")
-    @AppStorage(KissmarkEnglishFont.storageKey) private var englishFontID = KissmarkEnglishFont.system.rawValue
     @State private var inboxPath: String = ""
     @State private var archivePath: String = ""
     @State private var folderToConfigure: FolderBookmarkKind?
@@ -278,22 +277,10 @@ struct KissmarkGeneralSettingsView: View {
                     }
                 }
                 .accessibilityIdentifier("settings-language")
-                Picker("영문 글꼴", selection: $englishFontID) {
-                    ForEach(KissmarkEnglishFont.allCases) { font in
-                        Text(font.displayName).tag(font.rawValue)
-                    }
-                }
-                .accessibilityIdentifier("settings-english-font")
-                if KissmarkLocalization.languageCode == "en", KissmarkEnglishFont.active == .inter,
-                   !KissmarkType.interAvailable {
-                    Text("Inter 글꼴을 불러오지 못해 OS 기본 글꼴을 사용합니다.")
-                        .font(KissmarkType.caption)
-                        .foregroundStyle(.secondary)
-                }
             } header: {
                 Text("언어")
             } footer: {
-                Text("선택한 언어와 영문 글꼴은 앱을 다시 열면 적용됩니다.")
+                Text("선택한 언어는 앱을 다시 열면 적용됩니다. 글꼴은 디자인에서 고릅니다.")
             }
             #if os(iOS)
             Section {

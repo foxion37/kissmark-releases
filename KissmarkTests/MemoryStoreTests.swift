@@ -405,6 +405,36 @@ struct MemoryStoreTests {
         let row = try scalar("SELECT path, (SELECT opener FROM opens) FROM documents")
         #expect(row == [document.standardizedFileURL.resolvingSymlinksInPath().path, "agent"])
     }
+
+    @Test func textlessOpenReordersRecentsAndKeepsIndexedBody() throws {
+        let document = root.appendingPathComponent("노트.md")
+        try "본문".write(to: document, atomically: true, encoding: .utf8)
+        let other = root.appendingPathComponent("다른.md")
+        try "다른 본문".write(to: other, atomically: true, encoding: .utf8)
+        let store = makeStore()
+        store.recordOpen(url: document, text: "본문", at: Date(timeIntervalSince1970: 1))
+        store.recordOpen(url: other, text: "다른 본문", at: Date(timeIntervalSince1970: 2))
+
+        // A load failed after the open: the request still counts and moves to the top.
+        store.recordOpen(url: document, text: nil, at: Date(timeIntervalSince1970: 3))
+
+        // The earlier indexed body survives the textless re-open.
+        let bodies = try query("SELECT path, body FROM document_text")
+        let noteBody = bodies.first { ($0[0] ?? "").hasSuffix("노트.md") }?[1]
+        #expect(noteBody == "본문")
+        let row = try scalar("SELECT open_count FROM documents WHERE path LIKE '%노트.md'")
+        #expect(row == ["2"])
+        #expect(store.recentDocuments(limit: 8).map(\.title) == ["노트", "다른"])
+    }
+
+    @Test func textlessFirstOpenRecordsDocumentWithoutIndexedBody() throws {
+        let document = root.appendingPathComponent("구름.md")
+        try "# 구름\n".write(to: document, atomically: true, encoding: .utf8)
+        makeStore().recordOpen(url: document, text: nil)
+        let row = try scalar("SELECT (SELECT count(*) FROM document_text), open_count FROM documents")
+        #expect(row == ["0", "1"])
+        #expect(makeStore().recentDocuments(limit: 8).map(\.title) == ["구름"])
+    }
 }
 
 private enum SQLiteCheck {
