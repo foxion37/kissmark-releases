@@ -58,7 +58,33 @@ struct AgentConnectionsSettingsView: View {
                 }
             }
             Section {
-                DisclosureGroup(isExpanded: $diagnosticsExpanded) {
+                // 공개 행: 진단 라벨이 왼쪽, 꺽쇠는 오른쪽 끝에서 아래로 회전한다.
+                // macOS 26의 DisclosureGroup 라벨은 본문보다 작게 렌더링되므로
+                // 라벨 폰트를 행과 같은 본문으로 명시한다.
+                Button {
+                    withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
+                        diagnosticsExpanded.toggle()
+                    }
+                } label: {
+                    HStack {
+                        Text("진단")
+                            .font(KissmarkType.font(.body, weight: .medium))
+                        Spacer(minLength: 0)
+                        KissmarkLucideImage(
+                            icon: .chevronRight,
+                            pointSize: KissmarkMetrics.disclosureGlyphSize
+                        )
+                        .foregroundStyle(.secondary)
+                        .rotationEffect(.degrees(diagnosticsExpanded ? 90 : 0))
+                        .animation(KissmarkMotion.snappy(reduceMotion: reduceMotion), value: diagnosticsExpanded)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityValue(Text(diagnosticsExpanded ? "expanded" : "collapsed"))
+                .accessibilityIdentifier("settings-connections-diagnostics")
+
+                if diagnosticsExpanded {
                     VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
                         LabeledContent("연결 검색 기능", value: model.serviceAvailable ? String.kissmarkLocalized("응답 확인됨") : String.kissmarkLocalized("확인 필요"))
                         if let message = model.message { Text(message).font(KissmarkType.caption).foregroundStyle(.secondary) }
@@ -71,10 +97,8 @@ struct AgentConnectionsSettingsView: View {
                             .accessibilityIdentifier("settings-connections-diagnostics-search")
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                } label: {
-                    Text("진단").accessibilityAction { diagnosticsExpanded.toggle() }
+                    .transition(.opacity)
                 }
-                .accessibilityIdentifier("settings-connections-diagnostics")
             }
         }
         .formStyle(.grouped)
