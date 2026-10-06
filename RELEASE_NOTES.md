@@ -1,3 +1,44 @@
+# Kissmark 2.3.8 (24)
+
+## 한국어
+
+본문 글자 크기 체계를 다시 잡고, 설정 헤더와 폴더 버튼 모양을 다듬습니다.
+
+### 수정 사항
+
+- 글자 크기 다섯 단계를 12/13/14/18/21px로 다시 정했습니다. 중간(기본)은 이전 기본보다 4px 작아지고, 크게는 이전 기본 크기(18px), 아주 크게는 이전 크기(21px)입니다. 24px 단계는 사라졌습니다.
+- 문서 정보와 검토 카드의 글자 크기를 본문과 같게 통일했습니다. 이전에는 본문의 80%로 표시됐습니다. Frontmatter 박스는 종전처럼 한 단계 작게 유지합니다.
+- 헤더의 폴더 버튼을 알약 모양으로 바꿨습니다(유리 채움과 테두리 모두).
+- 설정 헤더 박스도 알약 모양으로 바꾸고, 섹션 항목은 왼쪽에, 닫기·초기화·저장 세 버튼을 오른쪽 끝에 배치했습니다. 초기화는 한 번 되물은 뒤 화면 모드·테마·글자 크기·간격·언어·글꼴 등 설정을 기본값으로 되돌립니다(폴더·문서·검토 기록은 그대로).
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Re-cuts the body text size ladder and refines the settings header and folder button shapes.
+
+### Fixes
+
+- The five body sizes are now 12/13/14/18/21px at the wide viewport: 중간 (기본) drops 4px from the old 18px default, 크게 takes the old default's 18px, 아주 크게 takes the old 크게's 21px, and the 24px step is gone.
+- The 문서 정보 and 검토 cards render at the body size instead of 80% of it. The Frontmatter box keeps its smaller metadata step.
+- The header folder button is a full capsule (glass fill and outline).
+- The settings header box is a capsule too, with section labels on the left and 닫기 · 초기화 · 저장 on the trailing end. 초기화 asks once and resets the settings keys — appearance, theme, text size, spacing, language, fonts and update checks — never folders, documents or review history.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.7 (23)
 
 ## 한국어
