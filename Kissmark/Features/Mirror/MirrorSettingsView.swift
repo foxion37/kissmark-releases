@@ -40,7 +40,7 @@ struct MirrorSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("미러")
+        .kissmarkSettingsNavigationTitle("미러")
         .fileImporter(
             isPresented: $isPickerPresented,
             allowedContentTypes: [.folder],

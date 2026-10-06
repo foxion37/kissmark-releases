@@ -101,7 +101,7 @@ struct DesignSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("디자인")
+        .kissmarkSettingsNavigationTitle("디자인")
         .onAppear { editingScheme = colorScheme }
     }
 

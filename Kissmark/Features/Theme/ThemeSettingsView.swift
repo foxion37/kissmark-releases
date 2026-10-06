@@ -104,7 +104,7 @@ struct ThemeSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("테마")
+        .kissmarkSettingsNavigationTitle("테마")
     }
 
     private func themeRow(_ candidate: DocumentTheme, accent: String?) -> some View {

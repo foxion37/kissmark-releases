@@ -149,6 +149,23 @@ enum KissmarkTextLint {
     static let storageKey = "kissmark.textLint"
 }
 
+#if os(macOS)
+extension View {
+    /// macOS 설정 창의 제목은 탭과 무관하게 "설정"으로 유지한다. 탭마다
+    /// navigationTitle이 바뀌면 창 제목이 함께 바뀌고, macOS 26 글래스 헤더가
+    /// 제목 교체마다 다시 배치되어 탭 바가 흔들린다. iOS는 탭이 내비게이션
+    /// 행이라 제목이 필요하다.
+    @ViewBuilder
+    func kissmarkSettingsNavigationTitle(_ title: LocalizedStringKey) -> some View {
+        #if os(iOS)
+        self.navigationTitle(title)
+        #else
+        self
+        #endif
+    }
+}
+#endif
+
 /// Settings root. macOS has resizable tabs, including local agent connections.
 /// iOS uses navigation rows for the shared sections (ADR 0021).
 ///
@@ -365,7 +382,7 @@ struct KissmarkGeneralSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("설정")
+        .kissmarkSettingsNavigationTitle("설정")
         .onAppear { reloadPaths() }
         .onChange(of: language) { _, selected in selected.store(in: .standard) }
         .fileImporter(
