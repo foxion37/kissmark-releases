@@ -118,15 +118,9 @@ struct KissmarkFolderControl: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .frame(height: KissmarkMetrics.folderControlHeight)
         .contentShape(Rectangle())
-        .kissmarkGlass(in: RoundedRectangle(
-            cornerRadius: KissmarkMetrics.folderControlRadius,
-            style: .continuous
-        ))
+        .kissmarkGlass(in: Capsule())
         .overlay {
-            RoundedRectangle(
-                cornerRadius: KissmarkMetrics.folderControlRadius,
-                style: .continuous
-            )
+            Capsule()
             .strokeBorder(
                 Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
                 lineWidth: KissmarkMetrics.iconButtonOutlineWidth

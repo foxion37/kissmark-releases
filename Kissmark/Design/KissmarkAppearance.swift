@@ -115,11 +115,11 @@ enum KissmarkTextSize: String, CaseIterable, Identifiable {
     /// `--km-font-size` and the derived heading tokens follow it.
     var scale: Double {
         switch self {
-        case .xSmall: return 13.0 / 18.0
-        case .small: return 15.0 / 18.0
-        case .medium: return 1.0
-        case .large: return 21.0 / 18.0
-        case .xLarge: return 24.0 / 18.0
+        case .xSmall: return 12.0 / 18.0
+        case .small: return 13.0 / 18.0
+        case .medium: return 14.0 / 18.0
+        case .large: return 1.0
+        case .xLarge: return 21.0 / 18.0
         }
     }
 }
@@ -147,6 +147,31 @@ enum KissmarkTextAlignment: String, CaseIterable, Identifiable {
 /// 텍스트 정리 (Text Lint) toggle. When off, the 편집 메뉴 command no-ops (ADR 0025).
 enum KissmarkTextLint {
     static let storageKey = "kissmark.textLint"
+}
+
+/// 설정 › 헤더의 초기화가 되돌리는 키들. 폴더·미러·검토 기록 같은
+/// 사용자 데이터는 설정이 아니므로 건드리지 않는다.
+@MainActor
+enum SettingsReset {
+    static let keys = [
+        KissmarkAppearance.storageKey,
+        DocumentTheme.storageKey,
+        ThemeAccentOverrides.storageKey,
+        KissmarkTextSize.storageKey,
+        KissmarkTextAlignment.storageKey,
+        DesignOverrides.storageKey,
+        KissmarkTextLint.storageKey,
+        KissmarkEnglishFont.storageKey,
+        "kissmark-updates-enabled",
+    ]
+
+    static func resetAll(defaults: UserDefaults = .standard) {
+        for key in keys {
+            defaults.removeObject(forKey: key)
+        }
+        // 앱 언어도 시스템 설정을 따르도록 되돌린다.
+        defaults.removeObject(forKey: "AppleLanguages")
+    }
 }
 
 #if os(macOS)
@@ -206,8 +231,11 @@ nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
 /// all of it from the presenter.
 struct KissmarkSettingsView: View {
     @State private var selection = SettingsSection.general
+    @State private var saved = false
+    @State private var isResetConfirmationPresented = false
     @Namespace private var headerSelection
     #if os(macOS)
+    @Environment(\.dismiss) private var dismiss
     @AppStorage(KissmarkAppearance.storageKey) private var appearanceID = KissmarkAppearance.system.rawValue
     @AppStorage(DocumentTheme.storageKey) private var themeID = DocumentTheme.system.rawValue
     @AppStorage(ThemeAccentOverrides.storageKey) private var accentJSON = ""
@@ -288,6 +316,18 @@ struct KissmarkSettingsView: View {
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: themeID)
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: accentHex)
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: appearanceID)
+        .confirmationDialog(
+            String.kissmarkLocalized("모든 설정을 기본값으로 되돌릴까요?"),
+            isPresented: $isResetConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button(String.kissmarkLocalized("기본값으로 되돌리기"), role: .destructive) {
+                SettingsReset.resetAll()
+            }
+            Button(String.kissmarkLocalized("취소"), role: .cancel) {}
+        } message: {
+            Text("화면 모드, 테마, 글자 크기, 간격, 언어, 글꼴 등 설정이 기본값으로 돌아갑니다. 폴더·문서·검토 기록은 그대로입니다. 언어와 글꼴은 앱을 다시 열면 적용됩니다.")
+        }
         #else
         KissmarkGeneralSettingsView()
         #endif
@@ -302,10 +342,25 @@ struct KissmarkSettingsView: View {
             ForEach(SettingsSection.allCases) { section in
                 headerLabel(section)
             }
+
+            Spacer(minLength: KissmarkMetrics.settingsHeaderLabelPad)
+
+            headerAction("닫기", identifier: "settings-header-close") {
+                dismiss()
+            }
+            headerAction("초기화", identifier: "settings-header-reset") {
+                isResetConfirmationPresented = true
+            }
+            headerAction(saved ? "저장됨" : "저장", identifier: "settings-header-save") {
+                saveSettings()
+            }
+            .disabled(saved)
         }
-        .padding(KissmarkMetrics.settingsHeaderInset)
+        .padding(.leading, KissmarkMetrics.settingsHeaderInset)
+        .padding(.trailing, KissmarkMetrics.settingsRowGap)
+        .padding(.vertical, KissmarkMetrics.settingsHeaderInset)
         .overlay {
-            RoundedRectangle(cornerRadius: KissmarkMetrics.folderControlRadius, style: .continuous)
+            Capsule()
                 .strokeBorder(
                     Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
                     lineWidth: KissmarkMetrics.iconButtonOutlineWidth
@@ -314,6 +369,24 @@ struct KissmarkSettingsView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
         .padding(.horizontal, KissmarkMetrics.settingsHeaderBlockPad)
+    }
+
+    /// 헤더 우측의 작은 동작 버튼. 라벨과 같은 본문 크기, 조용한 색.
+    private func headerAction(
+        _ title: LocalizedStringKey,
+        identifier: String,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(KissmarkType.font(.body))
+                .foregroundStyle(palette?.chromeMuted ?? Color.secondary)
+                .padding(.horizontal, KissmarkMetrics.settingsHeaderInset)
+                .padding(.vertical, KissmarkMetrics.settingsHeaderInset)
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier(identifier)
     }
 
     private func headerLabel(_ section: SettingsSection) -> some View {
@@ -344,6 +417,16 @@ struct KissmarkSettingsView: View {
         .buttonStyle(.plain)
         .accessibilityAddTraits(selection == section ? [.isSelected] : [])
         .accessibilityIdentifier("settings-section-\(String(describing: section).lowercased())")
+    }
+
+    /// 설정은 바뀔 때마다 저장되므로 저장은 확인 동작이다. 잠깐 저장됨으로
+    /// 바꿔 눌렀음을 알려준다 (설치 시트의 복사됨 패턴과 같다).
+    private func saveSettings() {
+        saved = true
+        Task { @MainActor in
+            try? await Task.sleep(for: .seconds(1.2))
+            saved = false
+        }
     }
 
     /// A theme paints each pane's Form: the grouped scroll background is hidden

@@ -111,7 +111,10 @@ struct WindowSizeTests {
         defaults.set(#"{"spacing":{"measureCh":40},"elements":{}}"#, forKey: DesignOverrides.storageKey)
         let narrow = KissmarkWindowChrome.launchContentSize(defaults: defaults, visibleFrame: roomy).width
 
-        #expect(abs((wide - base) - (120 * KissmarkMetrics.documentMeasureChWidth - KissmarkMetrics.defaultDocumentMeasure)) < 0.01)
+        // 글자 크기 중간이 더 이상 스케일 1.0이 아니므로 기대 delta에도 스케일이 곱해진다.
+        let expectedDelta = (120 * KissmarkMetrics.documentMeasureChWidth - KissmarkMetrics.defaultDocumentMeasure)
+            * KissmarkTextSize.medium.scale
+        #expect(abs((wide - base) - expectedDelta) < 0.01)
         #expect(narrow < base)
     }
     #endif
