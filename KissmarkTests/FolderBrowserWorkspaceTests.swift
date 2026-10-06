@@ -853,6 +853,56 @@ struct FolderBrowserWorkspaceTests {
         workspace.stop()
     }
 
+    @Test("An open whose load fails still takes the top of the recents list")
+    func failedOpenRecordsRecent() throws {
+        let root = try makeFolder()
+        let memoryDirectory = try makeFolder()
+        defer { [root, memoryDirectory].forEach { try? FileManager.default.removeItem(at: $0) } }
+        // The file exists, but its bytes are not valid UTF-8, so the load throws.
+        let unreadable = root.appendingPathComponent("깨진.md")
+        try Data([0xFF, 0xFE, 0x00, 0x81]).write(to: unreadable)
+        let workspace = FolderBrowserWorkspace(
+            folder: SelectedFolder(url: root, bookmarkData: Data()),
+            memory: MemoryStore(directory: memoryDirectory)
+        )
+        workspace.start()
+        defer { workspace.stop() }
+
+        workspace.selectDocument(unreadable)
+
+        #expect(workspace.errorMessage != nil)
+        #expect(workspace.session == nil)
+        #expect(workspace.recentDocuments.map(\.title) == ["깨진"])
+    }
+
+    @Test("Recents stay global when the browsed Folder is replaced")
+    func recentsSurviveWorkspaceReplacement() throws {
+        let rootA = try makeFolder()
+        let rootB = try makeFolder()
+        let memoryDirectory = try makeFolder()
+        defer { [rootA, rootB, memoryDirectory].forEach { try? FileManager.default.removeItem(at: $0) } }
+        let documentA = rootA.appendingPathComponent("에이.md")
+        try "# A".write(to: documentA, atomically: true, encoding: .utf8)
+        let memory = MemoryStore(directory: memoryDirectory)
+
+        let workspaceA = FolderBrowserWorkspace(
+            folder: SelectedFolder(url: rootA, bookmarkData: Data()),
+            memory: memory
+        )
+        workspaceA.start()
+        workspaceA.selectDocument(documentA)
+        workspaceA.stop()
+
+        // The user picks another Folder; a new workspace replaces the old one.
+        let workspaceB = FolderBrowserWorkspace(
+            folder: SelectedFolder(url: rootB, bookmarkData: Data()),
+            memory: memory
+        )
+        workspaceB.start()
+        defer { workspaceB.stop() }
+        #expect(workspaceB.recentDocuments.map(\.title) == ["에이"])
+    }
+
     private func makeFolder() throws -> URL {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent(UUID().uuidString, isDirectory: true)

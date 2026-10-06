@@ -63,22 +63,24 @@ nonisolated struct FolderSelectionError: Equatable {
 }
 
 /// A picked Markdown Document whose parent Folder has no grant yet. The view shows a
-/// folder-only picker pre-set to the parent directory, once per pick; the answer comes
-/// back through `FolderSelectionModel.handleGrant`.
+/// folder-only picker pre-set to the parent on macOS, once per pick; the answer comes
+/// back through `FolderSelectionModel.handleGrant`. Each request carries a fresh id so
+/// a repeated ask for the same Document is a real change again and the presenter can
+/// re-show the panel after one that never surfaced.
 nonisolated enum FolderGrantRequest: Equatable {
-    case parent(parent: URL, document: URL)
+    case parent(parent: URL, document: URL, id: UUID)
 
     /// Directory the picker opens at.
     var directory: URL {
         switch self {
-        case .parent(let parent, _): parent
+        case .parent(let parent, _, _): parent
         }
     }
 
     /// The Document that stays open whichever way the prompt resolves.
     var document: URL {
         switch self {
-        case .parent(_, let document): document
+        case .parent(_, let document, _): document
         }
     }
 }
@@ -150,7 +152,7 @@ final class FolderSelectionModel {
     func requestParentGrant() {
         guard let folder = selectedFolder, folder.isSingleFile else { return }
         let document = folder.url
-        pendingGrant = .parent(parent: document.deletingLastPathComponent(), document: document)
+        pendingGrant = .parent(parent: document.deletingLastPathComponent(), document: document, id: UUID())
     }
 
     func cancelPendingGrant() {
@@ -240,7 +242,9 @@ final class FolderSelectionModel {
         do {
             selectedFolder = try SelectedFolder.make(fromPicked: document, isSingleFile: true)
             pendingDocumentURL = document
-            pendingGrant = requestsParentGrant ? .parent(parent: parent, document: document) : nil
+            pendingGrant = requestsParentGrant
+                ? .parent(parent: parent, document: document, id: UUID())
+                : nil
             error = nil
         } catch {
             self.error = .documentFailure

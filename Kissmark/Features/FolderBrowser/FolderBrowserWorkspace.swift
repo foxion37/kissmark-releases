@@ -213,13 +213,25 @@ final class FolderBrowserWorkspace {
             session = nil
             selectedDocumentURL = nil
             errorMessage = String.kissmarkLocalized("iCloud에서 문서를 내려받는 중입니다.")
+            recordFailedOpen(url)
         } catch {
             session = nil
             selectedDocumentURL = nil
             errorMessage = String.kissmarkLocalized("이 문서를 열 수 없습니다.")
+            recordFailedOpen(url)
         }
         syncTitleDraft()
         refreshReview()
+    }
+
+    /// An open request whose load failed (not-yet-downloaded iCloud copy, unreadable
+    /// bytes) still counts as an open: the agent or the user asked for this file, so it
+    /// stays at the top of the recents list and can be retried from there after the
+    /// workspace is replaced.
+    private func recordFailedOpen(_ url: URL) {
+        guard FileManager.default.fileExists(atPath: url.path) else { return }
+        memory?.recordOpen(url: url, text: nil)
+        refreshRecents()
     }
 
     /// ⌘R gate: the window is about to be rebuilt from disk. Unsaved edits win: a dirty
