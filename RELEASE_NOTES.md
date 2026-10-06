@@ -1,3 +1,41 @@
+# Kissmark 2.3.4 (20)
+
+## 한국어
+
+설정 창의 디자인 문제를 고칩니다.
+
+### 수정 사항
+
+- 설정 창 위 탭 메뉴를 누를 때마다 헤더가 흔들리던 문제를 고쳤습니다. 탭마다 창 제목이 따로 바뀌던 것이 원인이었고, 이제 설정 창 제목은 어떤 탭에서도 설정으로 유지됩니다.
+- 연결 탭의 행이 다른 탭과 다른 선택 표시를 함께 그리던 문제를 고쳤습니다. 디자인 탭과 같은 공개 행 구성으로 돌렸습니다.
+- 연결 검색 창이 다른 설정 화면과 다른 여백과 행 구성을 쓰던 문제를 고쳤습니다. CLI 설치 창과 같은 grouped Form 스타일로 바꿨습니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Fixes design problems in the Settings window.
+
+### Fixes
+
+- The header no longer wobbles each time a settings tab is clicked. Every tab used to swap the window title, which re-laid out the macOS 26 glass header; the Settings window title now stays 설정 on every tab.
+- The rows in the 연결 tab drew a second, custom selection state next to the system disclosure treatment; they are plain disclosure rows like the 디자인 tab again.
+- The 연결 검색 sheet used different margins and row construction from every other pane; it is a grouped Form now, matching the CLI 설치 sheet.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
 # Kissmark 2.3.3 (19)
 
 ## 한국어

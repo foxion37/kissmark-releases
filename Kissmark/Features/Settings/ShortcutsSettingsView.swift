@@ -40,7 +40,7 @@ struct ShortcutsSettingsView: View {
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("단축키")
+        .kissmarkSettingsNavigationTitle("단축키")
     }
 
     private func shortcutRow(_ action: LocalizedStringKey, _ keys: String) -> some View {
