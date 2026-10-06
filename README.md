@@ -81,6 +81,14 @@ bash mcp/check.sh
 swift scripts/check-list-alignment.swift
 ```
 
+같은 문서의 MCP 검토 갱신은 패키징된 Release 앱으로 검사합니다. 아래 검사는 별도 식별자의 앱 복사본과 저장소를 사용하며, 기존 설치본과 사용자 기록을 변경하지 않습니다.
+
+Check same-document MCP review updates using a packaged Release app. This check uses an isolated app copy and store without changing the existing installation or user history.
+
+```sh
+swift mcp/check-review-refresh.swift /Applications/Kissmark.app
+```
+
 `_editor-build/`의 JavaScript를 수정하거나 에디터 테스트를 실행하려면 잠금 파일에 맞는 의존성을 먼저 설치합니다.
 
 To modify `_editor-build/` JavaScript or run editor tests, install the locked dependencies first.

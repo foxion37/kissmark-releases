@@ -4,7 +4,7 @@ import Testing
 
 @MainActor
 struct FolderBrowserWorkspaceTests {
-    @Test("Re-showing a Document exposes queued agent points and lets the user check them")
+    @Test("Re-showing a Document exposes queued points without losing local edits or edit mode")
     func reshownDocumentRefreshesAgentReviewPoints() throws {
         let root = try makeFolder()
         defer { try? FileManager.default.removeItem(at: root) }
@@ -20,6 +20,10 @@ struct FolderBrowserWorkspaceTests {
         defer { workspace.stop() }
         workspace.selectDocument(document)
         #expect(workspace.review?.points.map(\.source) == ["rule"])
+        workspace.toggleDocumentMode()
+        let session = try #require(workspace.session)
+        let editedText = session.text + "\n\n아직 저장하지 않은 변경입니다."
+        session.text = editedText
 
         let entry: [String: Any] = [
             "version": 1,
@@ -33,6 +37,10 @@ struct FolderBrowserWorkspaceTests {
             to: storeDirectory.appendingPathComponent("queue/agent.json")
         )
         workspace.selectDocument(document, recordsOpen: true)
+        #expect(workspace.session === session)
+        #expect(workspace.session?.mode == .edit)
+        #expect(workspace.session?.text == editedText)
+        #expect(try String(contentsOf: document, encoding: .utf8) == "## 경고\n확인이 필요한 문장입니다.")
 
         let point = try #require(workspace.review?.points.first)
         #expect(point.source == "agent")

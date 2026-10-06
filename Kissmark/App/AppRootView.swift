@@ -182,7 +182,6 @@ struct AppRootView: View {
                 // re-roots the tree at the Document's parent. ⌘R bumps the generation,
                 // which rebuilds the whole browser from disk.
                 .id("\(folder.rootURL.path)#\(model.reloadGeneration)")
-                .onAppear { _ = model.consumePendingDocument() }
         } else {
             KissmarkEmptyState(
                 icon: .folderOpen,
