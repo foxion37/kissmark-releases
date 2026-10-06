@@ -37,6 +37,7 @@ struct AgentConnectionsSettingsView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .kissmarkSettingsRowInsets()
             ForEach(model.rows) { key in
                 Section {
                     DisclosureGroup(isExpanded: expansionBinding(key)) {
@@ -57,6 +58,7 @@ struct AgentConnectionsSettingsView: View {
                     .accessibilityIdentifier("settings-connection-row-\(key.id)")
                 }
             }
+            .kissmarkSettingsRowInsets()
             Section {
                 // 공개 행: 진단 라벨이 왼쪽, 꺽쇠는 오른쪽 끝에서 아래로 회전한다.
                 // macOS 26의 DisclosureGroup 라벨은 본문보다 작게 렌더링되므로
@@ -100,6 +102,7 @@ struct AgentConnectionsSettingsView: View {
                     .transition(.opacity)
                 }
             }
+            .kissmarkSettingsRowInsets()
         }
         .formStyle(.grouped)
         .font(KissmarkType.font(.body))

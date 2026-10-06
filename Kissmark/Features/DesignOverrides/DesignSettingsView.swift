@@ -40,6 +40,7 @@ struct DesignSettingsView: View {
             } footer: {
                 Text("글자 크기는 읽기와 편집 모두에 적용됩니다. 정렬은 문서 전체에 적용되고, 어절 단위로 줄이 바뀝니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 Picker("영문 글꼴", selection: $englishFontID) {
@@ -59,6 +60,7 @@ struct DesignSettingsView: View {
             } footer: {
                 Text("한글은 Pretendard, 코드는 Jetendard로 표시됩니다. 영문 글꼴 선택은 앱을 다시 열면 적용됩니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 ForEach(DesignOverrides.SpacingField.allCases) { field in spacingRow(field) }
@@ -74,6 +76,7 @@ struct DesignSettingsView: View {
             } footer: {
                 Text("바를 움직여 일정한 단위로 조절합니다. 다섯 표시는 참고 체크포인트이며 그 사이 값도 선택할 수 있습니다. 행간은 배수, 장폭은 ch, 나머지는 em입니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 Picker("색상 편집 대상", selection: $editingScheme) {
@@ -91,6 +94,7 @@ struct DesignSettingsView: View {
             } footer: {
                 Text("색은 라이트와 다크에 따로 저장됩니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 Button("모두 초기화", role: .destructive) {

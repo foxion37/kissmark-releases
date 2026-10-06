@@ -27,6 +27,7 @@ struct MirrorSettingsView: View {
             } footer: {
                 Text("문서를 잠그거나 닫거나 바꿀 때 선택한 폴더에 사본을 씁니다. 삭제는 따라가지 않습니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 Button("지금 모두 보내기") { sendAll() }
@@ -38,6 +39,7 @@ struct MirrorSettingsView: View {
             } footer: {
                 Text("현재 Folder의 모든 Markdown 문서를 미러 폴더에 다시 씁니다.")
             }
+            .kissmarkSettingsRowInsets()
         }
         .formStyle(.grouped)
         .kissmarkSettingsNavigationTitle("미러")
