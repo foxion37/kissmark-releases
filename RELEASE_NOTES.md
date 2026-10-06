@@ -1,3 +1,39 @@
+# Kissmark 2.3.5 (21)
+
+## 한국어
+
+연결 탭의 진단 공개 행을 고칩니다.
+
+### 수정 사항
+
+- 진단 행의 꺽쇠가 라벨 왼쪽에 있던 것을 오른쪽 끝으로 옮겼습니다. 펼칠 때 꺽쇠가 아래로 회전합니다.
+- 진단을 펼쳤을 때 아래 내용 글자가 진단 라벨보다 커 보이던 문제를 고쳤습니다. 라벨을 본문 크기로 명시해 내용과 같은 위계를 가집니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Fixes the diagnostics disclosure row in the 연결 tab.
+
+### Fixes
+
+- The diagnostics row's chevron sat left of the label; it is on the trailing edge now and rotates downward when expanded.
+- Expanding 진단 showed body text larger than the label itself; the label is explicitly body-sized, so it holds the same hierarchy as the rows it reveals.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
 # Kissmark 2.3.4 (20)
 
 ## 한국어
