@@ -1,3 +1,83 @@
+# Kissmark 2.3.7 (23)
+
+## 한국어
+
+설정 창 헤더의 잔움직임을 없애고 행 여백을 넓힙니다.
+
+### 수정 사항
+
+- 설정 헤더를 고정된 박스와 텍스트로 바꾸고, 선택한 항목에만 글래스 캡슐이 부드럽게 이동합니다. 시스템 탭 캡슐의 선택 모핑(항목 폭이 달라 클릭마다 헤더가 흔들리던 것)을 대체합니다. 글래스모피즘은 그대로 유지합니다.
+- 설정 창이 처음 열릴 때 화면 전체 크기로 열리던 문제를 고쳤습니다. 680×600 기본 크기로 가운데 정렬해 다시 열립니다.
+- 설정의 모든 행(박스) 안쪽 여백을 넓혀 텍스트가 박스에 바짝 붙지 않습니다. 세로 12pt, 가로 16pt.
+- 일반 탭에서 텍스트 정리가 머리글과 항목으로 두 번 반복되던 것을 AI 슬롭 검사(머리글) / 슬롭 제거(항목)로 바꿨습니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Calms the Settings header and widens row padding.
+
+### Fixes
+
+- The settings header is now a static box of labels with a glass capsule that glides behind the selected section. This replaces the system tab capsule whose selection morph (labels of different widths) read as the whole header wobbling on every click. The glassmorphism stays.
+- A fresh settings window no longer opens at full screen; it opens centered at the 680×600 default.
+- Every settings row (box) applies shared inner insets — 12pt vertical, 16pt horizontal — so text no longer hugs the box edges.
+- 일반's duplicated 텍스트 정리 header/toggle become AI 슬롭 검사 (header) / 슬롭 제거 (item).
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
+# Kissmark 2.3.6 (22)
+
+## 한국어
+
+설정 창의 주기적인 버벅임을 없애고 여백을 넓힙니다.
+
+### 수정 사항
+
+- 연결 탭은 5초마다 검색 결과를 확인하는데, 내용이 바뀌지 않아도 화면 전체를 다시 그려 설정 창이 주기적으로 버벅였습니다. 이제 변화가 있을 때만 다시 그립니다.
+- 설정 행 사이 간격을 8→12pt로, 행 안 내용 블록 사이를 12→16pt로, 디자인 탭 슬라이더 행 안쪽을 4→8pt로 넓혔습니다.
+- 연결 탭 진단 행의 꺽쇠를 12pt에서 16pt로 키웠습니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Removes the periodic stutter in the Settings window and widens spacing.
+
+### Fixes
+
+- The connections pane polled discovery every 5 seconds and re-rendered the whole Form even when nothing changed; identical snapshots are skipped now.
+- Settings row gaps grow from 8 to 12pt, in-row content blocks from 12 to 16pt, and the design tab's slider rows from 4 to 8pt.
+- The diagnostics row chevron grows from 12 to 16pt.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.5 (21)
 
 ## 한국어

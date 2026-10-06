@@ -29,8 +29,20 @@ enum KissmarkMetrics {
     /// Vertical rhythm between content blocks inside one settings pane row.
     static let settingsContentGap = KissmarkSpacing.space16
     static let settingsSheetInset = KissmarkSpacing.space20
+    /// Inner padding of a grouped settings row (the box around its text).
+    static let settingsRowInsets = EdgeInsets(
+        top: KissmarkSpacing.space12,
+        leading: KissmarkSpacing.space16,
+        bottom: KissmarkSpacing.space12,
+        trailing: KissmarkSpacing.space16
+    )
     /// Chevron size of a settings pane's disclosure row (진단).
     static let settingsDisclosureGlyphSize: CGFloat = 16
+    /// Static settings header box paddings.
+    static let settingsHeaderInset = KissmarkSpacing.space4
+    static let settingsHeaderLabelPad = KissmarkSpacing.space16
+    static let settingsHeaderVerticalPad = KissmarkSpacing.space8
+    static let settingsHeaderBlockPad = KissmarkSpacing.space16
     static let iconButtonOutlineWidth: CGFloat = 1
     static let iconButtonOutlineOpacity: CGFloat = 0.35
     static let iconButtonHoverOpacity: CGFloat = 0.06
