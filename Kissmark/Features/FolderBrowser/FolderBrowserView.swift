@@ -54,6 +54,8 @@ struct FolderBrowserView: View {
             ))
             .onAppear {
                 workspace.start()
+                // This runs again when the browsed root replaces the workspace.
+                consumeDocumentRequest()
                 #if DEBUG
                 applyRenderedFixtureIfRequested()
                 #endif
