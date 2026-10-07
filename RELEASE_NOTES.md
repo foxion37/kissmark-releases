@@ -1,3 +1,38 @@
+# Kissmark 2.3.13 (29)
+
+## 한국어
+
+설정 섹션 머리글 색이 테마를 따라가게 합니다.
+
+### 수정 사항
+
+- 설정 섹션 머리글(본문, 글꼴, 간격 등)이 고정된 액센트 색 대신 선택한 테마의 포인트 색을 따릅니다. 시스템 테마에서는 시스템 액센트를 유지합니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+The settings section headers now follow the selected theme's accent.
+
+### Fixes
+
+- Settings section headers (본문, 글꼴, 간격…) use the chrome palette's accent instead of a fixed tint, so they recolor with the selected theme. 시스템 keeps the platform accent.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.12 (28)
 
 ## 한국어
