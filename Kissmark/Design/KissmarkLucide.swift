@@ -17,6 +17,8 @@ enum KissmarkLucide: String, CaseIterable, Identifiable {
     case chevronsUpDown = "chevrons-up-down"
     case code
     case copy
+    case rotateCcw = "rotate-ccw"
+    case check
     case bot
 
     var id: String { rawValue }
