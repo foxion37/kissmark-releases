@@ -51,7 +51,7 @@ struct ThemeSettingsView: View {
                 }
                 .accessibilityIdentifier("settings-appearance-picker")
             } header: {
-                Text("화면 모드")
+                KissmarkSettingsSectionHeader(title: "화면 모드")
             } footer: {
                 Text("화면 모드는 창과 문서 화면에 함께 적용됩니다.")
             }
@@ -72,7 +72,7 @@ struct ThemeSettingsView: View {
                 .accessibilityElement(children: .contain)
                 .accessibilityIdentifier("settings-theme-picker")
             } header: {
-                Text("화면 테마")
+                KissmarkSettingsSectionHeader(title: "화면 테마")
             } footer: {
                 Text("선택한 테마는 문서와 창, 사이드바, 설정 창에 적용됩니다. 모든 테마가 위의 화면 모드에 맞춰 라이트와 다크 색상으로 바뀝니다.")
             }
@@ -100,7 +100,7 @@ struct ThemeSettingsView: View {
                         .accessibilityIdentifier("settings-accent-reset")
                 }
             } header: {
-                Text("포인트 컬러")
+                KissmarkSettingsSectionHeader(title: "포인트 컬러")
             } footer: {
                 Text("현재 테마의 현재 화면 모드에만 저장합니다. 선택한 색을 그대로 사용하며 다른 테마와 다른 화면 모드의 색은 바꾸지 않습니다. 테마 색으로 되돌리면 이 설정만 초기화합니다.")
             }

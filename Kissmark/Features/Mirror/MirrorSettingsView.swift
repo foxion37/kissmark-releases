@@ -23,7 +23,7 @@ struct MirrorSettingsView: View {
                     row(target)
                 }
             } header: {
-                Text("미러")
+                KissmarkSettingsSectionHeader(title: "미러")
             } footer: {
                 Text("문서를 잠그거나 닫거나 바꿀 때 선택한 폴더에 사본을 씁니다. 삭제는 따라가지 않습니다.")
             }

@@ -18,22 +18,19 @@ struct AgentConnectionsSettingsView: View {
     var body: some View {
         Form {
             Section {
-                VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
-                    HStack(spacing: KissmarkMetrics.settingsRowGap) {
-                        Button("연결 검색") { searching = true }
-                            .accessibilityIdentifier("settings-connections-search")
-                        Button("CLI 설치…") { installing = true }
-                            .accessibilityIdentifier("settings-connections-cli-install")
-                        Spacer(minLength: 0)
+                // 안내 텍스트는 왼쪽, 동작 버튼은 같은 행 오른쪽 끝.
+                HStack(spacing: KissmarkMetrics.settingsRowGap) {
+                    VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
+                        Text("추가한 연결이 없습니다.").font(KissmarkType.font(.body, weight: .medium))
+                        Text("이 Mac에서 검색한 후보를 직접 추가하세요.")
+                            .font(KissmarkType.caption).foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
                     }
-                    if model.rows.isEmpty {
-                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
-                            Text("추가한 연결이 없습니다.").font(KissmarkType.font(.body, weight: .medium))
-                            Text("이 Mac에서 검색한 후보를 직접 추가하세요.")
-                                .font(KissmarkType.caption).foregroundStyle(.secondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                    }
+                    Spacer(minLength: 0)
+                    Button("연결 검색") { searching = true }
+                        .accessibilityIdentifier("settings-connections-search")
+                    Button("CLI 설치") { installing = true }
+                        .accessibilityIdentifier("settings-connections-cli-install")
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -88,15 +85,31 @@ struct AgentConnectionsSettingsView: View {
 
                 if diagnosticsExpanded {
                     VStack(alignment: .leading, spacing: KissmarkMetrics.settingsContentGap) {
-                        LabeledContent("연결 검색 기능", value: model.serviceAvailable ? String.kissmarkLocalized("응답 확인됨") : String.kissmarkLocalized("확인 필요"))
+                        // 상태는 뱃지로 라벨 옆에, 검색 동작은 행 오른쪽 끝에.
+                        HStack(spacing: KissmarkMetrics.settingsRowGap) {
+                            Text("연결 검색 기능")
+                            Text(model.serviceAvailable ? String.kissmarkLocalized("응답 확인됨") : String.kissmarkLocalized("확인 필요"))
+                                .font(KissmarkType.font(.caption, weight: .semibold))
+                                .foregroundStyle(model.serviceAvailable ? Color(nsColor: .systemGreen) : Color.secondary)
+                                .padding(.horizontal, KissmarkMetrics.settingsHeaderInset)
+                                .padding(.vertical, 3)
+                                .background(
+                                    Capsule().fill(
+                                        (model.serviceAvailable ? Color(nsColor: .systemGreen) : Color.secondary)
+                                            .opacity(0.15)
+                                    )
+                                )
+                                .accessibilityIdentifier("settings-connections-service-badge")
+                            Spacer(minLength: 0)
+                            Button("검색") { searching = true }
+                                .accessibilityIdentifier("settings-connections-diagnostics-search")
+                        }
                         if let message = model.message { Text(message).font(KissmarkType.caption).foregroundStyle(.secondary) }
                         if let snapshot = model.snapshot {
                             ForEach(snapshot.providers) { provider in
                                 LabeledContent(provider.client.title, value: providerText(provider))
                             }
                         }
-                        Button("검색") { searching = true }
-                            .accessibilityIdentifier("settings-connections-diagnostics-search")
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .transition(.opacity)
@@ -196,13 +209,13 @@ struct AgentConnectionsSettingsView: View {
                     }
                     if model.scanning { ProgressView().controlSize(.small) }
                     Spacer(minLength: 0)
-                    Button("CLI 설치…") { searching = false; installing = true }
+                    Button("CLI 설치") { searching = false; installing = true }
                 }
                 if let message = model.message {
                     Text(message).font(KissmarkType.caption).foregroundStyle(.secondary)
                 }
             } header: {
-                Text("연결 검색")
+                KissmarkSettingsSectionHeader(title: "연결 검색")
             } footer: {
                 Text("이 Mac만 검색합니다. 대화 내용이나 인증 정보를 수집하지 않으며, 추가는 설치 또는 연결 성공을 뜻하지 않습니다.")
             }
@@ -215,12 +228,12 @@ struct AgentConnectionsSettingsView: View {
                 }
                 candidateRows(model.candidates.filter { $0.instance != nil })
             } header: {
-                Text("실행 중이거나 로드된 후보")
+                KissmarkSettingsSectionHeader(title: "실행 중이거나 로드된 후보")
             }
             Section {
                 candidateRows(model.candidates.filter { $0.instance == nil })
             } header: {
-                Text("설치된 도구")
+                KissmarkSettingsSectionHeader(title: "설치된 도구")
             }
             if let snapshot = model.snapshot {
                 Section {
@@ -228,7 +241,7 @@ struct AgentConnectionsSettingsView: View {
                         LabeledContent(provider.client.title, value: providerText(provider))
                     }
                 } header: {
-                    Text("검색 범위")
+                    KissmarkSettingsSectionHeader(title: "검색 범위")
                 }
             }
         }
