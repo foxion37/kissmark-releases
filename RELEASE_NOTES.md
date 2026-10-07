@@ -1,3 +1,38 @@
+# Kissmark 2.3.9 (25)
+
+## 한국어
+
+헤더 폴더 버튼의 아이콘 대비를 높입니다.
+
+### 수정 사항
+
+- 헤더 폴더 버튼의 폴더 아이콘과 양쪽 꺽쇠가 흐린 회색으로 그려져 유리 채움 위에서 잘 보이지 않았습니다. 이제 라벨과 같은 잉크 색으로 그려집니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Raises the contrast of the header folder button's glyphs.
+
+### Fixes
+
+- The folder icon and the up-down switch chevron in the header folder button were drawn in a muted gray that vanished against the glass fill; they render in the label's ink now.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.8 (24)
 
 ## 한국어
