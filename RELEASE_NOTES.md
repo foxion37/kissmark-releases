@@ -1,3 +1,44 @@
+# Kissmark 2.3.11 (27)
+
+## 한국어
+
+연결 탭 배치를 다듬고 설정 섹션 머리글을 본문과 구분합니다.
+
+### 수정 사항
+
+- 진단의 상태(확인 필요 / 응답 확인됨)를 뱃지로 연결 검색 기능 옆에 표시하고, 검색 버튼을 같은 행 오른쪽 끝으로 옮겼습니다.
+- 연결 탭의 첫 행에서 안내 텍스트는 왼쪽, 연결 검색·CLI 설치 버튼은 오른쪽 끝에 나란히 배치했습니다. CLI 설치…의 줄임표를 뗐습니다.
+- 설정 섹션 머리글(본문, 글꼴, 간격 등)을 작고 굵은 포인트 색으로 바꿔 본문 텍스트와 구분됩니다.
+- 설정 행 박스의 안쪽 여백을 다시 넓혔습니다(세로 16pt, 가로 20pt).
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Refines the connections pane layout and distinguishes settings section headers.
+
+### Fixes
+
+- The diagnostics state (확인 필요 / 응답 확인됨) is a small badge next to the 연결 검색 기능 label, and 검색 moves to the row's trailing end.
+- The connections pane's first row puts the empty-state text on the left with 연결 검색 · CLI 설치 side by side on the right; CLI 설치… drops its ellipsis.
+- Settings section headers (본문, 글꼴, 간격…) render small, semibold and in the accent color so they read as labels, not body text.
+- Settings row boxes widen their inner insets again (16pt vertical, 20pt horizontal).
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.10 (26)
 
 ## 한국어
