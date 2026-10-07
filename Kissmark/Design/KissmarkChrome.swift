@@ -46,7 +46,9 @@ struct KissmarkFolderControl: View {
     }
 
     @Environment(\.chromePalette) private var chromePalette
-    private var mutedColor: Color { chromePalette?.chromeMuted ?? .secondary }
+    /// 폴더 아이콘과 스위치 꺽쇠는 라벨과 같은 잉크 색으로 그린다. 흐린
+    /// muted 색은 유리 채움 위에서 잘 보이지 않는다.
+    private var inkColor: Color { chromePalette?.chromePrimary ?? .primary }
 
     var body: some View {
         Group {
@@ -93,7 +95,7 @@ struct KissmarkFolderControl: View {
                 icon: .folderOpen,
                 pointSize: KissmarkMetrics.folderControlIconSize
             )
-            .foregroundStyle(mutedColor)
+            .foregroundStyle(inkColor)
 
             if isSingleFileWorkspace {
                 Text(actionTitle)
@@ -112,7 +114,7 @@ struct KissmarkFolderControl: View {
                 icon: .chevronsUpDown,
                 pointSize: KissmarkMetrics.folderControlSwitchIconSize
             )
-            .foregroundStyle(mutedColor)
+            .foregroundStyle(inkColor)
         }
         .padding(.horizontal, KissmarkMetrics.folderControlInlineInset)
         .frame(maxWidth: .infinity, alignment: .leading)
