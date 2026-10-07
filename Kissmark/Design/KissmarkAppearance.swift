@@ -162,31 +162,6 @@ struct KissmarkSettingsSectionHeader: View {
     }
 }
 
-/// 설정 › 헤더의 초기화가 되돌리는 키들. 폴더·미러·검토 기록 같은
-/// 사용자 데이터는 설정이 아니므로 건드리지 않는다.
-@MainActor
-enum SettingsReset {
-    static let keys = [
-        KissmarkAppearance.storageKey,
-        DocumentTheme.storageKey,
-        ThemeAccentOverrides.storageKey,
-        KissmarkTextSize.storageKey,
-        KissmarkTextAlignment.storageKey,
-        DesignOverrides.storageKey,
-        KissmarkTextLint.storageKey,
-        KissmarkEnglishFont.storageKey,
-        "kissmark-updates-enabled",
-    ]
-
-    static func resetAll(defaults: UserDefaults = .standard) {
-        for key in keys {
-            defaults.removeObject(forKey: key)
-        }
-        // 앱 언어도 시스템 설정을 따르도록 되돌린다.
-        defaults.removeObject(forKey: "AppleLanguages")
-    }
-}
-
 #if os(macOS)
 extension View {
     /// macOS 설정 창의 제목은 탭과 무관하게 "설정"으로 유지한다. 탭마다
@@ -244,8 +219,6 @@ nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
 /// all of it from the presenter.
 struct KissmarkSettingsView: View {
     @State private var selection = SettingsSection.general
-    @State private var saved = false
-    @State private var isResetConfirmationPresented = false
     @Namespace private var headerSelection
     #if os(macOS)
     @Environment(\.dismiss) private var dismiss
@@ -329,18 +302,6 @@ struct KissmarkSettingsView: View {
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: themeID)
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: accentHex)
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: appearanceID)
-        .confirmationDialog(
-            String.kissmarkLocalized("모든 설정을 기본값으로 되돌릴까요?"),
-            isPresented: $isResetConfirmationPresented,
-            titleVisibility: .visible
-        ) {
-            Button(String.kissmarkLocalized("기본값으로 되돌리기"), role: .destructive) {
-                SettingsReset.resetAll()
-            }
-            Button(String.kissmarkLocalized("취소"), role: .cancel) {}
-        } message: {
-            Text("화면 모드, 테마, 글자 크기, 간격, 언어, 글꼴 등 설정이 기본값으로 돌아갑니다. 폴더·문서·검토 기록은 그대로입니다. 언어와 글꼴은 앱을 다시 열면 적용됩니다.")
-        }
         #else
         KissmarkGeneralSettingsView()
         #endif
@@ -352,8 +313,20 @@ struct KissmarkSettingsView: View {
     /// section, which glides between labels on the spring.
     private var settingsHeader: some View {
         HStack(spacing: KissmarkMetrics.settingsRowGap) {
-            ForEach(SettingsSection.allCases) { section in
-                headerLabel(section)
+            // 섹션 알약들을 감싸는 캡슐 DIV. 안의 알약은 닫기 아이콘 버튼과
+            // 같은 28pt 높이로 맞춘다.
+            HStack(spacing: KissmarkMetrics.settingsHeaderInset) {
+                ForEach(SettingsSection.allCases) { section in
+                    headerLabel(section)
+                }
+            }
+            .padding(KissmarkMetrics.settingsHeaderInset)
+            .overlay {
+                Capsule()
+                    .strokeBorder(
+                        Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
+                        lineWidth: KissmarkMetrics.iconButtonOutlineWidth
+                    )
             }
 
             Spacer(minLength: KissmarkMetrics.settingsHeaderLabelPad)
@@ -365,26 +338,7 @@ struct KissmarkSettingsView: View {
             ) {
                 dismiss()
             }
-            KissmarkIconButton(
-                title: "초기화",
-                lucide: .rotateCcw,
-                accessibilityIdentifier: "settings-header-reset"
-            ) {
-                isResetConfirmationPresented = true
-            }
-            KissmarkIconButton(
-                title: saved ? "저장됨" : "저장",
-                lucide: saved ? .lock : .save,
-                disabled: saved,
-                accessibilityIdentifier: "settings-header-save"
-            ) {
-                saveSettings()
-            }
         }
-        .padding(.leading, KissmarkMetrics.settingsHeaderInset)
-        .padding(.trailing, KissmarkMetrics.settingsRowGap)
-        .padding(.vertical, KissmarkMetrics.settingsHeaderInset)
-                .frame(maxWidth: .infinity)
         .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
         .padding(.horizontal, KissmarkMetrics.settingsHeaderBlockPad)
     }
@@ -404,40 +358,24 @@ struct KissmarkSettingsView: View {
                         : (palette?.chromeMuted ?? Color.secondary)
                 )
                 .padding(.horizontal, KissmarkMetrics.settingsHeaderLabelPad)
-                .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
+                .frame(maxHeight: .infinity)
                 .background {
-                    ZStack {
+                    if selection == section {
                         Capsule()
-                            .strokeBorder(
-                                Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
-                                lineWidth: KissmarkMetrics.iconButtonOutlineWidth
+                            .kissmarkGlass(in: Capsule())
+                        Capsule()
+                            .fill(
+                                (palette?.chromePrimary ?? Color.primary)
+                                    .opacity(KissmarkMetrics.treeSelectionOpacity / 2)
                             )
-                        if selection == section {
-                            Capsule()
-                                .kissmarkGlass(in: Capsule())
-                            Capsule()
-                                .fill(
-                                    (palette?.chromePrimary ?? Color.primary)
-                                        .opacity(KissmarkMetrics.treeSelectionOpacity / 2)
-                                )
-                        }
                     }
                 }
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .frame(height: KissmarkMetrics.toolbarButtonSize)
         .accessibilityAddTraits(selection == section ? [.isSelected] : [])
         .accessibilityIdentifier("settings-section-\(String(describing: section).lowercased())")
-    }
-
-    /// 설정은 바뀔 때마다 저장되므로 저장은 확인 동작이다. 잠깐 저장됨으로
-    /// 바꿔 눌렀음을 알려준다 (설치 시트의 복사됨 패턴과 같다).
-    private func saveSettings() {
-        saved = true
-        Task { @MainActor in
-            try? await Task.sleep(for: .seconds(1.2))
-            saved = false
-        }
     }
 
     /// A theme paints each pane's Form: the grouped scroll background is hidden

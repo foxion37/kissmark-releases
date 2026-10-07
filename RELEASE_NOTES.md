@@ -1,3 +1,40 @@
+# Kissmark 2.3.12 (28)
+
+## 한국어
+
+설정 헤더의 섹션 알약을 하나의 캡슐로 묶고 동작 버튼을 정리합니다.
+
+### 수정 사항
+
+- 섹션 알약(일반…미러)을 하나의 캡슐 박스로 묶었습니다. 알약 높이는 닫기 아이콘 버튼과 같은 28pt입니다.
+- 초기화·저장 버튼을 없애고 닫기만 오른쪽에 남겼습니다. 설정은 바뀔 때마다 적용되므로 별도 저장 동작이 필요 없습니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Groups the settings section pills into one capsule and trims the actions.
+
+### Fixes
+
+- The section pills (일반…미러) sit inside a single outlined capsule, and their height matches the 닫기 icon button's 28pt.
+- 초기화 and 저장 are gone; only 닫기 remains on the right. Settings apply live, so no separate save action is needed.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.11 (27)
 
 ## 한국어
