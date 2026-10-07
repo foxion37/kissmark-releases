@@ -153,11 +153,12 @@ enum KissmarkTextLint {
 /// 작은 크기에 굵게, 테마 포인트 색을 입힌다.
 struct KissmarkSettingsSectionHeader: View {
     let title: LocalizedStringKey
+    @Environment(\.chromePalette) private var chromePalette
 
     var body: some View {
         Text(title)
             .font(KissmarkType.font(.caption, weight: .semibold))
-            .foregroundStyle(Color.accentColor)
+            .foregroundStyle(chromePalette?.chromeAccent ?? Color.accentColor)
             .textCase(nil)
     }
 }
