@@ -4,6 +4,14 @@ import Testing
 @testable import Kissmark
 
 struct DocumentThemeTests {
+    @Test func sectionHeadersCanReadEachThemeAccentFromThePalette() {
+        // 설정 섹션 머리글은 chromePalette.chromeAccent를 따르므로 테마마다 색이 바뀐다.
+        let dracula = DocumentTheme.dracula.palette(for: .dark)
+        #expect(dracula?.accent.lowercased() == "#bd93f9")
+        let nord = DocumentTheme.nord.palette(for: .dark)
+        #expect(nord?.accent.lowercased() != dracula!.accent.lowercased())
+    }
+
     private static let systemPalette = ThemePalette(
         bg: "#101010", bgElevated: "#202020", codeBg: "#202020", codeFg: "#EEEEEE",
         text: "#EEEEEE", muted: "#909090", border: "#303030",
