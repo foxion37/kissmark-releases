@@ -31,10 +31,10 @@ enum KissmarkMetrics {
     static let settingsSheetInset = KissmarkSpacing.space20
     /// Inner padding of a grouped settings row (the box around its text).
     static let settingsRowInsets = EdgeInsets(
-        top: KissmarkSpacing.space12,
-        leading: KissmarkSpacing.space16,
-        bottom: KissmarkSpacing.space12,
-        trailing: KissmarkSpacing.space16
+        top: KissmarkSpacing.space16,
+        leading: KissmarkSpacing.space20,
+        bottom: KissmarkSpacing.space16,
+        trailing: KissmarkSpacing.space20
     )
     /// Chevron size of a settings pane's disclosure row (진단).
     static let settingsDisclosureGlyphSize: CGFloat = 16

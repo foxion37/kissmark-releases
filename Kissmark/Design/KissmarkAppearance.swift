@@ -149,6 +149,19 @@ enum KissmarkTextLint {
     static let storageKey = "kissmark.textLint"
 }
 
+/// 설정 Form의 섹션 머리글(본문, 글꼴, 간격…). 본문 텍스트와 구분되도록
+/// 작은 크기에 굵게, 테마 포인트 색을 입힌다.
+struct KissmarkSettingsSectionHeader: View {
+    let title: LocalizedStringKey
+
+    var body: some View {
+        Text(title)
+            .font(KissmarkType.font(.caption, weight: .semibold))
+            .foregroundStyle(Color.accentColor)
+            .textCase(nil)
+    }
+}
+
 /// 설정 › 헤더의 초기화가 되돌리는 키들. 폴더·미러·검토 기록 같은
 /// 사용자 데이터는 설정이 아니므로 건드리지 않는다.
 @MainActor
@@ -360,8 +373,8 @@ struct KissmarkSettingsView: View {
                 isResetConfirmationPresented = true
             }
             KissmarkIconButton(
-                title: "저장",
-                lucide: .check,
+                title: saved ? "저장됨" : "저장",
+                lucide: saved ? .lock : .save,
                 disabled: saved,
                 accessibilityIdentifier: "settings-header-save"
             ) {
@@ -371,14 +384,7 @@ struct KissmarkSettingsView: View {
         .padding(.leading, KissmarkMetrics.settingsHeaderInset)
         .padding(.trailing, KissmarkMetrics.settingsRowGap)
         .padding(.vertical, KissmarkMetrics.settingsHeaderInset)
-        .overlay {
-            Capsule()
-                .strokeBorder(
-                    Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
-                    lineWidth: KissmarkMetrics.iconButtonOutlineWidth
-                )
-        }
-        .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity)
         .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
         .padding(.horizontal, KissmarkMetrics.settingsHeaderBlockPad)
     }
@@ -400,8 +406,13 @@ struct KissmarkSettingsView: View {
                 .padding(.horizontal, KissmarkMetrics.settingsHeaderLabelPad)
                 .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
                 .background {
-                    if selection == section {
-                        ZStack {
+                    ZStack {
+                        Capsule()
+                            .strokeBorder(
+                                Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
+                                lineWidth: KissmarkMetrics.iconButtonOutlineWidth
+                            )
+                        if selection == section {
                             Capsule()
                                 .kissmarkGlass(in: Capsule())
                             Capsule()
@@ -465,7 +476,7 @@ struct KissmarkGeneralSettingsView: View {
                 }
                 .accessibilityIdentifier("settings-language")
             } header: {
-                Text("언어")
+                KissmarkSettingsSectionHeader(title: "언어")
             } footer: {
                 Text("선택한 언어는 앱을 다시 열면 적용됩니다. 글꼴은 디자인에서 고릅니다.")
             }
@@ -485,7 +496,7 @@ struct KissmarkGeneralSettingsView: View {
                 Toggle("슬롭 제거", isOn: $isTextLintEnabled)
                     .accessibilityIdentifier("settings-text-lint-toggle")
             } header: {
-                Text("AI 슬롭 검사")
+                KissmarkSettingsSectionHeader(title: "AI 슬롭 검사")
             } footer: {
                 Text("편집 메뉴의 텍스트 정리(⌘⇧L)가 본문의 em 대시와 인 대시를 하이픈으로, 가운뎃점을 쉼표로 바꿉니다. 코드 블록과 인라인 코드는 건드리지 않고, 편집 모드에서만 동작하며 실행 취소(⌘Z)할 수 있습니다. 끄면 명령이 동작하지 않습니다.")
             }
@@ -513,7 +524,7 @@ struct KissmarkGeneralSettingsView: View {
                     .accessibilityIdentifier("settings-mirror-link")
                 #endif
             } header: {
-                Text("폴더")
+                KissmarkSettingsSectionHeader(title: "폴더")
             } footer: {
                 Text("기본 Folder는 iCloud Kissmark입니다. 보관은 문서를 보관 폴더로 복사하고 원본은 남깁니다.")
             }
@@ -549,7 +560,7 @@ struct KissmarkGeneralSettingsView: View {
                 .disabled(updateController.isChecking || !updateController.isEnabled)
                 .accessibilityIdentifier("settings-check-updates")
             } header: {
-                Text("앱")
+                KissmarkSettingsSectionHeader(title: "앱")
             } footer: {
                 Text("Mac과 iPhone은 같은 GitHub 배포를 확인합니다. iPhone 앱 스토어 배포 전에는 저장소 릴리스로 업데이트합니다.")
             }
