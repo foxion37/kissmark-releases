@@ -338,23 +338,35 @@ struct KissmarkSettingsView: View {
     /// change; the only moving part is the glass capsule behind the selected
     /// section, which glides between labels on the spring.
     private var settingsHeader: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: KissmarkMetrics.settingsRowGap) {
             ForEach(SettingsSection.allCases) { section in
                 headerLabel(section)
             }
 
             Spacer(minLength: KissmarkMetrics.settingsHeaderLabelPad)
 
-            headerAction("닫기", identifier: "settings-header-close") {
+            KissmarkIconButton(
+                title: "닫기",
+                lucide: .x,
+                accessibilityIdentifier: "settings-header-close"
+            ) {
                 dismiss()
             }
-            headerAction("초기화", identifier: "settings-header-reset") {
+            KissmarkIconButton(
+                title: "초기화",
+                lucide: .rotateCcw,
+                accessibilityIdentifier: "settings-header-reset"
+            ) {
                 isResetConfirmationPresented = true
             }
-            headerAction(saved ? "저장됨" : "저장", identifier: "settings-header-save") {
+            KissmarkIconButton(
+                title: "저장",
+                lucide: .check,
+                disabled: saved,
+                accessibilityIdentifier: "settings-header-save"
+            ) {
                 saveSettings()
             }
-            .disabled(saved)
         }
         .padding(.leading, KissmarkMetrics.settingsHeaderInset)
         .padding(.trailing, KissmarkMetrics.settingsRowGap)
@@ -369,24 +381,6 @@ struct KissmarkSettingsView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
         .padding(.horizontal, KissmarkMetrics.settingsHeaderBlockPad)
-    }
-
-    /// 헤더 우측의 작은 동작 버튼. 라벨과 같은 본문 크기, 조용한 색.
-    private func headerAction(
-        _ title: LocalizedStringKey,
-        identifier: String,
-        action: @escaping () -> Void
-    ) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(KissmarkType.font(.body))
-                .foregroundStyle(palette?.chromeMuted ?? Color.secondary)
-                .padding(.horizontal, KissmarkMetrics.settingsHeaderInset)
-                .padding(.vertical, KissmarkMetrics.settingsHeaderInset)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityIdentifier(identifier)
     }
 
     private func headerLabel(_ section: SettingsSection) -> some View {
@@ -407,9 +401,15 @@ struct KissmarkSettingsView: View {
                 .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
                 .background {
                     if selection == section {
-                        Capsule()
-                            .kissmarkGlass(in: Capsule())
-                            .matchedGeometryEffect(id: "settings-header-selection", in: headerSelection)
+                        ZStack {
+                            Capsule()
+                                .kissmarkGlass(in: Capsule())
+                            Capsule()
+                                .fill(
+                                    (palette?.chromePrimary ?? Color.primary)
+                                        .opacity(KissmarkMetrics.treeSelectionOpacity / 2)
+                                )
+                        }
                     }
                 }
                 .contentShape(Rectangle())
