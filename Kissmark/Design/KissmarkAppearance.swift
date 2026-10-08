@@ -189,7 +189,7 @@ extension View {
 /// A settings section on macOS. The header is a static box of labels with a
 /// glass capsule behind the selected one; nothing else in the header moves.
 nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
-    case general, design, code, theme, connections, shortcuts, mirror
+    case general, design, theme, connections, shortcuts, mirror
 
     var id: Int { rawValue }
 
@@ -197,7 +197,6 @@ nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
         switch self {
         case .general: "일반"
         case .design: "디자인"
-        case .code: "코드"
         case .theme: "테마"
         case .connections: "연결"
         case .shortcuts: "단축키"
@@ -269,7 +268,6 @@ struct KissmarkSettingsView: View {
                 switch selection {
                 case .general: themedPane(KissmarkGeneralSettingsView())
                 case .design: themedPane(DesignSettingsView())
-                case .code: themedPane(CodeSettingsView())
                 case .theme: themedPane(ThemeSettingsView())
                 case .connections: themedPane(AgentConnectionsSettingsView())
                 case .shortcuts: themedPane(ShortcutsSettingsView())
@@ -426,8 +424,6 @@ struct KissmarkGeneralSettingsView: View {
             Section {
                 NavigationLink("디자인") { DesignSettingsView() }
                     .accessibilityIdentifier("settings-design-link")
-                NavigationLink("코드") { CodeSettingsView() }
-                    .accessibilityIdentifier("settings-code-link")
                 NavigationLink("테마") { ThemeSettingsView() }
                     .accessibilityIdentifier("settings-theme-link")
                 NavigationLink("단축키") { ShortcutsSettingsView() }
