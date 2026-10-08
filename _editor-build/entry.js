@@ -5,6 +5,9 @@ import { Decoration, DecorationSet } from "@milkdown/kit/prose/view";
 import { $prose } from "@milkdown/kit/utils";
 import "@milkdown/crepe/theme/common/style.css";
 import "@milkdown/crepe/theme/frame.css";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { EditorView } from "@codemirror/view";
+import { tags } from "@lezer/highlight";
 
 import { applyBlockOps, runCalloutMenuItem } from "./block-ops.mjs";
 import { createBlockMenu } from "./block-menu.mjs";
@@ -29,6 +32,30 @@ const ENTRANCE_LIMIT = 12;
 const ENTRANCE_FALLBACK_MS = 40;
 /** Movement (px) above which a press on the block handle counts as a drag. */
 const CLICK_SLOP = 4;
+
+/**
+ * Code block theme, replacing Crepe's default One Dark (which painted the
+ * active-line gutter dark and the tokens in dark-only inks on light themes).
+ * Surfaces, gutter and selection come from `reader.css`; only the token inks
+ * live here, as `--km-*` references so every theme and scheme follows.
+ * `lineWrapping` stays on: `--km-code-white-space` in reader.css decides whether
+ * long lines actually wrap (Settings › 코드 › 자동 줄바꿈).
+ */
+const codeBlockTheme = [
+  EditorView.lineWrapping,
+  syntaxHighlighting(
+    HighlightStyle.define([
+      { tag: [tags.keyword, tags.operatorKeyword, tags.modifier, tags.controlKeyword], color: "var(--km-accent)" },
+      { tag: [tags.string, tags.special(tags.string), tags.regexp, tags.inserted], color: "var(--km-success)" },
+      { tag: [tags.number, tags.bool, tags.atom, tags.null, tags.typeName, tags.className], color: "var(--km-warn)" },
+      { tag: [tags.tagName, tags.heading, tags.deleted, tags.invalid], color: "var(--km-danger)" },
+      { tag: [tags.comment, tags.meta, tags.processingInstruction], color: "var(--km-muted)", fontStyle: "italic" },
+      { tag: tags.strong, fontWeight: "650" },
+      { tag: tags.emphasis, fontStyle: "italic" },
+      { tag: tags.link, textDecoration: "underline" },
+    ]),
+  ),
+];
 
 /**
  * Local-only Milkdown Crepe host for Kissmark Document surface
@@ -373,6 +400,10 @@ function createAPI() {
           linkLabel: uiText("링크"),
         },
         [CrepeFeature.CodeMirror]: {
+          // `null`, not omitted: Crepe deep-merges its defaults (One Dark) into
+          // anything left undefined — and into any object passed here.
+          theme: null,
+          extensions: codeBlockTheme,
           searchPlaceholder: uiText("언어 검색"),
           copyText: uiText("복사"),
           noResultText: uiText("결과 없음"),

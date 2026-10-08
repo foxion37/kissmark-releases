@@ -72,6 +72,7 @@
 @property --km-user-line-height { syntax: "<number>"; inherits: true; initial-value: 1.7; }
 @property --km-user-letter-spacing { syntax: "<number>"; inherits: true; initial-value: 0; }
 @property --km-user-code-letter-spacing { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --km-user-code-line-height { syntax: "<number>"; inherits: true; initial-value: 1.55; }
 @property --km-user-paragraph-spacing { syntax: "<number>"; inherits: true; initial-value: 1.05; }
 @property --km-user-indent { syntax: "<number>"; inherits: true; initial-value: 1.4; }
 @property --km-user-body-size { syntax: "<number>"; inherits: true; initial-value: 1; }
@@ -124,8 +125,13 @@
   --km-letter-spacing: calc(var(--km-user-letter-spacing) * 1em); /* Jev: body tracking 0 */
   /* Code tracking is its own channel (user request): the code leaves pin it
      below, so the body 자간 override never leaks into mono text and the
-     코드 자간 slider moves only the code. */
+     Settings › 코드 › 자간 slider moves only the code. */
   --km-code-letter-spacing: calc(var(--km-user-code-letter-spacing) * 1em);
+  /* Settings › 코드: line height, measure (`ch`, unset = the column) and
+     wrapping (`pre` from Swift when 자동 줄바꿈 is off). */
+  --km-code-line-height: var(--km-user-code-line-height);
+  --km-code-measure: var(--km-user-code-measure, 100%);
+  --km-code-white-space: pre-wrap;
   --km-line-width-base: 100%;
   --km-line-width: var(--km-user-measure, var(--km-line-width-base));
   --km-paragraph-spacing: calc(var(--km-user-paragraph-spacing) * 1em);
@@ -164,7 +170,7 @@
      are registered above). No transition runs on the first style, so a
      freshly opened Document never animates into its saved design. */
   transition-property: --km-font-scale, --km-user-line-height, --km-user-letter-spacing,
-    --km-user-code-letter-spacing, --km-user-paragraph-spacing, --km-user-indent,
+    --km-user-code-letter-spacing, --km-user-code-line-height, --km-user-paragraph-spacing, --km-user-indent,
     --km-user-body-size,
     --km-user-h1-size, --km-user-h2-size, --km-user-h3-size, --km-user-h4-size,
     --km-user-h5-size, --km-user-h6-size, --km-user-code-block-size,
@@ -414,10 +420,11 @@ h3, .milkdown .ProseMirror h3, .milkdown .ProseMirror p.km-strong-heading {
   padding-block: 0;
 }
 /* Keep after variant margins: the first block sits at the top padding.
-   Crepe's leading cursor widget does not count as a content block. */
+   Crepe's cursor widget and the virtual cursor it inserts on a click are not
+   content blocks: counting them dropped the reset mid-click, the document
+   jumped down under the pointer and a drag in a code block selected nothing. */
 h1:first-child, h2:first-child, h3:first-child,
-.milkdown .ProseMirror > :is(h1, h2, h3, h4, h5, p, ul, ol, blockquote):first-child,
-.milkdown .ProseMirror > .ProseMirror-widget:first-child + :is(h1, h2, h3, h4, h5, p, ul, ol, blockquote) { margin-top: 0 !important; }
+.milkdown .ProseMirror > :is(h1, h2, h3, h4, h5, p, ul, ol, blockquote):nth-child(1 of :not(.ProseMirror-widget, .prosemirror-virtual-cursor)) { margin-top: 0 !important; }
 
 /* One rule per level: each level carries its own size / weight / color override. */
 h4, .milkdown .ProseMirror h4 {
@@ -590,14 +597,24 @@ pre,
 .milkdown .milkdown-code-block {
   margin: 1.6em 0 !important;
   padding: 1.25em 1.5rem !important;
+  max-width: var(--km-code-measure);
+  box-sizing: border-box;
   overflow-x: auto;
   background: var(--km-code-bg) !important;
   color: var(--km-user-code-block-color, var(--km-code-fg)) !important;
   border: 1px solid var(--km-border) !important;
   border-radius: var(--km-radius-code) !important;
-  line-height: 1.55;
+  line-height: var(--km-code-line-height);
   font-family: var(--km-font-mono) !important;
   letter-spacing: var(--km-code-letter-spacing);
+}
+
+/* Static `pre` (outside CodeMirror) wraps like the editor's code blocks. The
+   document's 양끝 맞춤 never reaches code: wrapped lines would stretch spaces. */
+pre {
+  white-space: var(--km-code-white-space);
+  overflow-wrap: anywhere;
+  text-align: start;
 }
 
 /* Crepe mounts a plain `pre` placeholder inside the block before CodeMirror
@@ -652,12 +669,21 @@ pre code,
   font-family: inherit !important;
 }
 
+/* The drawn selection layer sits behind `.cm-content`, so only the content
+   stays transparent; the sticky gutter keeps the fill so scrolled code never
+   shows through the line numbers. */
 .milkdown .milkdown-code-block .cm-editor,
 .milkdown .milkdown-code-block .cm-gutters,
 .milkdown .milkdown-code-block .cm-content {
-  background: var(--km-code-bg) !important;
   color: var(--km-user-code-block-color, var(--km-code-fg)) !important;
   font-family: var(--km-font-mono) !important;
+}
+.milkdown .milkdown-code-block .cm-editor,
+.milkdown .milkdown-code-block .cm-gutters {
+  background: var(--km-code-bg) !important;
+}
+.milkdown .milkdown-code-block .cm-content {
+  background: transparent !important;
 }
 
 /* Size only the leaves: the multiplier lands once, not squared through
@@ -670,6 +696,50 @@ pre code,
 .milkdown .milkdown-code-block .cm-gutters {
   color: var(--km-muted) !important;
   border-right: none !important;
+}
+
+/* CodeMirror's own 1.4 would win over the block's line height. */
+.milkdown .milkdown-code-block .cm-scroller {
+  line-height: var(--km-code-line-height) !important;
+  font-family: var(--km-font-mono) !important;
+}
+
+/* Long lines wrap at the block width unless 자동 줄바꿈 is off. The editor
+   always mounts `lineWrapping`; this decides whether text actually wraps.
+   Start-aligned so a justified document never stretches wrapped code. */
+.milkdown .milkdown-code-block .cm-content {
+  white-space: var(--km-code-white-space) !important;
+  text-align: start !important;
+  word-break: normal !important;
+  overflow-wrap: anywhere !important;
+}
+.km-source .cm-content {
+  text-align: start;
+}
+
+/* Active line, selection and caret on theme tokens: CodeMirror's built-in
+   light/dark defaults ignore the Kissmark palette (a dark gutter on light).
+   Only a focused block in Edit Mode marks its line and shows a caret; Read
+   Mode keeps text selection and copy without editing cues. */
+.milkdown .milkdown-code-block .cm-activeLine,
+.milkdown .milkdown-code-block .cm-activeLineGutter {
+  background: transparent !important;
+}
+body:not(.km-mode-read) .milkdown .milkdown-code-block .cm-editor.cm-focused .cm-activeLine,
+body:not(.km-mode-read) .milkdown .milkdown-code-block .cm-editor.cm-focused .cm-activeLineGutter {
+  background: color-mix(in srgb, var(--km-text) 5%, transparent) !important;
+}
+body:not(.km-mode-read) .milkdown .milkdown-code-block .cm-editor.cm-focused .cm-activeLineGutter {
+  color: var(--km-text) !important;
+}
+.milkdown .milkdown-code-block .cm-selectionBackground {
+  background: var(--km-accent-soft) !important;
+}
+.milkdown .milkdown-code-block .cm-cursor {
+  border-left-color: var(--km-accent) !important;
+}
+body.km-mode-read .milkdown .milkdown-code-block .cm-cursor {
+  display: none !important;
 }
 
 /* Tables — hairline, no zebra */

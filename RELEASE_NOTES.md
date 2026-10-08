@@ -1,3 +1,50 @@
+# Kissmark 2.3.14 (30)
+
+## 한국어
+
+코드 블록을 다시 선택하고 복사할 수 있게 하고, 코드 전용 설정을 추가합니다.
+
+### 수정 사항
+
+- 코드 블록을 마우스로 끌어 선택하고 복사할 수 있습니다. 문서를 누르는 순간 본문이 아래로 밀려 선택이 잡히지 않던 문제와 선택 영역이 코드 배경에 가려 보이지 않던 문제를 고쳤습니다. 읽기 모드에서는 코드 안에 커서와 현재 줄 강조를 표시하지 않습니다.
+- 라이트 테마에서 코드 블록의 줄 번호가 검은 배경에 회색 글씨로 보이던 문제를 고쳤습니다. 코드 색은 이제 선택한 테마 색을 따릅니다.
+- 긴 코드 줄은 블록 너비에서 자동으로 줄을 바꿉니다. 양끝 맞춤 문서에서도 코드 공백이 늘어나지 않습니다.
+
+### 새 기능
+
+- **설정 → 코드**를 추가했습니다. 코드 글꼴(설치된 고정폭 글꼴 목록, 이름 직접 입력, 서체 관리자 열기), 행간, 자간, 장폭, 긴 줄 자동 줄바꿈을 조절합니다. 이전 디자인 탭의 코드 자간은 이 탭으로 옮겼으며 저장된 값은 유지됩니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Code blocks can be selected and copied again, and code gets its own settings pane.
+
+### Fixes
+
+- Dragging across a code block selects it and Copy works. Pressing in the document no longer pushes the page down under the pointer, and the selection is no longer hidden behind the code background. Read Mode shows no caret or active line inside code.
+- In light themes the code block's current line number no longer shows gray on a black band; code colors follow the selected theme.
+- Long code lines wrap at the block width, and justified documents no longer stretch spaces in code.
+
+### New
+
+- **Settings → 코드** sets the code font (installed monospaced fonts, a typed font name, or Font Book), line height, letter spacing, measure and long-line wrapping. Code letter spacing moved here from 디자인; saved values are kept.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.13 (29)
 
 ## 한국어

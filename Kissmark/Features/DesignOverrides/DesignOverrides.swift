@@ -20,6 +20,18 @@ nonisolated struct DesignOverrides: Codable, Equatable {
         var measureCh: Double?
         var paragraphSpacingEm: Double?
         var indentEm: Double?
+        /// Settings › 코드: code block line height (ratio) and measure (`ch`;
+        /// `nil` = the text column).
+        var codeLineHeight: Double?
+        var codeMeasureCh: Double?
+    }
+
+    /// Settings › 코드 choices that are not sliders. `nil` = shipped default
+    /// (bundled Jetendard; long lines wrap).
+    struct Code: Codable, Equatable {
+        /// Font family name of an installed font; it leads the mono stack.
+        var fontFamily: String?
+        var wrapsLines: Bool?
     }
 
     struct SchemeColor: Codable, Equatable {
@@ -73,6 +85,10 @@ nonisolated struct DesignOverrides: Codable, Equatable {
     static let letterSpacingRange: ClosedRange<Double> = -0.05...0.05
     /// Code tracking shares the body's range; it is a separate stored value.
     static let codeLetterSpacingRange: ClosedRange<Double> = -0.05...0.05
+    static let codeLineHeightRange: ClosedRange<Double> = 1.2...2.2
+    static let codeMeasureRange: ClosedRange<Double> = 40...120
+    /// The shipped mono stack (reader.css `--km-font-mono`) a chosen family falls back to.
+    static let monoFallbackStack = "\"Jetendard\", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
     static let measureRange: ClosedRange<Double> = 40...120
     static let paragraphSpacingRange: ClosedRange<Double> = 0...2
     static let indentRange: ClosedRange<Double> = 0.5...2.0
@@ -87,7 +103,11 @@ nonisolated struct DesignOverrides: Codable, Equatable {
     /// Numeric sliders use a regular step. Five named checkpoints are reference marks,
     /// not the only allowed values. Opening Settings never rewrites an existing value.
     nonisolated enum SpacingField: String, CaseIterable, Identifiable {
-        case lineHeight, letterSpacing, codeLetterSpacing, measure, paragraphSpacing, indent
+        case lineHeight, letterSpacing, codeLetterSpacing, measure, paragraphSpacing, indent, codeLineHeight, codeMeasure
+
+        /// 디자인 › 간격 rows and 코드 rows; each tab resets only its own.
+        static let body: [Self] = [.lineHeight, .letterSpacing, .measure, .paragraphSpacing, .indent]
+        static let code: [Self] = [.codeLineHeight, .codeLetterSpacing, .codeMeasure]
 
         var id: String { rawValue }
 
@@ -95,10 +115,9 @@ nonisolated struct DesignOverrides: Codable, Equatable {
 
         var title: String.LocalizationValue {
             switch self {
-            case .lineHeight: "행간"
-            case .letterSpacing: "자간"
-            case .codeLetterSpacing: "코드 자간"
-            case .measure: "장폭"
+            case .lineHeight, .codeLineHeight: "행간"
+            case .letterSpacing, .codeLetterSpacing: "자간"
+            case .measure, .codeMeasure: "장폭"
             case .paragraphSpacing: "문단 간격"
             case .indent: "들여쓰기"
             }
@@ -107,8 +126,8 @@ nonisolated struct DesignOverrides: Codable, Equatable {
         /// Line height is a unitless ratio; the measure is in `ch`; the rest are `em`.
         var unit: String {
             switch self {
-            case .lineHeight: ""
-            case .measure: "ch"
+            case .lineHeight, .codeLineHeight: ""
+            case .measure, .codeMeasure: "ch"
             default: "em"
             }
         }
@@ -117,8 +136,10 @@ nonisolated struct DesignOverrides: Codable, Equatable {
         var checkpoints: [Double] {
             switch self {
             case .lineHeight: [1.2, 1.4, 1.7, 2, 2.2]
+            case .codeLineHeight: [1.2, 1.4, 1.55, 1.8, 2.2]
             case .letterSpacing, .codeLetterSpacing: [-0.05, -0.02, 0, 0.02, 0.05]
             case .measure: [40, 50, 66, 90, 120]
+            case .codeMeasure: [40, 60, 80, 100, 120]
             case .paragraphSpacing: [0, 0.5, 1.05, 1.5, 2]
             case .indent: [0.5, 1, 1.4, 1.7, 2]
             }
@@ -134,15 +155,17 @@ nonisolated struct DesignOverrides: Codable, Equatable {
             case .measure: DesignOverrides.measureRange
             case .paragraphSpacing: DesignOverrides.paragraphSpacingRange
             case .indent: DesignOverrides.indentRange
+            case .codeLineHeight: DesignOverrides.codeLineHeightRange
+            case .codeMeasure: DesignOverrides.codeMeasureRange
             }
         }
 
         var step: Double {
             switch self {
             case .indent: 0.1
-            case .lineHeight: 0.05
+            case .lineHeight, .codeLineHeight: 0.05
             case .letterSpacing, .codeLetterSpacing: 0.005
-            case .measure: 2
+            case .measure, .codeMeasure: 2
             case .paragraphSpacing: 0.05
             }
         }
@@ -155,6 +178,8 @@ nonisolated struct DesignOverrides: Codable, Equatable {
             case .measure: \.measureCh
             case .paragraphSpacing: \.paragraphSpacingEm
             case .indent: \.indentEm
+            case .codeLineHeight: \.codeLineHeight
+            case .codeMeasure: \.codeMeasureCh
             }
         }
 
@@ -173,6 +198,8 @@ nonisolated struct DesignOverrides: Codable, Equatable {
             spacing[keyPath: keyPath] = abs(rounded - baseline) < 1e-9 ? nil : rounded
         }
 
+        func clear(in spacing: inout Spacing) { spacing[keyPath: keyPath] = nil }
+
         func display(_ value: Double) -> String {
             value.formatted(.number.precision(.fractionLength(0...3))) + unit
         }
@@ -180,6 +207,7 @@ nonisolated struct DesignOverrides: Codable, Equatable {
 
     var spacing = Spacing()
     var elements: [String: Element] = [:]
+    var code = Code()
 
     /// Synthesized `encode` keeps writing both keys; decoding tolerates their absence so
     /// a value written by an older or narrower version still loads its overrides.
@@ -187,6 +215,7 @@ nonisolated struct DesignOverrides: Codable, Equatable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         spacing = try container.decodeIfPresent(Spacing.self, forKey: .spacing) ?? Spacing()
         elements = try container.decodeIfPresent([String: Element].self, forKey: .elements) ?? [:]
+        code = try container.decodeIfPresent(Code.self, forKey: .code) ?? Code()
     }
 
     init() {}
@@ -225,6 +254,16 @@ nonisolated struct DesignOverrides: Codable, Equatable {
         if let v = spacing.measureCh { vars["--km-user-measure"] = Self.number(v, in: Self.measureRange) + "ch" }
         if let v = spacing.paragraphSpacingEm { vars["--km-user-paragraph-spacing"] = Self.number(v, in: Self.paragraphSpacingRange) }
         if let v = spacing.indentEm { vars["--km-user-indent"] = Self.number(v, in: Self.indentRange) }
+        if let v = spacing.codeLineHeight {
+            vars["--km-user-code-line-height"] = Self.number(v, in: Self.codeLineHeightRange)
+        }
+        if let v = spacing.codeMeasureCh {
+            vars["--km-user-code-measure"] = Self.number(v, in: Self.codeMeasureRange) + "ch"
+        }
+        if code.wrapsLines == false { vars["--km-code-white-space"] = "pre" }
+        if let family = Self.cssFamily(code.fontFamily) {
+            vars["--km-font-mono"] = "\(family), \(Self.monoFallbackStack)"
+        }
 
         for key in ElementKey.allCases {
             let element = self[element: key]
@@ -247,6 +286,18 @@ nonisolated struct DesignOverrides: Codable, Equatable {
         let clamped = min(max(value, range.lowerBound), range.upperBound)
         let rounded = (clamped * 1000).rounded() / 1000
         return rounded == rounded.rounded() ? String(Int(rounded)) : String(rounded)
+    }
+
+    /// A quoted CSS family name, or `nil` for blank input. Quotes and
+    /// backslashes are escaped; control characters are dropped.
+    static func cssFamily(_ name: String?) -> String? {
+        guard let trimmed = name?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty else { return nil }
+        var escaped = ""
+        for scalar in trimmed.unicodeScalars where !CharacterSet.controlCharacters.contains(scalar) {
+            if scalar == "\\" || scalar == "\"" { escaped.append("\\") }
+            escaped.unicodeScalars.append(scalar)
+        }
+        return "\"\(escaped)\""
     }
 
     static func isHexColor(_ value: String) -> Bool {

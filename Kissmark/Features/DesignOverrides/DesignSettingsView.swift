@@ -58,19 +58,19 @@ struct DesignSettingsView: View {
             } header: {
                 KissmarkSettingsSectionHeader(title: "글꼴")
             } footer: {
-                Text("한글은 Pretendard, 코드는 Jetendard로 표시됩니다. 영문 글꼴 선택은 앱을 다시 열면 적용됩니다.")
+                Text("한글은 Pretendard로 표시되고, 코드 글꼴은 코드 탭에서 고릅니다. 영문 글꼴 선택은 앱을 다시 열면 적용됩니다.")
             }
             .kissmarkSettingsRowInsets()
 
             Section {
-                ForEach(DesignOverrides.SpacingField.allCases) { field in spacingRow(field) }
+                ForEach(DesignOverrides.SpacingField.body) { field in DesignSpacingRow(field: field) }
                 Button("간격 기본값으로") {
                     withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
-                        update { $0.spacing = .init() }
+                        update { o in DesignOverrides.SpacingField.body.forEach { $0.clear(in: &o.spacing) } }
                     }
                 }
                     .accessibilityIdentifier("settings-design-spacing-reset")
-                    .disabled(overrides.spacing == .init())
+                    .disabled(DesignOverrides.SpacingField.body.allSatisfy { $0.value(in: overrides.spacing) == nil })
             } header: {
                 KissmarkSettingsSectionHeader(title: "간격")
             } footer: {
@@ -123,72 +123,6 @@ struct DesignSettingsView: View {
                 }
             }
         )
-    }
-
-    /// One compact row: name left, actual value right, then a full-width numeric slider.
-    private func spacingRow(_ field: DesignOverrides.SpacingField) -> some View {
-        let spacing = overrides.spacing
-        let value = field.effectiveValue(in: spacing)
-        let checkpoints = field.checkpoints
-        let title = String.kissmarkLocalized(field.title)
-        return VStack(alignment: .leading, spacing: KissmarkMetrics.settingsSliderRowGap) {
-            HStack {
-                Text(title)
-                Spacer()
-                Text(field.display(value))
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("\(spacingID(field))-value")
-            }
-            SettingsSpacingSlider(
-                value: Binding(
-                    get: { field.effectiveValue(in: overrides.spacing) },
-                    set: { next in update { field.set(value: next, in: &$0.spacing) } }
-                ),
-                step: field.step,
-                checkpoints: checkpoints,
-                label: title
-            )
-            .frame(maxWidth: .infinity)
-            .accessibilityIdentifier(spacingID(field))
-            .accessibilityLabel(title)
-            .accessibilityValue(field.display(value))
-            GeometryReader { geometry in
-                let inset = KissmarkMetrics.settingsSliderTrackInset
-                let width = max(0, geometry.size.width - inset * 2)
-                let labelWidth = min(KissmarkMetrics.settingsSliderLegendLabelWidth, geometry.size.width / 10)
-                ForEach(checkpoints.indices, id: \.self) { index in
-                    let x = inset + width * CGFloat(Double(index) / 4)
-                    Text(String.kissmarkLocalized(DesignOverrides.SpacingField.checkpointNames[index]))
-                        .font(KissmarkType.font(.caption2))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(2)
-                        .multilineTextAlignment(.center)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(width: labelWidth)
-                        .position(
-                            x: min(max(x, labelWidth / 2), geometry.size.width - labelWidth / 2),
-                            y: geometry.size.height / 2 - KissmarkMetrics.settingsSliderLegendLift
-                        )
-                }
-            }
-            .frame(height: KissmarkMetrics.settingsSliderLegendHeight)
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-
-    private func spacingID(_ field: DesignOverrides.SpacingField) -> String {
-        switch field {
-        case .lineHeight: "settings-design-line-height"
-        case .letterSpacing: "settings-design-letter-spacing"
-        case .codeLetterSpacing: "settings-design-code-letter-spacing"
-        case .measure: "settings-design-measure"
-        case .paragraphSpacing: "settings-design-paragraph-spacing"
-        case .indent: "settings-design-indent"
-        }
     }
 
     /// Slider plus its value ("자동" while the model holds `nil`), for the per-element
@@ -281,6 +215,84 @@ struct DesignSettingsView: View {
         }
             .accessibilityIdentifier("settings-design-\(key.cssName)-reset")
             .disabled(element == .init())
+    }
+}
+
+/// One compact spacing row: name left, actual value right, then a full-width
+/// numeric slider with its five checkpoint names. Shared by 디자인 and 코드.
+struct DesignSpacingRow: View {
+    let field: DesignOverrides.SpacingField
+    @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
+
+    private var overrides: DesignOverrides { DesignOverrides.decode(designJSON) }
+
+    var body: some View {
+        let value = field.effectiveValue(in: overrides.spacing)
+        let checkpoints = field.checkpoints
+        let title = String.kissmarkLocalized(field.title)
+        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsSliderRowGap) {
+            HStack {
+                Text(title)
+                Spacer()
+                Text(field.display(value))
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("\(accessibilityID)-value")
+            }
+            SettingsSpacingSlider(
+                value: Binding(
+                    get: { field.effectiveValue(in: overrides.spacing) },
+                    set: { next in
+                        var updated = overrides
+                        field.set(value: next, in: &updated.spacing)
+                        designJSON = updated.encoded()
+                    }
+                ),
+                step: field.step,
+                checkpoints: checkpoints,
+                label: title
+            )
+            .frame(maxWidth: .infinity)
+            .accessibilityIdentifier(accessibilityID)
+            .accessibilityLabel(title)
+            .accessibilityValue(field.display(value))
+            GeometryReader { geometry in
+                let inset = KissmarkMetrics.settingsSliderTrackInset
+                let width = max(0, geometry.size.width - inset * 2)
+                let labelWidth = min(KissmarkMetrics.settingsSliderLegendLabelWidth, geometry.size.width / 10)
+                ForEach(checkpoints.indices, id: \.self) { index in
+                    let x = inset + width * CGFloat(Double(index) / 4)
+                    Text(String.kissmarkLocalized(DesignOverrides.SpacingField.checkpointNames[index]))
+                        .font(KissmarkType.font(.caption2))
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(width: labelWidth)
+                        .position(
+                            x: min(max(x, labelWidth / 2), geometry.size.width - labelWidth / 2),
+                            y: geometry.size.height / 2 - KissmarkMetrics.settingsSliderLegendLift
+                        )
+                }
+            }
+            .frame(height: KissmarkMetrics.settingsSliderLegendHeight)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var accessibilityID: String {
+        switch field {
+        case .lineHeight: "settings-design-line-height"
+        case .letterSpacing: "settings-design-letter-spacing"
+        case .codeLetterSpacing: "settings-design-code-letter-spacing"
+        case .measure: "settings-design-measure"
+        case .paragraphSpacing: "settings-design-paragraph-spacing"
+        case .indent: "settings-design-indent"
+        case .codeLineHeight: "settings-design-code-line-height"
+        case .codeMeasure: "settings-design-code-measure"
+        }
     }
 }
 
