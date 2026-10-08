@@ -33,29 +33,68 @@ const ENTRANCE_FALLBACK_MS = 40;
 /** Movement (px) above which a press on the block handle counts as a drag. */
 const CLICK_SLOP = 4;
 
+/** One token role → its `--km-syntax-*` ink in reader.css. */
+const ink = (role) => `var(--km-syntax-${role})`;
+
 /**
  * Code block theme, replacing Crepe's default One Dark (which painted the
  * active-line gutter dark and the tokens in dark-only inks on light themes).
- * Surfaces, gutter and selection come from `reader.css`; only the token inks
- * live here, as `--km-*` references so every theme and scheme follows.
- * `lineWrapping` stays on: `--km-code-white-space` in reader.css decides whether
- * long lines actually wrap (Settings › 코드 › 자동 줄바꿈).
+ * Token roles follow VS Code's Dark+ / Light+ (keywords, control flow,
+ * functions, types, variables, constants, strings, numbers, tags, attributes,
+ * comments); the inks are `--km-syntax-*` in reader.css, which picks the
+ * Light+ or Dark+ set by color scheme. Operators and punctuation keep the code
+ * text color, as in VS Code. Surfaces, gutter and selection also come from
+ * reader.css. `lineWrapping` stays on: `--km-code-white-space` decides whether
+ * long lines actually wrap (Settings › 타이포그래피 › 코드).
  */
 const codeBlockTheme = [
   EditorView.lineWrapping,
   syntaxHighlighting(
     HighlightStyle.define([
-      { tag: [tags.keyword, tags.operatorKeyword, tags.modifier, tags.controlKeyword], color: "var(--km-accent)" },
-      { tag: [tags.string, tags.special(tags.string), tags.regexp, tags.inserted], color: "var(--km-success)" },
-      { tag: [tags.number, tags.bool, tags.atom, tags.null, tags.typeName, tags.className], color: "var(--km-warn)" },
-      { tag: [tags.tagName, tags.heading, tags.deleted, tags.invalid], color: "var(--km-danger)" },
-      { tag: [tags.comment, tags.meta, tags.processingInstruction], color: "var(--km-muted)", fontStyle: "italic" },
+      { tag: [tags.keyword, tags.definitionKeyword, tags.modifier, tags.operatorKeyword, tags.self, tags.bool, tags.null, tags.atom, tags.meta, tags.annotation, tags.processingInstruction, tags.changed], color: ink("keyword") },
+      { tag: [tags.controlKeyword, tags.moduleKeyword], color: ink("control") },
+      { tag: [tags.function(tags.variableName), tags.function(tags.propertyName), tags.function(tags.definition(tags.variableName)), tags.function(tags.definition(tags.propertyName)), tags.macroName], color: ink("function") },
+      { tag: [tags.typeName, tags.className, tags.namespace, tags.definition(tags.typeName), tags.definition(tags.className), tags.standard(tags.variableName), tags.standard(tags.typeName)], color: ink("type") },
+      { tag: [tags.variableName, tags.definition(tags.variableName), tags.propertyName, tags.definition(tags.propertyName), tags.labelName], color: ink("variable") },
+      { tag: [tags.constant(tags.variableName), tags.constant(tags.propertyName)], color: ink("constant") },
+      { tag: [tags.string, tags.special(tags.string), tags.character, tags.attributeValue, tags.docString, tags.url, tags.deleted], color: ink("string") },
+      { tag: [tags.number, tags.integer, tags.float, tags.unit, tags.inserted], color: ink("number") },
+      { tag: tags.regexp, color: ink("regexp") },
+      { tag: tags.escape, color: ink("escape") },
+      { tag: [tags.comment, tags.lineComment, tags.blockComment, tags.docComment], color: ink("comment") },
+      { tag: tags.tagName, color: ink("tag") },
+      { tag: tags.attributeName, color: ink("attribute") },
+      { tag: tags.angleBracket, color: ink("tag-punctuation") },
+      { tag: tags.invalid, color: ink("invalid") },
+      { tag: tags.heading, color: ink("keyword"), fontWeight: "650" },
       { tag: tags.strong, fontWeight: "650" },
       { tag: tags.emphasis, fontStyle: "italic" },
+      { tag: tags.strikethrough, textDecoration: "line-through" },
       { tag: tags.link, textDecoration: "underline" },
     ]),
   ),
 ];
+
+/** How long a code block's copy button reads "복사됨" after a copy. */
+const COPIED_MS = 1500;
+/** The copy button last clicked; Crepe's `onCopy` only receives the text. */
+let pressedCopyButton = null;
+window.addEventListener(
+  "click",
+  (event) => {
+    pressedCopyButton = event.target instanceof Element ? event.target.closest(".milkdown-code-block .copy-button") : null;
+  },
+  true
+);
+
+/** Marks the clicked copy button as copied; reader.css swaps its label. */
+function markCopied() {
+  const button = pressedCopyButton;
+  if (!button) return;
+  button.dataset.copied = uiText("복사됨");
+  clearTimeout(button.kmCopiedTimer);
+  button.kmCopiedTimer = setTimeout(() => delete button.dataset.copied, COPIED_MS);
+}
 
 /**
  * Local-only Milkdown Crepe host for Kissmark Document surface
@@ -407,6 +446,7 @@ function createAPI() {
           searchPlaceholder: uiText("언어 검색"),
           copyText: uiText("복사"),
           noResultText: uiText("결과 없음"),
+          onCopy: markCopied,
         },
         [CrepeFeature.BlockEdit]: {
           // Slash menu labels come from the app catalogue; H6 is not offered (spec item 7).
