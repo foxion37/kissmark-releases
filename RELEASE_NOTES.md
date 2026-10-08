@@ -1,3 +1,42 @@
+# Kissmark 2.3.16 (32)
+
+## 한국어
+
+코드 블록에 언어 이름과 복사 버튼이 있는 머리글을 달고, VS Code처럼 문법 색을 입힙니다.
+
+### 변경 사항
+
+- 코드 블록 위에 머리글 줄을 추가했습니다. 왼쪽에 언어 이름, 오른쪽에 **복사** 버튼이 늘 보이며, 복사하면 잠시 **복사됨**으로 바뀝니다. 편집 모드에서는 언어 이름을 눌러 언어를 바꿀 수 있습니다. 언어가 없는 블록은 읽기 모드에서 이름을 비워 둡니다.
+- 코드 색을 VS Code 기본 테마(라이트: Light+, 다크: Dark+)의 토큰 색으로 바꿨습니다. 키워드, 제어문, 함수, 타입과 클래스, 변수와 속성, 상수, 문자열, 숫자, 정규식, 주석, HTML 태그와 속성을 구분해 칠합니다. 연산자와 괄호는 본문 글자색을 씁니다.
+- 코드 블록의 기본 글자색을 본문 글자색으로 바꿨습니다. 인라인 코드 색은 그대로입니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Code blocks get a header with the language name and a Copy button, and VS Code-style syntax colors.
+
+### Changes
+
+- A header bar sits above each code block: the language name on the left and an always-visible **Copy** button on the right, which briefly reads **Copied**. In Edit Mode the language name opens the language picker. Blocks without a language leave the name empty in Read Mode.
+- Code colors follow VS Code's default themes (Light+ in light, Dark+ in dark): keywords, control flow, functions, types and classes, variables and properties, constants, strings, numbers, regular expressions, comments, and HTML tags and attributes. Operators and brackets use the text color.
+- Code block text now defaults to the body text color; inline code keeps its color.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.15 (31)
 
 ## 한국어
