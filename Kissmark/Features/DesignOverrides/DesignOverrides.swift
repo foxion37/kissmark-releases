@@ -227,6 +227,14 @@ nonisolated struct DesignOverrides: Codable, Equatable {
 
     var isEmpty: Bool { self == DesignOverrides() }
 
+    /// 타이포그래피 › 모두 초기화: every override is cleared except the element
+    /// colors, which belong to Settings › 테마.
+    func keepingOnlyElementColors() -> DesignOverrides {
+        var kept = DesignOverrides()
+        kept.elements = elements.compactMapValues { $0.color.map { Element(color: $0) } }
+        return kept
+    }
+
     static func decode(_ raw: String) -> DesignOverrides {
         guard let data = raw.data(using: .utf8),
               let value = try? JSONDecoder().decode(DesignOverrides.self, from: data) else {

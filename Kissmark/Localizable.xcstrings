@@ -1208,23 +1208,6 @@
         }
       }
     },
-    "디자인" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Design"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "디자인"
-          }
-        }
-      }
-    },
     "테마" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3537,6 +3520,125 @@
         }
       }
     },
+    "코드 기본값으로" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Code"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "코드 기본값으로"
+          }
+        }
+      }
+    },
+    "글꼴 목록은 설치된 고정폭 글꼴이며, 다른 글꼴은 이름을 직접 입력해 씁니다. 없는 글자는 Jetendard로 표시됩니다. 행간, 장폭, 자동 줄바꿈은 코드 블록에, 글꼴과 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭의 기본은 본문 폭이며, 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The font list shows installed monospaced fonts; type any other font's name to use it. Characters a font lacks fall back to Jetendard. Line height, measure and wrapping apply to code blocks; font and letter spacing also apply to inline code and Source View. Measure defaults to the text column, and with wrapping off long lines scroll horizontally."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "글꼴 목록은 설치된 고정폭 글꼴이며, 다른 글꼴은 이름을 직접 입력해 씁니다. 없는 글자는 Jetendard로 표시됩니다. 행간, 장폭, 자동 줄바꿈은 코드 블록에, 글꼴과 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭의 기본은 본문 폭이며, 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다."
+          }
+        }
+      }
+    },
+    "타이포그래피" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typography"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타이포그래피"
+          }
+        }
+      }
+    },
+    "요소 색" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element Colors"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요소 색"
+          }
+        }
+      }
+    },
+    "요소별 크기와 굵기를 조절합니다. 요소 색은 테마에서 바꿉니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjust size and weight per element. Element colors are in Theme."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요소별 크기와 굵기를 조절합니다. 요소 색은 테마에서 바꿉니다."
+          }
+        }
+      }
+    },
+    "테마에서 고른 요소 색은 유지합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element colors chosen in Theme are kept."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마에서 고른 요소 색은 유지합니다."
+          }
+        }
+      }
+    },
+    "라이트와 다크에 따로 저장하며 모든 테마에 공통으로 적용됩니다. 테마 색으로 되돌리면 선택한 화면 모드의 그 요소 색만 초기화합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved separately for Light and Dark and shared by every theme. Use Theme Color resets only that element's color for the selected mode."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "라이트와 다크에 따로 저장하며 모든 테마에 공통으로 적용됩니다. 테마 색으로 되돌리면 선택한 화면 모드의 그 요소 색만 초기화합니다."
+          }
+        }
+      }
+    },
     "코드 글꼴" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3652,74 +3754,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "긴 줄 자동 줄바꿈"
-          }
-        }
-      }
-    },
-    "코드 설정 기본값으로" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset Code Settings"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "코드 설정 기본값으로"
-          }
-        }
-      }
-    },
-    "목록은 설치된 고정폭 글꼴입니다. 글꼴 추가…로 서체 관리자에서 글꼴을 설치하면 목록에 나타나고, 고정폭이 아닌 글꼴은 이름을 직접 입력해 쓸 수 있습니다. 없는 글자는 Jetendard로 표시됩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The list shows installed monospaced fonts. Fonts installed in Font Book through Add Fonts… appear here; type the name of any other font to use it. Characters a font lacks fall back to Jetendard."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "목록은 설치된 고정폭 글꼴입니다. 글꼴 추가…로 서체 관리자에서 글꼴을 설치하면 목록에 나타나고, 고정폭이 아닌 글꼴은 이름을 직접 입력해 쓸 수 있습니다. 없는 글자는 Jetendard로 표시됩니다."
-          }
-        }
-      }
-    },
-    "목록은 설치된 고정폭 글꼴입니다. 다른 글꼴은 이름을 직접 입력해 쓸 수 있고, 없는 글자는 Jetendard로 표시됩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The list shows installed monospaced fonts. Type the name of any other font to use it; characters a font lacks fall back to Jetendard."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "목록은 설치된 고정폭 글꼴입니다. 다른 글꼴은 이름을 직접 입력해 쓸 수 있고, 없는 글자는 Jetendard로 표시됩니다."
-          }
-        }
-      }
-    },
-    "행간, 장폭, 자동 줄바꿈은 코드 블록에 적용되고, 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭은 코드 블록의 최대 너비로, 기본은 본문 폭이며 본문 폭을 넘지 않습니다. 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Line height, measure and wrapping apply to code blocks; letter spacing also applies to inline code and Source View. Measure is the maximum code block width; by default it is the text column, which it never exceeds. With wrapping off, long lines scroll horizontally."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "행간, 장폭, 자동 줄바꿈은 코드 블록에 적용되고, 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭은 코드 블록의 최대 너비로, 기본은 본문 폭이며 본문 폭을 넘지 않습니다. 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다."
           }
         }
       }
@@ -3907,23 +3941,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요소"
-          }
-        }
-      }
-    },
-    "색은 라이트와 다크에 따로 저장됩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Colors are saved separately for Light and Dark."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "색은 라이트와 다크에 따로 저장됩니다."
           }
         }
       }

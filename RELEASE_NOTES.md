@@ -1,3 +1,44 @@
+# Kissmark 2.3.15 (31)
+
+## 한국어
+
+설정의 디자인을 타이포그래피로 바꾸고, 코드 설정을 그 안에 합치고, 요소 색을 테마로 옮깁니다.
+
+### 변경 사항
+
+- **설정 → 디자인**의 이름을 **타이포그래피**로 바꿨습니다. 글자 크기, 정렬, 글꼴, 간격, 요소별 크기와 굵기를 여기서 조절합니다.
+- 2.3.14의 **설정 → 코드**를 타이포그래피 안의 **코드** 섹션으로 합쳤습니다. 설정 상단 항목은 다시 여섯 개입니다.
+- 요소별 색(본문, 제목, 코드, 인용, 표, 링크, 구분선)은 **설정 → 테마 → 요소 색**으로 옮겼습니다. 라이트와 다크에 따로 저장하며 모든 테마에 공통으로 적용합니다. 요소마다 **테마 색으로** 버튼이 있습니다.
+- 타이포그래피의 **모두 초기화**는 요소 색을 유지합니다. 저장된 값은 형식이 바뀌지 않아 그대로 이어집니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+프로젝트 MIT License와 외부 구성요소 고지는 그대로 유지합니다. 배포물은 Apple Silicon·Intel 바이너리를 포함하는 ad-hoc 서명 앱이며 Apple 공증은 없습니다. Intel, macOS 14, iOS 실제 실행과 외부 GUI 설치창의 최종 승인은 미검증입니다.
+
+정확한 소스 커밋, 체크섬과 검수 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`에 기록합니다.
+
+## English
+
+Settings › 디자인 becomes Typography, absorbs the code settings, and element colors move to Theme.
+
+### Changes
+
+- **Settings → Design** is now **Typography**: text size, alignment, fonts, spacing, and per-element size and weight.
+- The 2.3.14 **Settings → Code** pane is now the **Code** section inside Typography; the settings header is back to six items.
+- Per-element colors moved to **Settings → Theme → Element Colors**, saved separately for Light and Dark and shared by every theme, each with **Use Theme Color**.
+- Typography's **Reset All** keeps element colors. Saved values keep their format and carry over.
+
+### Installation and support
+
+Follow the [installation guide](INSTALL.md) to replace only the app. Documents, settings, review history, and agent connection configuration do not need to be reset.
+
+The project MIT License and third-party notices are unchanged. The distribution includes Apple Silicon/Intel binaries with ad-hoc signing and no Apple notarization. Intel, macOS 14, iOS runtime and final approval in external graphical installers remain unverified.
+
+`release-manifest.json`, `SHA256SUMS`, and `validation.json` record the exact source commit, artifact checksums, and verification scope.
+
+
 # Kissmark 2.3.14 (30)
 
 ## 한국어
