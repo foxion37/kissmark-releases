@@ -236,6 +236,66 @@
 html[data-km-scheme="dark"] { color-scheme: dark; }
 html[data-km-scheme="light"] { color-scheme: light; }
 
+/* Code syntax inks: VS Code's Light+ (light) and Dark+ (dark) token colors,
+   from microsoft/vscode extensions/theme-defaults/themes (light_vs, light_plus,
+   dark_vs, dark_plus). The editor maps CodeMirror token tags onto these roles;
+   operators and punctuation keep the code text color. A fixed scheme
+   (data-km-scheme) wins over the OS preference. */
+:root,
+html[data-km-scheme="light"] {
+  --km-syntax-keyword: #0000FF;
+  --km-syntax-control: #AF00DB;
+  --km-syntax-function: #795E26;
+  --km-syntax-type: #267F99;
+  --km-syntax-variable: #001080;
+  --km-syntax-constant: #0070C1;
+  --km-syntax-string: #A31515;
+  --km-syntax-number: #098658;
+  --km-syntax-regexp: #811F3F;
+  --km-syntax-escape: #EE0000;
+  --km-syntax-comment: #008000;
+  --km-syntax-tag: #800000;
+  --km-syntax-attribute: #E50000;
+  --km-syntax-tag-punctuation: #800000;
+  --km-syntax-invalid: #CD3131;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --km-syntax-keyword: #569CD6;
+    --km-syntax-control: #C586C0;
+    --km-syntax-function: #DCDCAA;
+    --km-syntax-type: #4EC9B0;
+    --km-syntax-variable: #9CDCFE;
+    --km-syntax-constant: #4FC1FF;
+    --km-syntax-string: #CE9178;
+    --km-syntax-number: #B5CEA8;
+    --km-syntax-regexp: #D16969;
+    --km-syntax-escape: #D7BA7D;
+    --km-syntax-comment: #6A9955;
+    --km-syntax-tag: #569CD6;
+    --km-syntax-attribute: #9CDCFE;
+    --km-syntax-tag-punctuation: #808080;
+    --km-syntax-invalid: #F44747;
+  }
+}
+html[data-km-scheme="dark"] {
+  --km-syntax-keyword: #569CD6;
+  --km-syntax-control: #C586C0;
+  --km-syntax-function: #DCDCAA;
+  --km-syntax-type: #4EC9B0;
+  --km-syntax-variable: #9CDCFE;
+  --km-syntax-constant: #4FC1FF;
+  --km-syntax-string: #CE9178;
+  --km-syntax-number: #B5CEA8;
+  --km-syntax-regexp: #D16969;
+  --km-syntax-escape: #D7BA7D;
+  --km-syntax-comment: #6A9955;
+  --km-syntax-tag: #569CD6;
+  --km-syntax-attribute: #9CDCFE;
+  --km-syntax-tag-punctuation: #808080;
+  --km-syntax-invalid: #F44747;
+}
+
 html {
   font-family: var(--km-font-body);
   font-size: calc(100% * var(--km-font-scale, 1));
@@ -601,7 +661,7 @@ pre,
   box-sizing: border-box;
   overflow-x: auto;
   background: var(--km-code-bg) !important;
-  color: var(--km-user-code-block-color, var(--km-code-fg)) !important;
+  color: var(--km-user-code-block-color, var(--km-text)) !important;
   border: 1px solid var(--km-border) !important;
   border-radius: var(--km-radius-code) !important;
   line-height: var(--km-code-line-height);
@@ -618,45 +678,103 @@ pre {
 }
 
 /* Crepe mounts a plain `pre` placeholder inside the block before CodeMirror
-   initializes; the block's own frame already styles it. */
+   initializes; it takes the body inset the CodeMirror host gets below. */
 .milkdown .milkdown-code-block > pre.milkdown-code-block-placeholder {
   margin: 0 !important;
-  padding: 0 !important;
+  padding: 1em 1.5rem 1.25em !important;
   border: none !important;
   border-radius: 0 !important;
   background: transparent !important;
 }
 
-/* Language label: the editor mirrors each code block's `language` attr onto
-   the wrapper as `data-language`. Read Mode hides Crepe's hover tools row
-   (language picker, Copy — editing chrome, like the rest of Read Mode) and
-   labels the block with the badge instead; Edit Mode keeps Crepe's own tools
-   (the language shows there on hover), so the badge stays Read-only. */
-body.km-mode-read .milkdown .milkdown-code-block .tools {
-  display: none !important;
+/* Code block = header bar + body. The frame drops its own padding; the header
+   (Crepe's tools row: language name left, Copy right) sits on a hairline above
+   the code, always visible in Read and Edit Mode. Read Mode shows the language
+   as a plain label (Crepe ignores clicks while read-only); Edit Mode keeps its
+   picker chevron. The picker list stays absolutely positioned, so the frame
+   must not clip (`overflow: visible`). */
+.milkdown .milkdown-code-block {
+  padding: 0 !important;
+  overflow: visible !important;
 }
-body.km-mode-read .milkdown .milkdown-code-block {
-  position: relative;
+.milkdown .milkdown-code-block .tools {
+  /* rem-based (follows Text Size), so the copied label below can reuse it. */
+  --km-code-tools-size: calc(var(--km-font-size) * 0.78);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+  min-height: 2.25em;
+  padding: 0.3em 0.6em 0.3em 1.5rem;
+  box-sizing: border-box;
+  border-bottom: 1px solid var(--km-border);
+  border-radius: var(--km-radius-code) var(--km-radius-code) 0 0;
+  background: color-mix(in srgb, var(--km-text) 4%, var(--km-code-bg));
+  font-family: var(--km-font-body);
+  font-size: var(--km-code-tools-size);
+  line-height: 1.2;
+  letter-spacing: 0;
 }
-body.km-mode-read .milkdown .milkdown-code-block[data-language]:not([data-language=""])::after {
-  content: attr(data-language);
-  position: absolute;
-  top: 0.55em;
-  right: 0.75em;
-  max-width: calc(100% - 1.5em);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-family: var(--km-font-mono);
-  font-size: 0.72em;
-  line-height: 1;
-  letter-spacing: var(--km-code-letter-spacing);
-  color: var(--km-muted);
-  background: var(--km-bg);
-  border: 1px solid var(--km-border);
+.milkdown .milkdown-code-block .codemirror-host {
+  padding: 1em 1.5rem 1.25em;
+}
+.milkdown .milkdown-code-block .tools .language-button {
+  padding: 0.2em 0.45em;
+  margin-left: -0.45em;
   border-radius: 5px;
-  padding: 0.3em 0.55em;
+  background: transparent;
+  color: var(--km-muted);
+  font-family: var(--km-font-mono);
+  font-size: 1em;
+  font-weight: 500;
+  letter-spacing: var(--km-code-letter-spacing);
+  /* Crepe shows it only on hover; the header label is always on. */
+  opacity: 1 !important;
+  margin-bottom: 0 !important;
+}
+/* A block without a language reads as a bare header in Read Mode, not as
+   Crepe's placeholder "Text"; Edit Mode keeps the picker to set one. */
+body.km-mode-read .milkdown .milkdown-code-block:not([data-language]) .tools .language-button,
+body.km-mode-read .milkdown .milkdown-code-block[data-language=""] .tools .language-button {
+  visibility: hidden;
+}
+body.km-mode-read .milkdown .milkdown-code-block .tools .language-button {
+  cursor: default;
   pointer-events: none;
+}
+body.km-mode-read .milkdown .milkdown-code-block .tools .language-button .expand-icon {
+  display: none;
+}
+.milkdown .milkdown-code-block .tools .tools-button-group button {
+  opacity: 1 !important;
+  padding: 0.3em 0.65em;
+  border-radius: 5px !important;
+  background: transparent;
+  color: var(--km-muted);
+  font-family: var(--km-font-body);
+  font-size: 1em;
+  font-weight: 500;
+  line-height: 1.2;
+  transition: background-color var(--km-dur-quick) var(--km-ease-out), color var(--km-dur-quick) var(--km-ease-out);
+}
+.milkdown .milkdown-code-block .tools .tools-button-group button svg {
+  fill: currentColor;
+}
+.milkdown .milkdown-code-block .tools .tools-button-group button:hover,
+.milkdown .milkdown-code-block .tools .language-button:hover {
+  background: color-mix(in srgb, var(--km-text) 8%, transparent);
+  color: var(--km-text);
+}
+/* After a copy the button reads 복사됨 (`data-copied`, set by the editor) in
+   the success ink; Crepe's own label is hidden, not replaced, so Vue's
+   rendering stays untouched. */
+.milkdown .milkdown-code-block .tools .tools-button-group .copy-button[data-copied] {
+  font-size: 0;
+  color: var(--km-success);
+}
+.milkdown .milkdown-code-block .tools .tools-button-group .copy-button[data-copied]::after {
+  content: attr(data-copied);
+  font-size: var(--km-code-tools-size);
 }
 
 pre code,
@@ -675,7 +793,7 @@ pre code,
 .milkdown .milkdown-code-block .cm-editor,
 .milkdown .milkdown-code-block .cm-gutters,
 .milkdown .milkdown-code-block .cm-content {
-  color: var(--km-user-code-block-color, var(--km-code-fg)) !important;
+  color: var(--km-user-code-block-color, var(--km-text)) !important;
   font-family: var(--km-font-mono) !important;
 }
 .milkdown .milkdown-code-block .cm-editor,

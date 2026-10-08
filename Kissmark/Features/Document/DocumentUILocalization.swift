@@ -20,7 +20,7 @@ struct DocumentUILocalization: Encodable, Equatable {
         "구분선", "목록", "고급", "코드 블록", "표",
         "내용을 입력하세요…", "링크를 붙여넣으세요…",
         "굵게", "기울임", "취소선", "코드", "링크",
-        "언어 검색", "복사", "결과 없음",
+        "언어 검색", "복사", "복사됨", "결과 없음",
     ]
 
     init(language: String, bundle: Bundle) {
