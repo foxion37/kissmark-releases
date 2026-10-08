@@ -127,7 +127,21 @@ struct DesignOverridesTests {
         #expect(DesignOverrides.decode(#"{"spacing":{}}"#).code == .init(), "values saved before Settings › 코드 still decode")
     }
 
-    @Test("Every spacing field belongs to exactly one Settings tab")
+    @Test("타이포그래피 reset clears everything but the element colors owned by 테마")
+    func typographyResetKeepsElementColors() {
+        var o = DesignOverrides()
+        o.spacing.lineHeight = 1.8
+        o.code.wrapsLines = false
+        o[element: .h1].sizeScale = 1.2
+        o[element: .h1].color = .init(light: "#AA0000", dark: nil)
+        o[element: .link].weight = 600
+        let kept = o.keepingOnlyElementColors()
+        #expect(kept.cssVariables(for: .light) == ["--km-user-h1-color": "#AA0000"])
+        #expect(kept.keepingOnlyElementColors() == kept)
+        #expect(DesignOverrides().keepingOnlyElementColors().isEmpty)
+    }
+
+    @Test("Every spacing field belongs to exactly one section")
     func spacingFieldsPartitionIntoTabs() {
         let body = DesignOverrides.SpacingField.body, code = DesignOverrides.SpacingField.code
         #expect(Set(body).isDisjoint(with: code))

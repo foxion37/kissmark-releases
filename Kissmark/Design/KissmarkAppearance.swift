@@ -189,14 +189,14 @@ extension View {
 /// A settings section on macOS. The header is a static box of labels with a
 /// glass capsule behind the selected one; nothing else in the header moves.
 nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
-    case general, design, theme, connections, shortcuts, mirror
+    case general, typography, theme, connections, shortcuts, mirror
 
     var id: Int { rawValue }
 
     var title: LocalizedStringKey {
         switch self {
         case .general: "일반"
-        case .design: "디자인"
+        case .typography: "타이포그래피"
         case .theme: "테마"
         case .connections: "연결"
         case .shortcuts: "단축키"
@@ -267,7 +267,7 @@ struct KissmarkSettingsView: View {
             Group {
                 switch selection {
                 case .general: themedPane(KissmarkGeneralSettingsView())
-                case .design: themedPane(DesignSettingsView())
+                case .typography: themedPane(DesignSettingsView())
                 case .theme: themedPane(ThemeSettingsView())
                 case .connections: themedPane(AgentConnectionsSettingsView())
                 case .shortcuts: themedPane(ShortcutsSettingsView())
@@ -417,12 +417,12 @@ struct KissmarkGeneralSettingsView: View {
             } header: {
                 KissmarkSettingsSectionHeader(title: "언어")
             } footer: {
-                Text("선택한 언어는 앱을 다시 열면 적용됩니다. 글꼴은 디자인에서 고릅니다.")
+                Text("선택한 언어는 앱을 다시 열면 적용됩니다. 글꼴은 타이포그래피에서 고릅니다.")
             }
             .kissmarkSettingsRowInsets()
             #if os(iOS)
             Section {
-                NavigationLink("디자인") { DesignSettingsView() }
+                NavigationLink("타이포그래피") { DesignSettingsView() }
                     .accessibilityIdentifier("settings-design-link")
                 NavigationLink("테마") { ThemeSettingsView() }
                     .accessibilityIdentifier("settings-theme-link")

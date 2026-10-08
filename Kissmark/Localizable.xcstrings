@@ -1208,23 +1208,6 @@
         }
       }
     },
-    "디자인" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Design"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "디자인"
-          }
-        }
-      }
-    },
     "테마" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3571,6 +3554,91 @@
         }
       }
     },
+    "타이포그래피" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Typography"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "타이포그래피"
+          }
+        }
+      }
+    },
+    "요소 색" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element Colors"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요소 색"
+          }
+        }
+      }
+    },
+    "요소별 크기와 굵기를 조절합니다. 요소 색은 테마에서 바꿉니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adjust size and weight per element. Element colors are in Theme."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "요소별 크기와 굵기를 조절합니다. 요소 색은 테마에서 바꿉니다."
+          }
+        }
+      }
+    },
+    "테마에서 고른 요소 색은 유지합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Element colors chosen in Theme are kept."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "테마에서 고른 요소 색은 유지합니다."
+          }
+        }
+      }
+    },
+    "라이트와 다크에 따로 저장하며 모든 테마에 공통으로 적용됩니다. 테마 색으로 되돌리면 선택한 화면 모드의 그 요소 색만 초기화합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved separately for Light and Dark and shared by every theme. Use Theme Color resets only that element's color for the selected mode."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "라이트와 다크에 따로 저장하며 모든 테마에 공통으로 적용됩니다. 테마 색으로 되돌리면 선택한 화면 모드의 그 요소 색만 초기화합니다."
+          }
+        }
+      }
+    },
     "코드 글꼴" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3873,23 +3941,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요소"
-          }
-        }
-      }
-    },
-    "색은 라이트와 다크에 따로 저장됩니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Colors are saved separately for Light and Dark."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "색은 라이트와 다크에 따로 저장됩니다."
           }
         }
       }
