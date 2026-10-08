@@ -107,6 +107,33 @@ struct DesignOverridesTests {
         #expect(old.cssVariables(for: .light)["--km-user-letter-spacing"] == "0.01")
     }
 
+    @Test("Code settings map to the code channels: line height, measure, wrap off, quoted font family")
+    func codeSettingsMap() {
+        var o = DesignOverrides()
+        o.spacing.codeLineHeight = 9
+        o.spacing.codeMeasureCh = 72
+        o.code.wrapsLines = false
+        o.code.fontFamily = #"  My "Mono" \ Font  "#
+        let vars = o.cssVariables(for: .light)
+        #expect(vars["--km-user-code-line-height"] == "2.2")
+        #expect(vars["--km-user-code-measure"] == "72ch")
+        #expect(vars["--km-code-white-space"] == "pre")
+        #expect(vars["--km-font-mono"] == #""My \"Mono\" \\ Font", "# + DesignOverrides.monoFallbackStack)
+        #expect(vars["--km-user-line-height"] == nil, "code line height never moves the body")
+
+        o.code = .init(fontFamily: " \n ", wrapsLines: true)
+        #expect(o.cssVariables(for: .light)["--km-font-mono"] == nil)
+        #expect(o.cssVariables(for: .light)["--km-code-white-space"] == nil)
+        #expect(DesignOverrides.decode(#"{"spacing":{}}"#).code == .init(), "values saved before Settings › 코드 still decode")
+    }
+
+    @Test("Every spacing field belongs to exactly one Settings tab")
+    func spacingFieldsPartitionIntoTabs() {
+        let body = DesignOverrides.SpacingField.body, code = DesignOverrides.SpacingField.code
+        #expect(Set(body).isDisjoint(with: code))
+        #expect(Set(body).union(code) == Set(DesignOverrides.SpacingField.allCases))
+    }
+
     @Test("Round trip and corrupt JSON")
     func corruptJSONFallsBackToNoOverrides() {
         var o = DesignOverrides()
