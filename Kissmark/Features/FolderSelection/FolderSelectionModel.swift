@@ -86,7 +86,11 @@ nonisolated enum FolderGrantRequest: Equatable {
 @Observable
 final class FolderSelectionModel {
     private(set) var selectedFolder: SelectedFolder?
-    private(set) var pendingDocumentURL: URL?
+    private(set) var pendingDocumentURL: URL? {
+        didSet { documentRequestGeneration += 1 }
+    }
+    /// URL equality cannot identify repeated external opens/review deliveries.
+    private(set) var documentRequestGeneration = 0
     /// Set when a picked Document needs its parent Folder granted; the view presents the
     /// picker and reports back through `handleGrant`.
     private(set) var pendingGrant: FolderGrantRequest?

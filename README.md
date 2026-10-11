@@ -93,6 +93,14 @@ bash mcp/check.sh
 swift scripts/check-list-alignment.swift
 ```
 
+패키징된 앱의 반복 MCP 검토 요청은 별도 앱 식별자와 임시 저장소로 검사합니다. 기존 설치본과 사용자 기록은 바꾸지 않습니다.
+
+The packaged-app regression uses an isolated app identity/store; it does not change the existing installation or user history.
+
+```sh
+swift mcp/check-review-refresh.swift /path/to/packaged/Kissmark.app
+```
+
 `_editor-build/`의 JavaScript를 수정하거나 에디터 테스트를 실행하려면 잠금 파일에 맞는 의존성을 먼저 설치합니다.
 
 To modify `_editor-build/` JavaScript or run editor tests, install the locked dependencies first.

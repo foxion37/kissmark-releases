@@ -1,14 +1,15 @@
-# Kissmark 2.3.20 (36)
+# Kissmark 2.3.21 (37)
 
 ## 한국어
 
-현재 개발 정본과 로컬 2.3.20을 기준으로 공개 소스와 다운로드를 동기화합니다.
+현재 개발 정본을 기준으로 공개 소스와 다운로드를 동기화합니다. 로컬 2.3.20의 UI를 유지하고, 배포 검수에서 발견한 반복 MCP 검토 요청 누락을 수정했습니다.
 
 ### 검색
 
 - 사이드바의 **문서+돋보기** 버튼으로 문서 검색창을 여닫습니다. 기본은 숨김이며 헤더 구분선 아래 여백을 유지합니다. 폴더 전체와 열어 본 문서를 검색하고 프로젝트·에이전트 조건으로 기록을 좁힐 수 있습니다.
 - 오른쪽 위 **돋보기** 또는 ⌘F는 문서 내 검색입니다. 대소문자·단어·정규식, 이전/다음 이동을 지원하며 읽기·편집·코드 보기와 코드 블록에서 결과를 강조합니다.
 - 검색 패널을 닫거나 검색창을 숨겨도 검색어를 유지합니다. 좁은 창의 더보기와 접힌 iPad 툴바에서도 검색에 접근할 수 있습니다.
+- 폴더를 바꾼 뒤 같은 문서에 연속으로 보내는 MCP 검토 요청이 빠지지 않도록 요청 식별을 수정했습니다. 실제 Release 앱에서 두 요청이 반영되고 문서 원문이 유지되는 것을 검증했습니다.
 
 ### 공개 2.3.16과의 차이
 
@@ -27,11 +28,12 @@
 
 ## English
 
-Public source and downloads are synchronized to the current canonical development state and local version 2.3.20.
+Public source and downloads follow the current canonical development state. This keeps the local 2.3.20 interface and fixes a repeated MCP review-delivery failure found by the package gate.
 
 - **Search Documents:** the document-and-magnifier sidebar control reveals a field hidden by default, with spacing below the header divider. Search the Folder or Opened Documents, with project/agent filters for recorded documents.
 - **Find in Document:** the top-right magnifier or Cmd-F supports case, whole-word and regex options, next/previous navigation, and highlights in Read/Edit/Source and fenced code.
 - Queries survive dismissal and hiding. Search remains reachable through narrow-window overflow and the collapsed iPad toolbar.
+- Repeated MCP review requests after changing folders now carry distinct delivery identities even for the same URL. The real Release-app regression consumed both requests without changing document bytes.
 
 ### Compatibility with public 2.3.16
 

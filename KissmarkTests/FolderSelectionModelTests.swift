@@ -3,6 +3,29 @@ import Testing
 @testable import Kissmark
 
 struct FolderSelectionModelTests {
+    @Test("Repeated external opens remain distinct after changing folder roots")
+    func repeatedExternalOpenHasNewDeliveryWithoutReloading() throws {
+        let root = try temporaryFolder(named: "KM_Repeated_Request")
+        defer { try? FileManager.default.removeItem(at: root) }
+        let first = root.appendingPathComponent("A/First.md")
+        let second = root.appendingPathComponent("B/Second.md")
+        for document in [first, second] {
+            try FileManager.default.createDirectory(at: document.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try "# Fixture\n".write(to: document, atomically: true, encoding: .utf8)
+        }
+        let model = FolderSelectionModel(bookmarks: try emptyBookmarks())
+        model.handle(.selected(url: root))
+        model.openExternal(first)
+        _ = model.consumePendingDocument()
+        model.openExternal(second)
+        let generation = model.documentRequestGeneration
+        model.openExternal(second)
+        #expect(model.documentRequestGeneration != generation)
+        #expect(model.pendingDocumentURL == second)
+        #expect(model.selectedFolder?.rootURL.standardizedFileURL == second.deletingLastPathComponent().standardizedFileURL)
+        #expect(model.reloadGeneration == 0, "a repeated request must not rebuild the editor and lose unsaved state")
+    }
+
     @Test("A fresh model starts with no Folder")
     func initialStateIsNone() {
         let model = FolderSelectionModel()
