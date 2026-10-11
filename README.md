@@ -22,6 +22,10 @@ Current releases are ad-hoc signed and not notarized by Apple. Follow the releas
   - **Read and edit:** folder browsing, read/edit modes, autosave, and Markdown source view.
 - **검토와 기록:** 검토 카드, 본문 강조, 코멘트, 최근 문서와 로컬 검색.
   - **Review and history:** review cards, highlights, comments, recent documents, and local search.
+- **문서 내 검색:** 오른쪽 위 돋보기 또는 ⌘F로 본문 위 찾기 바를 엽니다. 대소문자·단어·정규식 조건, ⌘G / ⇧⌘G 이동, Escape 닫기를 지원합니다.
+  - **Find in Document:** the top-right magnifier or ⌘F opens a clearly separated find bar above the body, with case/word/regex options and ⌘G / ⇧⌘G navigation.
+- **문서 검색:** 사이드바 토글 옆 문서+돋보기 버튼으로 검색창을 여닫습니다. 기본은 숨김이며, 펼치면 헤더 구분선 아래 여백을 두고 나타납니다. Enter 또는 검색 버튼으로 폴더 전체·열어 본 문서에서 찾습니다. 검색어는 숨기거나 패널을 닫아도 유지되며 ⇧⌘F도 사용할 수 있습니다.
+  - **Search Documents:** the document-and-magnifier button beside the sidebar toggle reveals/hides the field. It starts hidden and retains its query. Return or the submit button opens Folder / Opened Documents results; ⇧⌘F remains available.
 - **문서 관리:** 보관 폴더로 복사하고, 선택한 미러 폴더에 한 방향 사본을 저장합니다.
   - **Document management:** copy documents to an archive and maintain one-way copies in selected mirror folders.
 - **언어와 모양:** 한국어·영어 UI, 테마, 글자 크기와 간격, 영문 OS 기본·Inter 글꼴 선택. 언어와 영문 글꼴은 다음 실행부터 적용하며 문서 원문은 번역하지 않습니다.
@@ -30,6 +34,18 @@ Current releases are ad-hoc signed and not notarized by Apple. Follow the releas
 기록과 검토 정보는 이 Mac의 앱 컨테이너 안에 있는 SQLite에 저장됩니다. 문서 파일의 동기화와 앱의 로컬 검토 기록은 별개입니다.
 
 History and review data are stored in SQLite inside the app container on this Mac. Document-file synchronization does not synchronize the app's local review history.
+
+본문 찾기는 읽기·편집·코드 보기에서 문서 내용과 실행 취소 기록을 바꾸지 않습니다. 정규식은 Unicode JavaScript 문법입니다. 렌더링 화면에서는 문단·제목 같은 본문 블록 안에서 찾으며 블록 경계를 넘지 않습니다. 코드 보기에서는 frontmatter를 포함한 전체 원문을 검색합니다.
+
+Find works in Read, Edit and Source View without changing text or undo history. Regex uses Unicode JavaScript syntax. Rendered find stays inside body blocks such as paragraphs and headings; Source View searches the entire Markdown file, including frontmatter.
+
+상세 검색은 제목과 본문을 대소문자 구분 없이 문자열로 찾습니다. 본문 찾기의 단어·정규식 옵션은 적용하지 않습니다. **폴더** 범위는 아직 열지 않은 하위 폴더의 `.md`·`.markdown`도 읽고 숨김 파일과 심볼릭 링크는 제외합니다. 파일 하나만 열어 접근을 허용했다면 그 파일만 검색합니다. 읽기 실패가 있으면 읽을 수 있었던 결과와 오류를 함께 표시합니다.
+
+Advanced search matches literal text in titles and bodies, ignoring case; Find's whole-word and regex options do not carry over. **Folder** includes unopened nested `.md`/`.markdown` files, excluding hidden files and symlinks. Opening only one file grants search access to that file, not its siblings. Read failures appear alongside readable results.
+
+**열어 본 문서**는 앱에 남은 로컬 기록(Memory)입니다. 각 문서의 마지막 기록을 검색하므로 디스크의 현재 내용과 다를 수 있습니다. 프로젝트 필터는 열기 기록의 `project`, 에이전트 필터는 `agent` 또는 `host` 값과 일치해야 합니다. 이는 문서를 연 도구가 전달한 정보이며, 앞뒤 공백을 제외한 대소문자까지 정확히 비교합니다. 빈 필터는 제한하지 않고, 둘 다 입력하면 문서의 열기 이력에서 각 조건을 모두 만족해야 합니다.
+
+**Opened Documents** is the app's persisted local Memory: the last recorded text of each document, which may differ from current disk contents. Filters match opener-supplied metadata: `project`, and `agent` or `host`. Values are case-sensitive after trimming surrounding whitespace. Empty filters impose no restriction; when both are filled, each must match the document's opening history.
 
 ## 에이전트 연결 / Agent integration
 
@@ -53,10 +69,6 @@ Use Settings → Connect to find candidates and add only the connections you wan
 
 For a source-build helper, `KISSMARK_BUNDLE_ID` and `KISSMARK_STORE_DIR` can select another app bundle and memory store.
 
-앱을 `/Applications`에 설치했다면 MCP 클라이언트의 실행 명령으로 `/Applications/Kissmark.app/Contents/Helpers/kissmark-mcp`를 사용합니다. 소스와 빌드 안내는 [이 공개 저장소](https://github.com/foxion37/kissmark-releases)에 있습니다.
-
-When installed in `/Applications`, use `/Applications/Kissmark.app/Contents/Helpers/kissmark-mcp` as the MCP client's executable command. Source and build instructions are available in [this public repository](https://github.com/foxion37/kissmark-releases).
-
 ## 빌드와 테스트 / Build and test
 
 macOS와 Xcode가 필요합니다. 확인한 개발 환경은 Xcode 27.0, Swift 6.4, Node 24.18.0입니다. 더 오래된 도구 버전에서의 빌드는 보장하지 않습니다.
@@ -79,14 +91,6 @@ xcodebuild test -project Kissmark.xcodeproj -scheme Kissmark \
 swift test --package-path mcp
 bash mcp/check.sh
 swift scripts/check-list-alignment.swift
-```
-
-같은 문서의 MCP 검토 갱신은 패키징된 Release 앱으로 검사합니다. 아래 검사는 별도 식별자의 앱 복사본과 저장소를 사용하며, 기존 설치본과 사용자 기록을 변경하지 않습니다.
-
-Check same-document MCP review updates using a packaged Release app. This check uses an isolated app copy and store without changing the existing installation or user history.
-
-```sh
-swift mcp/check-review-refresh.swift /Applications/Kissmark.app
 ```
 
 `_editor-build/`의 JavaScript를 수정하거나 에디터 테스트를 실행하려면 잠금 파일에 맞는 의존성을 먼저 설치합니다.

@@ -5,6 +5,7 @@ import SwiftUI
 /// macOS window: custom header (hidden titlebar) + resizable sidebar split.
 struct FolderBrowserMacLayout<Sidebar: View, Detail: View>: View {
     @Bindable var workspace: FolderBrowserWorkspace
+    @Bindable var search: DocumentSearchPresentation
     @Binding var sidebar: KissmarkSidebarPresentation
     var isTitleFocused: FocusState<Bool>.Binding
     let undoManager: UndoManager?
@@ -36,6 +37,7 @@ struct FolderBrowserMacLayout<Sidebar: View, Detail: View>: View {
 
                 FolderBrowserMacHeader(
                     workspace: workspace,
+                    search: search,
                     sidebarWidth: sidebarWidth,
                     isSidebarVisible: sidebar.isVisible,
                     actionsAreCollapsed: actionsAreCollapsed,

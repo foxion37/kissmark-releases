@@ -19,37 +19,19 @@ enum KissmarkMetrics {
     static let minTapTarget: CGFloat = 44
 
     static let settingsMinimumSize = CGSize(width: 560, height: 440)
-    /// Launch width of the Settings window. The window resizes freely and the grouped
-    /// rows span it — a capped content column left dead margins and stranded the
-    /// scrollbar away from the window edge.
-    static let settingsDefaultWidth: CGFloat = 680
+    static let settingsContentMaxWidth: CGFloat = 680
     /// One readable column, with room for longer panes to scroll.
-    static let settingsDefaultSize = CGSize(width: settingsDefaultWidth, height: 600)
-    static let settingsRowGap = KissmarkSpacing.space12
-    /// Vertical rhythm between content blocks inside one settings pane row.
-    static let settingsContentGap = KissmarkSpacing.space16
+    static let settingsDefaultSize = CGSize(width: settingsContentMaxWidth, height: 600)
+    static let settingsRowGap = KissmarkSpacing.space8
+    static let settingsConnectionTextGap = KissmarkSpacing.space4
     static let settingsSheetInset = KissmarkSpacing.space20
-    /// Inner padding of a grouped settings row (the box around its text).
-    static let settingsRowInsets = EdgeInsets(
-        top: KissmarkSpacing.space16,
-        leading: KissmarkSpacing.space20,
-        bottom: KissmarkSpacing.space16,
-        trailing: KissmarkSpacing.space20
-    )
-    /// Chevron size of a settings pane's disclosure row (진단).
-    static let settingsDisclosureGlyphSize: CGFloat = 16
-    /// Static settings header box paddings.
-    static let settingsHeaderInset = KissmarkSpacing.space4
-    static let settingsHeaderLabelPad = KissmarkSpacing.space16
-    static let settingsHeaderVerticalPad = KissmarkSpacing.space8
-    static let settingsHeaderBlockPad = KissmarkSpacing.space16
     static let iconButtonOutlineWidth: CGFloat = 1
     static let iconButtonOutlineOpacity: CGFloat = 0.35
     static let iconButtonHoverOpacity: CGFloat = 0.06
     static let themeSwatchSize: CGFloat = 14
     static let settingsThemeRowVerticalInset = KissmarkSpacing.space8
     /// Compact Settings slider: full-width track, five non-interactive reference marks.
-    static let settingsSliderRowGap = KissmarkSpacing.space8
+    static let settingsSliderRowGap = KissmarkSpacing.space4
     static let settingsSliderTrackInset: CGFloat = 10
     static let settingsSliderHeight: CGFloat = 24
     static let settingsSliderTrackHeight: CGFloat = 4
@@ -88,7 +70,6 @@ enum KissmarkMetrics {
     static let toolbarCloseOpticalScale: CGFloat = 1.1
     static let toolbarLockOpticalScale: CGFloat = 0.9
     static let toolbarSettingsOpticalScale: CGFloat = 0.9
-    static let toolbarCopyOpticalScale: CGFloat = 0.9
     static let toolbarPanelOpticalScale: CGFloat = 0.95
     static let toolbarChevronOpticalScale: CGFloat = 1.1
 

@@ -3,11 +3,12 @@ import AppKit
 import SwiftUI
 
 /// Root-owned action bar directly under the native title bar (ADR 0020). The sidebar
-/// lane leads with the sidebar toggle (a fixed position whether or not the sidebar is
-/// visible) and lets the FolderControl fill the rest; the Document lane holds the
+/// lane leads with the sidebar and document-search toggles at fixed positions
+/// and lets FolderControl fill the rest; the Document lane holds the
 /// filename and the action cluster.
 struct FolderBrowserMacHeader: View {
     @Bindable var workspace: FolderBrowserWorkspace
+    @Bindable var search: DocumentSearchPresentation
     let sidebarWidth: CGFloat
     let isSidebarVisible: Bool
     let actionsAreCollapsed: Bool
@@ -63,10 +64,24 @@ struct FolderBrowserMacHeader: View {
     }
 
     /// Occupies exactly the sidebar column's width while it is visible, so the bar's
-    /// separator lines up with the split view's; collapsed, it shrinks to the toggle.
+    /// separator aligns with the split view; collapsed, it retains both toggles.
     private var sidebarLane: some View {
         HStack(spacing: KissmarkMetrics.iconLabelGap) {
             KissmarkSidebarToggleButton(isSidebarVisible: isSidebarVisible, action: toggleSidebar)
+            KissmarkIconButton(
+                title: "문서 검색",
+                lucide: .fileSearch,
+                active: isSidebarVisible && search.isFieldVisible,
+                accessibilityIdentifier: "document-search-toggle"
+            ) {
+                if !isSidebarVisible {
+                    toggleSidebar()
+                    search.isFieldVisible = true
+                } else {
+                    search.isFieldVisible.toggle()
+                }
+            }
+            .accessibilityValue(Text(search.isFieldVisible && isSidebarVisible ? "expanded" : "collapsed"))
 
             if isSidebarVisible {
                 KissmarkFolderControl(

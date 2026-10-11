@@ -1,25 +1,4 @@
 import SwiftUI
-#if os(macOS)
-import AppKit
-#else
-import UIKit
-#endif
-
-/// Copies the Document's file path so it can be pasted straight to an agent, a
-/// terminal, or Finder. The pasteboard carries both plain text and a file URL.
-@MainActor
-enum DocumentPathClipboard {
-    static func copy(_ url: URL) {
-        #if os(macOS)
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        pasteboard.writeObjects([url as NSURL])
-        pasteboard.setString(url.path, forType: .string)
-        #else
-        UIPasteboard.general.string = url.path
-        #endif
-    }
-}
 
 /// One list of Document toolbar items for every shell (ADR 0011 stable slots, ADR 0016 disabled stays visible).
 enum KissmarkDocumentToolbarItems {
@@ -34,6 +13,7 @@ enum KissmarkDocumentToolbarItems {
         let hasDocument = session != nil
         let isEditing = session?.mode == .edit
         let isSourceView = session?.viewMode == .source
+        let isFinding = session?.find.isPresented == true
         var items: [KissmarkToolbarCluster.Item] = [
             .init(
                 id: "kissmark.folder.new",
@@ -57,6 +37,17 @@ enum KissmarkDocumentToolbarItems {
                 workspace.toggleDocumentViewMode(undoManager: undoManager)
             },
             .init(
+                id: "kissmark.document.find",
+                title: "문서 내 검색",
+                icon: .lucide(.search),
+                active: isFinding,
+                disabled: !hasDocument,
+                accessibilityIdentifier: "document-find-button",
+                accessibilityValue: isFinding ? "on" : "off"
+            ) {
+                workspace.session?.find.present()
+            },
+            .init(
                 id: "kissmark.document.mode",
                 title: isEditing ? "잠금" : "잠금 해제",
                 icon: .lucide(isEditing ? .lockOpen : .lock),
@@ -77,18 +68,6 @@ enum KissmarkDocumentToolbarItems {
                 accessibilityIdentifier: "document-archive-button"
             ) {
                 workspace.archive(undoManager: undoManager)
-            },
-            .init(
-                id: "kissmark.document.copyPath",
-                title: "경로 복사",
-                icon: .lucide(.copy),
-                disabled: !hasDocument,
-                opticalScale: KissmarkMetrics.toolbarCopyOpticalScale,
-                accessibilityIdentifier: "document-copy-path-button"
-            ) {
-                if let url = session?.sourceURL {
-                    DocumentPathClipboard.copy(url)
-                }
             },
             .init(
                 id: "kissmark.document.close",

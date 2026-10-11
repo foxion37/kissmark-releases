@@ -42,7 +42,10 @@ struct KissmarkApp: App {
         .windowStyle(.titleBar)
         .defaultSize(width: launchWindowSize.width, height: launchWindowSize.height)
         .windowResizability(.contentMinSize)
-        .commands { openCommands }
+        .commands {
+            openCommands
+            KissmarkSearchCommands()
+        }
 
         // A plain `Window` scene instead of `Settings`: SwiftUI's Settings scene
         // ignores `windowResizability`, reports a finite content maximum, and
@@ -64,7 +67,10 @@ struct KissmarkApp: App {
                 .environment(updateController)
                 .environment(mirror)
         }
-        .commands { openCommands }
+        .commands {
+            openCommands
+            KissmarkSearchCommands()
+        }
         #endif
     }
 

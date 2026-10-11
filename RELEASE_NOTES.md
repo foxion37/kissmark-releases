@@ -1,3 +1,46 @@
+# Kissmark 2.3.20 (36)
+
+## 한국어
+
+현재 개발 정본과 로컬 2.3.20을 기준으로 공개 소스와 다운로드를 동기화합니다.
+
+### 검색
+
+- 사이드바의 **문서+돋보기** 버튼으로 문서 검색창을 여닫습니다. 기본은 숨김이며 헤더 구분선 아래 여백을 유지합니다. 폴더 전체와 열어 본 문서를 검색하고 프로젝트·에이전트 조건으로 기록을 좁힐 수 있습니다.
+- 오른쪽 위 **돋보기** 또는 ⌘F는 문서 내 검색입니다. 대소문자·단어·정규식, 이전/다음 이동을 지원하며 읽기·편집·코드 보기와 코드 블록에서 결과를 강조합니다.
+- 검색 패널을 닫거나 검색창을 숨겨도 검색어를 유지합니다. 좁은 창의 더보기와 접힌 iPad 툴바에서도 검색에 접근할 수 있습니다.
+
+### 공개 2.3.16과의 차이
+
+이번 배포는 현재 개발 정본의 동작을 그대로 따릅니다. 기존 공개 분기에만 있던 변경을 자동으로 다시 합친 버전은 아닙니다.
+
+- 설정은 **디자인 / 코드**가 분리된 구성입니다. 요소 색은 디자인에서 편집하며 디자인 전체 초기화 시 함께 초기화됩니다.
+- 공개판의 **경로 복사** 툴바 항목과 항상 보이는 코드 블록 언어/복사 머리글은 포함하지 않습니다. 코드 도구는 현재 앱의 읽기·편집 보기 방식으로 표시하고, 문법 색은 앱 테마를 따릅니다.
+- 글자 크기 단계와 문서 정보·검토 카드 글자 크기가 공개 2.3.16과 다릅니다.
+- 오래된 폴더 권한 복원, 반복 폴더 선택 요청, 열기 실패 시 최근 기록과 연결 상태 갱신은 현재 정본의 구현을 따릅니다. 공개판의 별도 보완이 모두 포함되었다고 주장하지 않습니다. 이 차이는 소스 비교 결과이며 모든 조건의 실행 검증을 뜻하지 않습니다.
+
+### 설치와 검증
+
+[설치 안내](INSTALL.md)에 따라 앱만 교체하세요. Claude Desktop 확장을 사용하면 앱에 포함된 새 `kissmark.mcpb`도 다시 설치해야 합니다. 문서·설정·기록·연결을 초기화하지 않습니다.
+
+배포물은 Apple Silicon·Intel용 ad-hoc 서명이며 Apple 공증과 내장 iCloud 권한은 없습니다. 정확한 소스, 아키텍처, 체크섬과 실제 검증 범위는 `release-manifest.json`, `SHA256SUMS`, `validation.json`을 확인하세요. Intel·macOS 14 실제 실행과 전체 iOS 기능 검증은 수행하지 않았습니다.
+
+## English
+
+Public source and downloads are synchronized to the current canonical development state and local version 2.3.20.
+
+- **Search Documents:** the document-and-magnifier sidebar control reveals a field hidden by default, with spacing below the header divider. Search the Folder or Opened Documents, with project/agent filters for recorded documents.
+- **Find in Document:** the top-right magnifier or Cmd-F supports case, whole-word and regex options, next/previous navigation, and highlights in Read/Edit/Source and fenced code.
+- Queries survive dismissal and hiding. Search remains reachable through narrow-window overflow and the collapsed iPad toolbar.
+
+### Compatibility with public 2.3.16
+
+This follows the current canonical interface, not an automatic union of public-branch-only changes. Settings have separate **Design / Code** panes; element colors live in Design and are included in its reset. The public **Copy Path** toolbar action and always-visible code language/Copy header are not retained; code tools follow the current Read/Edit presentation and syntax uses app-theme colors. Text-size steps and info/review typography differ. Stale-folder grants, repeated picker requests, failed-open recents and connection refresh follow the canonical implementation; inclusion of every earlier public fix is not claimed. These are static source differences, not exhaustive runtime results.
+
+Follow [INSTALL.md](INSTALL.md), replace only the app, and reinstall its MCPB if using Claude Desktop's copied extension. Signing remains ad-hoc, without notarization or built-in iCloud entitlements. See the manifest, checksums and validation attachment for exact provenance and exercised scope; Intel/macOS 14 runtime and a full iOS functional suite are not verified.
+
+---
+
 # Kissmark 2.3.16 (32)
 
 ## 한국어

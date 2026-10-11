@@ -18,6 +18,7 @@ import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
 import { markdown } from "@codemirror/lang-markdown";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
+import { findSourceExtension, sourceFindSpec } from "./find.mjs";
 
 const highlight = HighlightStyle.define([
   { tag: tags.heading, color: "var(--km-text)", fontWeight: "650" },
@@ -54,6 +55,7 @@ export function createSourceView({ parent, onDocChanged }) {
       keymap.of([...defaultKeymap, ...historyKeymap]),
       markdown(),
       syntaxHighlighting(highlight),
+      findSourceExtension,
       editable.of(access(isEditable)),
       EditorView.updateListener.of((update) => {
         if (update.docChanged && !applying) onDocChanged(update.state.doc.toString());
@@ -100,6 +102,10 @@ export function createSourceView({ parent, onDocChanged }) {
     attach,
     setText,
     setEditable,
+    /** Highlights `matches` (active one marked); effects only, the text is untouched. */
+    setFind(matches, active, reveal = false) {
+      view?.dispatch(sourceFindSpec(matches, active, reveal));
+    },
     getText: doc,
     focus: () => view?.focus(),
   };

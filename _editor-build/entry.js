@@ -20,6 +20,7 @@ import { playEntrance, prefersReducedMotion, withViewTransition } from "./motion
 import { notInputRulePlugin } from "./input-rules.mjs";
 import { BANNED_TYPOGRAPHY, isStrongHeading, lintTypographyText } from "./typography.mjs";
 import { createSourceView } from "./source-view.mjs";
+import { applyCodeFind, findCodeExtension, findMatches, findProsePlugin, proseFindTransaction, stepIndex, textblockSegments } from "./find.mjs";
 import { currentKindKey, turnIntoOps } from "./turn-into.mjs";
 import { uiLanguage, uiText } from "./ui-text.mjs";
 
@@ -33,68 +34,29 @@ const ENTRANCE_FALLBACK_MS = 40;
 /** Movement (px) above which a press on the block handle counts as a drag. */
 const CLICK_SLOP = 4;
 
-/** One token role → its `--km-syntax-*` ink in reader.css. */
-const ink = (role) => `var(--km-syntax-${role})`;
-
 /**
  * Code block theme, replacing Crepe's default One Dark (which painted the
  * active-line gutter dark and the tokens in dark-only inks on light themes).
- * Token roles follow VS Code's Dark+ / Light+ (keywords, control flow,
- * functions, types, variables, constants, strings, numbers, tags, attributes,
- * comments); the inks are `--km-syntax-*` in reader.css, which picks the
- * Light+ or Dark+ set by color scheme. Operators and punctuation keep the code
- * text color, as in VS Code. Surfaces, gutter and selection also come from
- * reader.css. `lineWrapping` stays on: `--km-code-white-space` decides whether
- * long lines actually wrap (Settings › 타이포그래피 › 코드).
+ * Surfaces, gutter and selection come from `reader.css`; only the token inks
+ * live here, as `--km-*` references so every theme and scheme follows.
+ * `lineWrapping` stays on: `--km-code-white-space` in reader.css decides whether
+ * long lines actually wrap (Settings › 코드 › 자동 줄바꿈).
  */
 const codeBlockTheme = [
   EditorView.lineWrapping,
   syntaxHighlighting(
     HighlightStyle.define([
-      { tag: [tags.keyword, tags.definitionKeyword, tags.modifier, tags.operatorKeyword, tags.self, tags.bool, tags.null, tags.atom, tags.meta, tags.annotation, tags.processingInstruction, tags.changed], color: ink("keyword") },
-      { tag: [tags.controlKeyword, tags.moduleKeyword], color: ink("control") },
-      { tag: [tags.function(tags.variableName), tags.function(tags.propertyName), tags.function(tags.definition(tags.variableName)), tags.function(tags.definition(tags.propertyName)), tags.macroName], color: ink("function") },
-      { tag: [tags.typeName, tags.className, tags.namespace, tags.definition(tags.typeName), tags.definition(tags.className), tags.standard(tags.variableName), tags.standard(tags.typeName)], color: ink("type") },
-      { tag: [tags.variableName, tags.definition(tags.variableName), tags.propertyName, tags.definition(tags.propertyName), tags.labelName], color: ink("variable") },
-      { tag: [tags.constant(tags.variableName), tags.constant(tags.propertyName)], color: ink("constant") },
-      { tag: [tags.string, tags.special(tags.string), tags.character, tags.attributeValue, tags.docString, tags.url, tags.deleted], color: ink("string") },
-      { tag: [tags.number, tags.integer, tags.float, tags.unit, tags.inserted], color: ink("number") },
-      { tag: tags.regexp, color: ink("regexp") },
-      { tag: tags.escape, color: ink("escape") },
-      { tag: [tags.comment, tags.lineComment, tags.blockComment, tags.docComment], color: ink("comment") },
-      { tag: tags.tagName, color: ink("tag") },
-      { tag: tags.attributeName, color: ink("attribute") },
-      { tag: tags.angleBracket, color: ink("tag-punctuation") },
-      { tag: tags.invalid, color: ink("invalid") },
-      { tag: tags.heading, color: ink("keyword"), fontWeight: "650" },
+      { tag: [tags.keyword, tags.operatorKeyword, tags.modifier, tags.controlKeyword], color: "var(--km-accent)" },
+      { tag: [tags.string, tags.special(tags.string), tags.regexp, tags.inserted], color: "var(--km-success)" },
+      { tag: [tags.number, tags.bool, tags.atom, tags.null, tags.typeName, tags.className], color: "var(--km-warn)" },
+      { tag: [tags.tagName, tags.heading, tags.deleted, tags.invalid], color: "var(--km-danger)" },
+      { tag: [tags.comment, tags.meta, tags.processingInstruction], color: "var(--km-muted)", fontStyle: "italic" },
       { tag: tags.strong, fontWeight: "650" },
       { tag: tags.emphasis, fontStyle: "italic" },
-      { tag: tags.strikethrough, textDecoration: "line-through" },
       { tag: tags.link, textDecoration: "underline" },
     ]),
   ),
 ];
-
-/** How long a code block's copy button reads "복사됨" after a copy. */
-const COPIED_MS = 1500;
-/** The copy button last clicked; Crepe's `onCopy` only receives the text. */
-let pressedCopyButton = null;
-window.addEventListener(
-  "click",
-  (event) => {
-    pressedCopyButton = event.target instanceof Element ? event.target.closest(".milkdown-code-block .copy-button") : null;
-  },
-  true
-);
-
-/** Marks the clicked copy button as copied; reader.css swaps its label. */
-function markCopied() {
-  const button = pressedCopyButton;
-  if (!button) return;
-  button.dataset.copied = uiText("복사됨");
-  clearTimeout(button.kmCopiedTimer);
-  button.kmCopiedTimer = setTimeout(() => delete button.dataset.copied, COPIED_MS);
-}
 
 /**
  * Local-only Milkdown Crepe host for Kissmark Document surface
@@ -442,11 +404,10 @@ function createAPI() {
           // `null`, not omitted: Crepe deep-merges its defaults (One Dark) into
           // anything left undefined — and into any object passed here.
           theme: null,
-          extensions: codeBlockTheme,
+          extensions: [...codeBlockTheme, ...findCodeExtension(scheduleFindRefresh)],
           searchPlaceholder: uiText("언어 검색"),
           copyText: uiText("복사"),
           noResultText: uiText("결과 없음"),
-          onCopy: markCopied,
         },
         [CrepeFeature.BlockEdit]: {
           // Slash menu labels come from the app catalogue; H6 is not offered (spec item 7).
@@ -575,6 +536,9 @@ function createAPI() {
       )
     );
 
+    // Find highlights (decoration-only; see `find` below).
+    crepe.editor.use($prose(() => findProsePlugin({ onDocChanged: scheduleFindRefresh })));
+
     // Mirror each code block's `language` attr onto its wrapper DOM as
     // `data-language`: the Crepe node view only exposes the language through
     // the picker's list items, and reader.css labels the block from it.
@@ -631,6 +595,7 @@ function createAPI() {
         onDocChanged: () => {
           userEdited = true;
           scheduleSourceChange();
+          scheduleFindRefresh();
         },
       });
     }
@@ -654,6 +619,7 @@ function createAPI() {
     view = "source";
     applyViewClass();
     ensureSource().attach(text, mode === "edit");
+    refreshFind();
   }
 
   /** Back to the rendered document, rebuilt from the source text. */
@@ -677,6 +643,7 @@ function createAPI() {
     }
     userEdited = edited;
     applyViewClass();
+    refreshFind();
   }
 
   /* ------------------------------------------------------------- churn-free */
@@ -743,19 +710,25 @@ function createAPI() {
     return false;
   }
 
-  async function setMarkdown(markdown) {
-    applying = true;
-    try {
-      if (view === "source" && crepe) {
-        // A push while the source view is up only replaces the text.
-        rawText = markdown ?? "";
-        ensureSource().setText(rawText);
-      } else {
-        await mount(markdown ?? "");
+  /** Remounts (rendered view) or replaces the source text; `find` waits for it. */
+  function setMarkdown(markdown) {
+    const run = (async () => {
+      applying = true;
+      try {
+        if (view === "source" && crepe) {
+          // A push while the source view is up only replaces the text.
+          rawText = markdown ?? "";
+          ensureSource().setText(rawText);
+        } else {
+          await mount(markdown ?? "");
+        }
+      } finally {
+        applying = false;
       }
-    } finally {
-      applying = false;
-    }
+      refreshFind();
+    })();
+    markdownSet = run.catch(() => {});
+    return run;
   }
 
   /** Posts the final change and clears the dirty flag; only an edited Document calls it. */
@@ -993,6 +966,122 @@ function createAPI() {
     });
   }
 
+  /* ------------------------------------------------------------------- find */
+
+  /**
+   * Current-document find. `findState` is the last request (`null` = closed);
+   * it is re-applied after every edit, remount and view switch, so Swift only
+   * sends a request when the query, an option or the step changes. Highlights
+   * are decorations: no document change, autosave, history entry or selection
+   * change. Every result carries the request `id` so Swift can drop stale ones.
+   */
+  let findState = null;
+  let latestFindId = 0;
+  let findTimer = 0;
+  let pendingCodeReveal = false;
+  /** Settles when the last `setMarkdown` (a remount in rendered view) is done. */
+  let markdownSet = Promise.resolve();
+
+  function proseView() {
+    if (!crepe) return null;
+    try {
+      return crepe.editor.action((ctx) => ctx.get(editorViewCtx));
+    } catch {
+      return null;
+    }
+  }
+
+  function applyFind({ step = 0, reveal = false, id } = {}) {
+    const s = findState;
+    const pv = proseView();
+    const inSource = view === "source";
+    let matches = [];
+    let error = null;
+    if (s) {
+      const segments = inSource
+        ? [{ start: 0, text: source ? source.getText() : "" }]
+        : pv
+          ? textblockSegments(pv.state.doc)
+          : [];
+      ({ matches, error } = findMatches(segments, s.query, s));
+    }
+    const active =
+      matches.length === 0 ? -1 : step ? stepIndex(s.active, matches.length, step) : Math.min(Math.max(s.active, 0), matches.length - 1);
+    if (s) s.active = Math.max(active, 0);
+    if (pv) {
+      const rendered = inSource ? [] : matches;
+      pv.dispatch(proseFindTransaction(pv.state, rendered, active));
+      pendingCodeReveal = applyCodeFind(pv, rendered, active, (reveal || pendingCodeReveal) && !inSource);
+    }
+    source?.setFind(inSource ? matches : [], active, reveal && inSource);
+    if (reveal && !inSource) {
+      pv?.dom.querySelector(".km-find-active")?.scrollIntoView({ block: "center", behavior: "auto" });
+    }
+    const result = { id: id ?? s?.id ?? latestFindId, total: matches.length, active, error, view };
+    post({ type: "find", ...result });
+    return result;
+  }
+
+  /** Debounced re-run after an edit. */
+  function scheduleFindRefresh() {
+    if (!findState) return;
+    clearTimeout(findTimer);
+    findTimer = setTimeout(() => {
+      findTimer = 0;
+      if (findState && !applying) applyFind();
+    }, 80);
+  }
+
+  /** Immediate re-run after a remount or view switch (new DOM, same query). */
+  function refreshFind() {
+    if (!findState) return;
+    clearTimeout(findTimer);
+    findTimer = 0;
+    applyFind({ reveal: true });
+  }
+
+  /**
+   * `request`: `{ id, query, caseSensitive, wholeWord, regex, step }`; `step`
+   * 0 = (re)search, 1 / -1 = next / previous match (wraps). An empty query
+   * closes find and clears the highlights. Resolves to
+   * `{ id, total, active (0-based, -1 = none), error: null | "invalid-regex", view }`,
+   * or `{ id, stale: true }` when a newer request superseded this one. The same
+   * result (without `stale`) is posted as `{ type: "find", ... }`.
+   */
+  async function find(request) {
+    const id = Number(request?.id) || 0;
+    latestFindId = id;
+    await viewSwitch;
+    await markdownSet;
+    if (id !== latestFindId) return { id, stale: true };
+    clearTimeout(findTimer);
+    findTimer = 0;
+    const query = typeof request.query === "string" ? request.query : "";
+    if (query === "") {
+      findState = null;
+      return applyFind({ id });
+    }
+    const next = {
+      id,
+      query,
+      caseSensitive: Boolean(request.caseSensitive),
+      wholeWord: Boolean(request.wholeWord),
+      regex: Boolean(request.regex),
+      active: 0,
+    };
+    const prev = findState;
+    const same =
+      prev &&
+      prev.query === next.query &&
+      prev.caseSensitive === next.caseSensitive &&
+      prev.wholeWord === next.wholeWord &&
+      prev.regex === next.regex;
+    if (same) next.active = prev.active;
+    findState = next;
+    const step = same ? Number(request.step) || 0 : 0;
+    return applyFind({ step, reveal: !same || step !== 0 });
+  }
+
   return {
     mount,
     setMarkdown,
@@ -1008,6 +1097,7 @@ function createAPI() {
     armOpeningEntrance,
     applyStyle,
     cleanTypography,
+    find,
   };
 }
 
