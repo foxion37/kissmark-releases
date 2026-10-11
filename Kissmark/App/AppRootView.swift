@@ -173,6 +173,7 @@ struct AppRootView: View {
             FolderBrowserView(
                 folder: folder,
                 initialDocumentURL: model.pendingDocumentURL,
+                documentRequestGeneration: model.documentRequestGeneration,
                 mirror: mirror,
                 consumeDocumentRequest: { _ = model.consumePendingDocument() },
                 openExternalDocument: { model.openExternal($0) },

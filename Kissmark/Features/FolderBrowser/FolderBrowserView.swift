@@ -24,6 +24,7 @@ struct FolderBrowserView: View {
     /// A Document to show; a new value after appearing (an external open that lands in
     /// the same browsed root) selects it in place.
     private let documentRequest: URL?
+    private let documentRequestGeneration: Int
     private let consumeDocumentRequest: () -> Void
     /// ⌘R: asks the app to rebuild this window, reopening the given Document.
     private let requestReload: (URL?) -> Void
@@ -31,6 +32,7 @@ struct FolderBrowserView: View {
     init(
         folder: SelectedFolder,
         initialDocumentURL: URL? = nil,
+        documentRequestGeneration: Int,
         mirror: MirrorCoordinator? = nil,
         consumeDocumentRequest: @escaping () -> Void = {},
         openExternalDocument: @escaping (URL) -> Void = { _ in },
@@ -43,6 +45,7 @@ struct FolderBrowserView: View {
             : MemoryStore.live
         _workspace = State(initialValue: FolderBrowserWorkspace(folder: folder, initialDocumentURL: initialDocumentURL, mirror: mirror, memory: memory, openOutside: openExternalDocument))
         documentRequest = initialDocumentURL
+        self.documentRequestGeneration = documentRequestGeneration
         self.consumeDocumentRequest = consumeDocumentRequest
         self.requestReload = requestReload
     }
@@ -78,8 +81,8 @@ struct FolderBrowserView: View {
                 applyRenderedFixtureIfRequested()
                 #endif
             }
-            .onChange(of: documentRequest) { _, url in
-                guard let url else { return }
+            .onChange(of: documentRequestGeneration) { _, _ in
+                guard let url = documentRequest else { return }
                 workspace.selectDocument(url, undoManager: undoManager, recordsOpen: true)
                 consumeDocumentRequest()
             }
