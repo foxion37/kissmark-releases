@@ -4,7 +4,7 @@ import Testing
 
 @MainActor
 struct FolderBrowserWorkspaceTests {
-    @Test("Re-showing a Document exposes queued points without losing local edits or edit mode")
+    @Test("Re-showing a Document exposes queued agent points and lets the user check them")
     func reshownDocumentRefreshesAgentReviewPoints() throws {
         let root = try makeFolder()
         defer { try? FileManager.default.removeItem(at: root) }
@@ -20,10 +20,6 @@ struct FolderBrowserWorkspaceTests {
         defer { workspace.stop() }
         workspace.selectDocument(document)
         #expect(workspace.review?.points.map(\.source) == ["rule"])
-        workspace.toggleDocumentMode()
-        let session = try #require(workspace.session)
-        let editedText = session.text + "\n\n아직 저장하지 않은 변경입니다."
-        session.text = editedText
 
         let entry: [String: Any] = [
             "version": 1,
@@ -37,10 +33,6 @@ struct FolderBrowserWorkspaceTests {
             to: storeDirectory.appendingPathComponent("queue/agent.json")
         )
         workspace.selectDocument(document, recordsOpen: true)
-        #expect(workspace.session === session)
-        #expect(workspace.session?.mode == .edit)
-        #expect(workspace.session?.text == editedText)
-        #expect(try String(contentsOf: document, encoding: .utf8) == "## 경고\n확인이 필요한 문장입니다.")
 
         let point = try #require(workspace.review?.points.first)
         #expect(point.source == "agent")
@@ -851,56 +843,6 @@ struct FolderBrowserWorkspaceTests {
         #expect(workspace.errorMessage == String(localized: "파일을 찾을 수 없습니다."))
 
         workspace.stop()
-    }
-
-    @Test("An open whose load fails still takes the top of the recents list")
-    func failedOpenRecordsRecent() throws {
-        let root = try makeFolder()
-        let memoryDirectory = try makeFolder()
-        defer { [root, memoryDirectory].forEach { try? FileManager.default.removeItem(at: $0) } }
-        // The file exists, but its bytes are not valid UTF-8, so the load throws.
-        let unreadable = root.appendingPathComponent("깨진.md")
-        try Data([0xFF, 0xFE, 0x00, 0x81]).write(to: unreadable)
-        let workspace = FolderBrowserWorkspace(
-            folder: SelectedFolder(url: root, bookmarkData: Data()),
-            memory: MemoryStore(directory: memoryDirectory)
-        )
-        workspace.start()
-        defer { workspace.stop() }
-
-        workspace.selectDocument(unreadable)
-
-        #expect(workspace.errorMessage != nil)
-        #expect(workspace.session == nil)
-        #expect(workspace.recentDocuments.map(\.title) == ["깨진"])
-    }
-
-    @Test("Recents stay global when the browsed Folder is replaced")
-    func recentsSurviveWorkspaceReplacement() throws {
-        let rootA = try makeFolder()
-        let rootB = try makeFolder()
-        let memoryDirectory = try makeFolder()
-        defer { [rootA, rootB, memoryDirectory].forEach { try? FileManager.default.removeItem(at: $0) } }
-        let documentA = rootA.appendingPathComponent("에이.md")
-        try "# A".write(to: documentA, atomically: true, encoding: .utf8)
-        let memory = MemoryStore(directory: memoryDirectory)
-
-        let workspaceA = FolderBrowserWorkspace(
-            folder: SelectedFolder(url: rootA, bookmarkData: Data()),
-            memory: memory
-        )
-        workspaceA.start()
-        workspaceA.selectDocument(documentA)
-        workspaceA.stop()
-
-        // The user picks another Folder; a new workspace replaces the old one.
-        let workspaceB = FolderBrowserWorkspace(
-            folder: SelectedFolder(url: rootB, bookmarkData: Data()),
-            memory: memory
-        )
-        workspaceB.start()
-        defer { workspaceB.stop() }
-        #expect(workspaceB.recentDocuments.map(\.title) == ["에이"])
     }
 
     private func makeFolder() throws -> URL {

@@ -14,31 +14,35 @@ struct AgentConnectionsSettingsView: View {
     @State private var expanded: Set<SelectionKey> = []
     @State private var diagnosticsExpanded = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @FocusState private var focusedConnection: SelectionKey?
+    @FocusState private var diagnosticsFocused: Bool
 
     var body: some View {
         Form {
             Section {
-                // 안내 텍스트는 왼쪽, 동작 버튼은 같은 행 오른쪽 끝.
-                HStack(spacing: KissmarkMetrics.settingsRowGap) {
-                    VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
-                        Text("추가한 연결이 없습니다.").font(KissmarkType.font(.body, weight: .medium))
-                        Text("이 Mac에서 검색한 후보를 직접 추가하세요.")
-                            .font(KissmarkType.caption).foregroundStyle(.secondary)
-                            .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
+                    HStack(spacing: KissmarkMetrics.settingsRowGap) {
+                        Button("연결 검색") { searching = true }
+                            .accessibilityIdentifier("settings-connections-search")
+                        Button("CLI 설치…") { installing = true }
+                            .accessibilityIdentifier("settings-connections-cli-install")
+                        Spacer(minLength: 0)
                     }
-                    Spacer(minLength: 0)
-                    Button("연결 검색") { searching = true }
-                        .accessibilityIdentifier("settings-connections-search")
-                    Button("CLI 설치") { installing = true }
-                        .accessibilityIdentifier("settings-connections-cli-install")
+                    if model.rows.isEmpty {
+                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsConnectionTextGap) {
+                            Text("추가한 연결이 없습니다.").font(KissmarkType.font(.body, weight: .medium))
+                            Text("이 Mac에서 검색한 후보를 직접 추가하세요.")
+                                .font(KissmarkType.caption).foregroundStyle(.secondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .kissmarkSettingsRowInsets()
             ForEach(model.rows) { key in
                 Section {
                     DisclosureGroup(isExpanded: expansionBinding(key)) {
-                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsContentGap) {
+                        VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
                             connectionDetails(key)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -53,73 +57,43 @@ struct AgentConnectionsSettingsView: View {
                         .accessibilityAction { expansionBinding(key).wrappedValue.toggle() }
                     }
                     .accessibilityIdentifier("settings-connection-row-\(key.id)")
+                    .focusable()
+                    .focused($focusedConnection, equals: key)
+                    .onKeyPress(.space) { handleDisclosureKey(key) }
+                    .onKeyPress(.rightArrow) { handleDisclosureKey(key, expanded: true) }
+                    .onKeyPress(.leftArrow) { handleDisclosureKey(key, expanded: false) }
                 }
             }
-            .kissmarkSettingsRowInsets()
             Section {
-                // 공개 행: 진단 라벨이 왼쪽, 꺽쇠는 오른쪽 끝에서 아래로 회전한다.
-                // macOS 26의 DisclosureGroup 라벨은 본문보다 작게 렌더링되므로
-                // 라벨 폰트를 행과 같은 본문으로 명시한다.
-                Button {
-                    withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
-                        diagnosticsExpanded.toggle()
-                    }
-                } label: {
-                    HStack {
-                        Text("진단")
-                            .font(KissmarkType.font(.body, weight: .medium))
-                        Spacer(minLength: 0)
-                        KissmarkLucideImage(
-                            icon: .chevronRight,
-                            pointSize: KissmarkMetrics.settingsDisclosureGlyphSize
-                        )
-                        .foregroundStyle(.secondary)
-                        .rotationEffect(.degrees(diagnosticsExpanded ? 90 : 0))
-                        .animation(KissmarkMotion.snappy(reduceMotion: reduceMotion), value: diagnosticsExpanded)
-                    }
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityValue(Text(diagnosticsExpanded ? "expanded" : "collapsed"))
-                .accessibilityIdentifier("settings-connections-diagnostics")
-
-                if diagnosticsExpanded {
-                    VStack(alignment: .leading, spacing: KissmarkMetrics.settingsContentGap) {
-                        // 상태는 뱃지로 라벨 옆에, 검색 동작은 행 오른쪽 끝에.
-                        HStack(spacing: KissmarkMetrics.settingsRowGap) {
-                            Text("연결 검색 기능")
-                            Text(model.serviceAvailable ? String.kissmarkLocalized("응답 확인됨") : String.kissmarkLocalized("확인 필요"))
-                                .font(KissmarkType.font(.caption, weight: .semibold))
-                                .foregroundStyle(model.serviceAvailable ? Color(nsColor: .systemGreen) : Color.secondary)
-                                .padding(.horizontal, KissmarkMetrics.settingsHeaderInset)
-                                .padding(.vertical, 3)
-                                .background(
-                                    Capsule().fill(
-                                        (model.serviceAvailable ? Color(nsColor: .systemGreen) : Color.secondary)
-                                            .opacity(0.15)
-                                    )
-                                )
-                                .accessibilityIdentifier("settings-connections-service-badge")
-                            Spacer(minLength: 0)
-                            Button("검색") { searching = true }
-                                .accessibilityIdentifier("settings-connections-diagnostics-search")
-                        }
+                DisclosureGroup(isExpanded: $diagnosticsExpanded) {
+                    VStack(alignment: .leading, spacing: KissmarkMetrics.settingsRowGap) {
+                        LabeledContent("연결 검색 기능", value: model.serviceAvailable ? String.kissmarkLocalized("응답 확인됨") : String.kissmarkLocalized("확인 필요"))
                         if let message = model.message { Text(message).font(KissmarkType.caption).foregroundStyle(.secondary) }
                         if let snapshot = model.snapshot {
                             ForEach(snapshot.providers) { provider in
                                 LabeledContent(provider.client.title, value: providerText(provider))
                             }
                         }
+                        Button("검색") { searching = true }
+                            .accessibilityIdentifier("settings-connections-diagnostics-search")
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .transition(.opacity)
+                } label: {
+                    Text("진단").accessibilityAction { diagnosticsExpanded.toggle() }
+                }
+                .accessibilityIdentifier("settings-connections-diagnostics")
+                .focusable()
+                .focused($diagnosticsFocused)
+                .onKeyPress(.space) {
+                    guard diagnosticsFocused else { return .ignored }
+                    diagnosticsExpanded.toggle()
+                    return .handled
                 }
             }
-            .kissmarkSettingsRowInsets()
         }
         .formStyle(.grouped)
         .font(KissmarkType.font(.body))
-        .kissmarkSettingsNavigationTitle("연결")
+        .navigationTitle("연결")
         .task {
             while !Task.isCancelled {
                 await model.refresh()
@@ -148,6 +122,12 @@ struct AgentConnectionsSettingsView: View {
                 if isExpanded { expanded.insert(key) } else { expanded.remove(key) }
             }
         })
+    }
+    private func handleDisclosureKey(_ key: SelectionKey, expanded value: Bool? = nil) -> KeyPress.Result {
+        guard focusedConnection == key else { return .ignored }
+        let binding = expansionBinding(key)
+        binding.wrappedValue = value ?? !binding.wrappedValue
+        return .handled
     }
     private func title(_ key: SelectionKey) -> String {
         key.client.title + (key.profile.map { " (\($0))" } ?? "")
@@ -198,63 +178,50 @@ struct AgentConnectionsSettingsView: View {
                 .accessibilityIdentifier("settings-connection-remove-\(key.id)")
         }
     }
-    /// CLI 설치 시트와 같은 grouped Form 스타일. List 대신 Form 섹션을 쓰므로
-    /// 여백·행 구성이 다른 설정면과 일치하고, 행 클릭이 선택처럼 보이지 않는다.
     private var searchSheet: some View {
-        Form {
-            Section {
-                HStack(spacing: KissmarkMetrics.settingsRowGap) {
-                    Button(model.scanning ? String.kissmarkLocalized("검색 취소") : String.kissmarkLocalized("다시 검색")) {
-                        if model.scanning { model.cancelSearch() } else { model.startSearch() }
-                    }
-                    if model.scanning { ProgressView().controlSize(.small) }
-                    Spacer(minLength: 0)
-                    Button("CLI 설치") { searching = false; installing = true }
-                }
-                if let message = model.message {
-                    Text(message).font(KissmarkType.caption).foregroundStyle(.secondary)
-                }
-            } header: {
-                KissmarkSettingsSectionHeader(title: "연결 검색")
-            } footer: {
-                Text("이 Mac만 검색합니다. 대화 내용이나 인증 정보를 수집하지 않으며, 추가는 설치 또는 연결 성공을 뜻하지 않습니다.")
-            }
-            Section {
-                if model.scanning, model.candidates.isEmpty {
-                    Text("검색 중입니다…").font(KissmarkType.font(.body)).foregroundStyle(.secondary)
-                } else if !model.scanning, model.candidates.isEmpty, model.message == nil {
-                    Text(model.serviceAvailable ? String.kissmarkLocalized("확인된 후보가 없습니다.") : String.kissmarkLocalized("연결 검색 기능 준비가 필요합니다. CLI 설치에서 준비하세요."))
-                        .font(KissmarkType.font(.body))
-                }
-                candidateRows(model.candidates.filter { $0.instance != nil })
-            } header: {
-                KissmarkSettingsSectionHeader(title: "실행 중이거나 로드된 후보")
-            }
-            Section {
-                candidateRows(model.candidates.filter { $0.instance == nil })
-            } header: {
-                KissmarkSettingsSectionHeader(title: "설치된 도구")
-            }
-            if let snapshot = model.snapshot {
-                Section {
-                    ForEach(snapshot.providers) { provider in
-                        LabeledContent(provider.client.title, value: providerText(provider))
-                    }
-                } header: {
-                    KissmarkSettingsSectionHeader(title: "검색 범위")
-                }
-            }
-        }
-        .formStyle(.grouped)
-        .font(KissmarkType.font(.body))
-        .safeAreaInset(edge: .top, spacing: 0) {
+        VStack(alignment: .leading, spacing: KissmarkMetrics.sidebarSectionGap) {
             HStack {
                 Text("연결 검색").font(KissmarkType.font(.headline))
                 Spacer()
                 Button("닫기") { searching = false }.keyboardShortcut(.cancelAction)
             }
-            .padding(KissmarkMetrics.settingsSheetInset)
+            HStack {
+                Button(model.scanning ? String.kissmarkLocalized("검색 취소") : String.kissmarkLocalized("다시 검색")) {
+                    if model.scanning { model.cancelSearch() } else { model.startSearch() }
+                }
+                if model.scanning { ProgressView().controlSize(.small) }
+                Spacer()
+                Button("CLI 설치…") { searching = false; installing = true }
+            }
+            if let message = model.message { Text(message).font(KissmarkType.caption).foregroundStyle(.secondary) }
+            List {
+                Section("실행 중이거나 로드된 후보") {
+                    candidateRows(model.candidates.filter { $0.instance != nil })
+                }
+                Section("설치된 도구") {
+                    candidateRows(model.candidates.filter { $0.instance == nil })
+                }
+                if !model.scanning, model.candidates.isEmpty, model.message == nil {
+                    Text(model.serviceAvailable ? String.kissmarkLocalized("확인된 후보가 없습니다.") : String.kissmarkLocalized("연결 검색 기능 준비가 필요합니다. CLI 설치에서 준비하세요."))
+                        .font(KissmarkType.font(.body))
+                }
+                if let snapshot = model.snapshot {
+                    Section("검색 범위") {
+                        ForEach(snapshot.providers) { provider in
+                            LabeledContent {
+                                Text(providerText(provider)).font(KissmarkType.font(.body))
+                            } label: {
+                                Text(provider.client.title).font(KissmarkType.font(.body))
+                            }
+                        }
+                    }
+                }
+            }
+            Text("이 Mac만 검색합니다. 대화 내용이나 인증 정보를 수집하지 않으며, 추가는 설치 또는 연결 성공을 뜻하지 않습니다.")
+                .font(KissmarkType.caption).foregroundStyle(.secondary)
         }
+        .padding(KissmarkMetrics.sidebarInset)
+        .font(KissmarkType.font(.body))
         .frame(minWidth: KissmarkMetrics.settingsMinimumSize.width, minHeight: KissmarkMetrics.settingsMinimumSize.height)
         .onAppear { model.startSearch() }
         .onDisappear { model.cancelSearch() }
@@ -262,29 +229,18 @@ struct AgentConnectionsSettingsView: View {
     @ViewBuilder
     private func candidateRows(_ candidates: [DiscoveryCandidate]) -> some View {
         ForEach(candidates) { candidate in
-            LabeledContent {
-                HStack(spacing: KissmarkMetrics.settingsRowGap) {
-                    if let instance = candidate.instance {
-                        Text(String(instance.suffix(20)))
-                            .font(KissmarkType.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    Text(candidate.runtime == .installed ? String.kissmarkLocalized("설치됨") : candidate.runtime == .loaded ? ConnectionDisplayState.loaded.display : ConnectionDisplayState.running.display)
-                        .font(KissmarkType.font(.body))
-                        .foregroundStyle(.secondary)
-                    Button(model.selections.contains(candidate.key) ? String.kissmarkLocalized("추가됨") : String.kissmarkLocalized("추가")) { model.add(candidate.key) }
-                        .disabled(!model.serviceAvailable || model.snapshot == nil || model.selections.contains(candidate.key))
-                        .accessibilityIdentifier("settings-connection-add-\(candidate.id)")
-                }
-            } label: {
-                VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                VStack(alignment: .leading) {
                     Text(title(candidate.key)).font(KissmarkType.font(.body))
-                    if let instance = candidate.instance {
-                        Text(String(instance.suffix(20)))
-                            .font(KissmarkType.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                    if let instance = candidate.instance { Text(String(instance.suffix(20))).font(KissmarkType.caption).foregroundStyle(.secondary) }
                 }
+                Spacer()
+                Text(candidate.runtime == .installed ? String.kissmarkLocalized("설치됨") : candidate.runtime == .loaded ? ConnectionDisplayState.loaded.display : ConnectionDisplayState.running.display)
+                    .font(KissmarkType.font(.body))
+                    .foregroundStyle(.secondary)
+                Button(model.selections.contains(candidate.key) ? String.kissmarkLocalized("추가됨") : String.kissmarkLocalized("추가")) { model.add(candidate.key) }
+                    .disabled(!model.serviceAvailable || model.snapshot == nil || model.selections.contains(candidate.key))
+                    .accessibilityIdentifier("settings-connection-add-\(candidate.id)")
             }
         }
     }

@@ -13,8 +13,8 @@ usage() {
   cat <<'USAGE'
 Usage: scripts/package-macos.sh --output-dir DIR [options]
 
-Build an ad-hoc signed macOS DMG by default (not notarized). Developer ID and
-a notarytool Keychain profile are optional for notarized releases.
+Build a local macOS DMG by default. For a distributable build, provide both a
+Developer ID Application identity and a notarytool Keychain profile.
 
 Options:
   --app PATH                 Package an existing Kissmark.app instead of building.

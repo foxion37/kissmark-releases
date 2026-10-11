@@ -1,14 +1,14 @@
 import SwiftUI
 
-/// Settings › 타이포그래피. Edits the text size and `DesignOverrides` (all but the
-/// element colors, which live in 테마); every change applies to the open
-/// Document immediately.
+/// Settings › 디자인. Edits the text size and `DesignOverrides`; every change applies
+/// to the open Document immediately.
 struct DesignSettingsView: View {
     @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
     @AppStorage(KissmarkTextSize.storageKey) private var textSizeID = KissmarkTextSize.medium.rawValue
     @AppStorage(KissmarkTextAlignment.storageKey) private var textAlignID = KissmarkTextAlignment.start.rawValue
-    @AppStorage(KissmarkEnglishFont.storageKey) private var englishFontID = KissmarkEnglishFont.system.rawValue
+    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var editingScheme: ColorScheme = .light
     @State private var expandedElements: Set<DesignOverrides.ElementKey> = []
 
     private var overrides: DesignOverrides { DesignOverrides.decode(designJSON) }
@@ -35,31 +35,10 @@ struct DesignSettingsView: View {
                 }
                 .accessibilityIdentifier("settings-design-alignment")
             } header: {
-                KissmarkSettingsSectionHeader(title: "본문")
+                Text("본문")
             } footer: {
                 Text("글자 크기는 읽기와 편집 모두에 적용됩니다. 정렬은 문서 전체에 적용되고, 어절 단위로 줄이 바뀝니다.")
             }
-            .kissmarkSettingsRowInsets()
-
-            Section {
-                Picker("영문 글꼴", selection: $englishFontID) {
-                    ForEach(KissmarkEnglishFont.allCases) { font in
-                        Text(font.displayName).tag(font.rawValue)
-                    }
-                }
-                .accessibilityIdentifier("settings-english-font")
-                if KissmarkLocalization.languageCode == "en", KissmarkEnglishFont.active == .inter,
-                   !KissmarkType.interAvailable {
-                    Text("Inter 글꼴을 불러오지 못해 OS 기본 글꼴을 사용합니다.")
-                        .font(KissmarkType.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } header: {
-                KissmarkSettingsSectionHeader(title: "글꼴")
-            } footer: {
-                Text("한글은 Pretendard로 표시되고, 코드 글꼴은 아래 코드에서 고릅니다. 영문 글꼴 선택은 앱을 다시 열면 적용됩니다.")
-            }
-            .kissmarkSettingsRowInsets()
 
             Section {
                 ForEach(DesignOverrides.SpacingField.body) { field in DesignSpacingRow(field: field) }
@@ -71,39 +50,39 @@ struct DesignSettingsView: View {
                     .accessibilityIdentifier("settings-design-spacing-reset")
                     .disabled(DesignOverrides.SpacingField.body.allSatisfy { $0.value(in: overrides.spacing) == nil })
             } header: {
-                KissmarkSettingsSectionHeader(title: "간격")
+                Text("간격")
             } footer: {
                 Text("바를 움직여 일정한 단위로 조절합니다. 다섯 표시는 참고 체크포인트이며 그 사이 값도 선택할 수 있습니다. 행간은 배수, 장폭은 ch, 나머지는 em입니다.")
             }
-            .kissmarkSettingsRowInsets()
-
-            CodeSettingsSection()
 
             Section {
-                ForEach(DesignOverrides.ElementKey.allCases.filter { $0.supportsSize || $0.supportsWeight }) { key in
+                Picker("색상 편집 대상", selection: $editingScheme) {
+                    Text("라이트").tag(ColorScheme.light)
+                    Text("다크").tag(ColorScheme.dark)
+                }
+                .pickerStyle(.segmented)
+                .accessibilityIdentifier("settings-design-scheme")
+
+                ForEach(DesignOverrides.ElementKey.allCases) { key in
                     DisclosureGroup(key.displayName, isExpanded: expansionBinding(key)) { elementControls(key) }
                 }
             } header: {
-                KissmarkSettingsSectionHeader(title: "요소")
+                Text("요소")
             } footer: {
-                Text("요소별 크기와 굵기를 조절합니다. 요소 색은 테마에서 바꿉니다.")
+                Text("색은 라이트와 다크에 따로 저장됩니다.")
             }
-            .kissmarkSettingsRowInsets()
 
             Section {
                 Button("모두 초기화", role: .destructive) {
-                    withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
-                        update { $0 = $0.keepingOnlyElementColors() }
-                    }
+                    withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) { designJSON = "" }
                 }
                     .accessibilityIdentifier("settings-design-reset-all")
-                    .disabled(overrides.keepingOnlyElementColors() == overrides)
-            } footer: {
-                Text("테마에서 고른 요소 색은 유지합니다.")
+                    .disabled(overrides.isEmpty)
             }
         }
         .formStyle(.grouped)
-        .kissmarkSettingsNavigationTitle("타이포그래피")
+        .navigationTitle("디자인")
+        .onAppear { editingScheme = colorScheme }
     }
 
     /// Element accordions open and close with the shared spring.
@@ -189,21 +168,34 @@ struct DesignSettingsView: View {
             }
             .accessibilityIdentifier("settings-design-\(key.cssName)-weight")
         }
+        ColorPicker(
+            "색",
+            selection: Binding(
+                get: { Color(kissmarkHex: editingScheme == .dark ? element.color?.dark : element.color?.light) ?? key.placeholderColor },
+                set: { color in
+                    let hex = color.kissmarkHex
+                    update {
+                        var pair = $0[element: key].color ?? .init()
+                        if editingScheme == .dark { pair.dark = hex } else { pair.light = hex }
+                        $0[element: key].color = pair
+                    }
+                }
+            ),
+            supportsOpacity: false
+        )
+        .accessibilityIdentifier("settings-design-\(key.cssName)-color")
         Button("기본값으로") {
             withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
-                update {
-                    $0[element: key].sizeScale = nil
-                    $0[element: key].weight = nil
-                }
+                update { $0[element: key] = .init() }
             }
         }
             .accessibilityIdentifier("settings-design-\(key.cssName)-reset")
-            .disabled(element.sizeScale == nil && element.weight == nil)
+            .disabled(element == .init())
     }
 }
 
 /// One compact spacing row: name left, actual value right, then a full-width
-/// numeric slider with its five checkpoint names. Used by the 간격 and 코드 sections.
+/// numeric slider with its five checkpoint names. Shared by 디자인 and 코드.
 struct DesignSpacingRow: View {
     let field: DesignOverrides.SpacingField
     @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
@@ -276,6 +268,17 @@ struct DesignSpacingRow: View {
         case .indent: "settings-design-indent"
         case .codeLineHeight: "settings-design-code-line-height"
         case .codeMeasure: "settings-design-code-measure"
+        }
+    }
+}
+
+private extension DesignOverrides.ElementKey {
+    /// Shown in the picker while no color override exists; not written anywhere.
+    var placeholderColor: Color {
+        switch self {
+        case .link: .accentColor
+        case .blockquote, .h5, .h6, .rule: .secondary
+        default: .primary
         }
     }
 }

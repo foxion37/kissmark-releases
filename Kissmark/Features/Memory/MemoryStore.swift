@@ -103,10 +103,7 @@ final class MemoryStore {
         if let db { sqlite3_close(db) }
     }
 
-    /// `text` is the loaded body; `nil` records the open without rewriting the indexed
-    /// text (a Document whose load failed, e.g. a not-yet-downloaded iCloud copy), so
-    /// the open still lands in the recents list and earlier indexed text survives.
-    func recordOpen(url: URL, text: String?, at: Date = .now) {
+    func recordOpen(url: URL, text: String, at: Date = .now) {
         guard let db else { return }
         do {
             let path = normalize(url)
@@ -120,9 +117,7 @@ final class MemoryStore {
             try run {
                 try upsertDocument(path: path, title: title, at: at, bookmark: bookmark)
                 try insertOpen(path: path, at: at, provenance: drained.provenance)
-                if let text {
-                    try replaceText(path: path, title: title, body: text)
-                }
+                try replaceText(path: path, title: title, body: text)
                 for point in drained.points {
                     try insertPoint(
                         path: path, source: "agent", kind: "agent",
@@ -130,9 +125,7 @@ final class MemoryStore {
                         at: at, host: point.host, agent: point.agent, session: point.session
                     )
                 }
-                if let text {
-                    try refreshRulePoints(path: path, text: text, at: at)
-                }
+                try refreshRulePoints(path: path, text: text, at: at)
             }
             // Only after the commit: a failed write leaves the entries for the next open.
             for file in drained.consumed {
@@ -350,6 +343,68 @@ final class MemoryStore {
             logger.error("memory: recentDocuments failed: \(error.localizedDescription, privacy: .public)")
             return []
         }
+    }
+
+    /// Previously opened Documents whose title or stored body contains `query` (literal,
+    /// case-insensitive, canonically equivalent), newest open first. `project` / `agent` are
+    /// exact filters over any open of the Document, like MCP `fetchDocuments`; `agent`
+    /// also matches the `host`. Empty filters are ignored. Unlike the recents list, a missing
+    /// or unreadable database throws. Matching runs in Swift, not SQL LIKE, so `%`/`_` are
+    /// plain characters and Unicode case/normalization is Foundation's; filters are bound.
+    /// ponytail: scans every stored body once; add an FTS pre-filter if stores get huge.
+    func searchDocuments(query: String, project: String = "", agent: String = "") throws -> [DocumentSearchResult] {
+        guard let db else { throw MemoryStoreError(.kissmarkLocalized("메모리를 사용할 수 없습니다.")) }
+        let query = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return [] }
+        var sql = """
+        SELECT d.path, d.title, d.last_opened_at, d.bookmark, o.project, o.host, o.agent, t.body
+        FROM documents d
+        LEFT JOIN opens o ON o.id = (SELECT id FROM opens WHERE path = d.path ORDER BY opened_at DESC, id DESC LIMIT 1)
+        LEFT JOIN document_text t ON t.path = d.path
+        WHERE 1=1
+        """
+        var bindings: [String] = []
+        let project = project.trimmingCharacters(in: .whitespacesAndNewlines)
+        let agent = agent.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !project.isEmpty {
+            sql += " AND EXISTS (SELECT 1 FROM opens p WHERE p.path = d.path AND p.project = ?)"
+            bindings.append(project)
+        }
+        if !agent.isEmpty {
+            sql += " AND EXISTS (SELECT 1 FROM opens p WHERE p.path = d.path AND (p.agent = ? OR p.host = ?))"
+            bindings += [agent, agent]
+        }
+        sql += " ORDER BY d.last_opened_at DESC, d.path"
+        let statement = try prepare(sql)
+        defer { sqlite3_finalize(statement) }
+        for (offset, value) in bindings.enumerated() { bind(statement, Int32(offset + 1), value) }
+
+        var seen = Set<String>()
+        var results: [DocumentSearchResult] = []
+        while true {
+            let code = sqlite3_step(statement)
+            if code == SQLITE_DONE { break }
+            guard code == SQLITE_ROW else {
+                throw MemoryStoreError(sqlite3_errmsg(db).map(String.init(cString:)) ?? "search failed")
+            }
+            let text = { (index: Int32) in sqlite3_column_text(statement, index).map { String(cString: $0) } }
+            let path = text(0) ?? ""
+            let title = text(1) ?? ""
+            let body = text(7) ?? ""
+            guard DocumentSearchResult.match(of: query, in: title) != nil
+                    || DocumentSearchResult.match(of: query, in: body) != nil,
+                  seen.insert(path).inserted else { continue }
+            let bytes = sqlite3_column_bytes(statement, 3)
+            results.append(DocumentSearchResult(
+                path: path, title: title,
+                snippet: DocumentSearchResult.snippet(of: query, in: body),
+                lastOpenedAt: Date(timeIntervalSince1970: sqlite3_column_double(statement, 2)),
+                bookmark: bytes > 0 ? sqlite3_column_blob(statement, 3).map { Data(bytes: $0, count: Int(bytes)) } : nil,
+                project: text(4),
+                agent: text(6) ?? text(5)
+            ))
+        }
+        return results
     }
 
 

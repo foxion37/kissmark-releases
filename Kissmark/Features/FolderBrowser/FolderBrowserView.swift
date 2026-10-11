@@ -8,6 +8,9 @@ struct FolderBrowserView: View {
     @State private var sidebar = KissmarkSidebarPresentation()
     @State private var isNewDocumentPresented = false
     @State private var newDocumentName = ""
+    @State private var search = DocumentSearchPresentation()
+    /// Chosen in the sheet; opened once the sheet is gone so a failure alert is not swallowed by it.
+    @State private var pendingSearchOpen: (DocumentSearchResult, DocumentSearchModel.Scope)?
     @FocusState private var isTitleFocused: Bool
     #if os(iOS)
     @Environment(\.chromePalette) private var chromePalette
@@ -46,6 +49,23 @@ struct FolderBrowserView: View {
 
     var body: some View {
         platformLayout
+            .focusedSceneValue(\.documentSearch, search)
+            #if os(macOS)
+            .background(KissmarkSearchShortcutBridge(search: search))
+            #endif
+            .sheet(isPresented: $search.isPresented, onDismiss: openPendingSearchResult) {
+                DocumentSearchSheet(
+                    model: DocumentSearchModel(
+                        folderSearch: { [folder = workspace.folder] in try await FolderDocumentSearch.search(folder: folder, query: $0) },
+                        memorySearch: { [workspace] in try workspace.searchMemory(query: $0, project: $1, agent: $2) }
+                    ),
+                    initialQuery: search.query,
+                    isSingleFile: workspace.isSingleFileWorkspace,
+                    choose: { pendingSearchOpen = ($0, $1); search.isPresented = false },
+                    queryChanged: { search.query = $0 },
+                    close: { search.isPresented = false }
+                )
+            }
             .modifier(FolderBrowserDialogs(
                 workspace: workspace,
                 isNewDocumentPresented: $isNewDocumentPresented,
@@ -54,8 +74,6 @@ struct FolderBrowserView: View {
             ))
             .onAppear {
                 workspace.start()
-                // This runs again when the browsed root replaces the workspace.
-                consumeDocumentRequest()
                 #if DEBUG
                 applyRenderedFixtureIfRequested()
                 #endif
@@ -83,16 +101,36 @@ struct FolderBrowserView: View {
     // MARK: Shared pieces
 
     private var tree: some View {
-        FolderBrowserTree(
-            folders: workspace.rootFolders,
-            documents: workspace.rootDocuments,
-            selectedDocumentURL: workspace.selectedDocumentURL,
-            isExpanded: workspace.isFolderExpanded,
-            toggleFolder: workspace.toggleFolder,
-            selectDocument: { workspace.selectDocument($0, undoManager: undoManager) },
-            recents: workspace.recentDocuments,
-            selectRecent: { workspace.openRecent($0, undoManager: undoManager) }
-        )
+        VStack(spacing: 0) {
+            if search.isFieldVisible {
+                DocumentSearchField(query: $search.query, submit: search.present)
+                    .padding(.vertical, KissmarkMetrics.sidebarSectionGap)
+            }
+            FolderBrowserTree(
+                folders: workspace.rootFolders,
+                documents: workspace.rootDocuments,
+                selectedDocumentURL: workspace.selectedDocumentURL,
+                isExpanded: workspace.isFolderExpanded,
+                toggleFolder: workspace.toggleFolder,
+                selectDocument: { workspace.selectDocument($0, undoManager: undoManager) },
+                recents: workspace.recentDocuments,
+                selectRecent: { workspace.openRecent($0, undoManager: undoManager) }
+            )
+        }
+    }
+
+    private func openPendingSearchResult() {
+        guard let (result, scope) = pendingSearchOpen else { return }
+        pendingSearchOpen = nil
+        switch scope {
+        case .folder:
+            workspace.selectDocument(result.url, undoManager: undoManager)
+        case .memory:
+            workspace.openRecent(
+                RecentDocument(path: result.path, title: result.title, lastOpenedAt: result.lastOpenedAt ?? .distantPast, opener: "user", bookmark: result.bookmark),
+                undoManager: undoManager
+            )
+        }
     }
 
     @ViewBuilder
@@ -146,6 +184,7 @@ struct FolderBrowserView: View {
     private var platformLayout: some View {
         FolderBrowserMacLayout(
             workspace: workspace,
+            search: search,
             sidebar: $sidebar,
             isTitleFocused: $isTitleFocused,
             undoManager: undoManager,
@@ -202,6 +241,9 @@ extension FolderBrowserView {
                 .navigationTitle(workspace.folder.rootURL.lastPathComponent)
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        documentSearchToggle
+                    }
                     ToolbarItem(placement: .primaryAction) {
                         windowToolbarActions
                     }
@@ -304,6 +346,7 @@ extension FolderBrowserView {
     private var sidebarChromeHeader: some View {
         HStack(spacing: KissmarkMetrics.iconLabelGap) {
             windowSidebarToggle
+            documentSearchToggle
             folderRootControl
         }
         .padding(.horizontal, KissmarkMetrics.sidebarInset)
@@ -314,6 +357,23 @@ extension FolderBrowserView {
         }
         .accessibilityElement(children: .contain)
         .accessibilityIdentifier("sidebar-chrome-header")
+    }
+
+    private var documentSearchToggle: some View {
+        KissmarkIconButton(
+            title: "문서 검색",
+            lucide: .fileSearch,
+            active: search.isFieldVisible,
+            accessibilityIdentifier: "document-search-toggle"
+        ) {
+            if KissmarkIdiom.current != .phone && !isSidebarVisible {
+                columnVisibility = .all
+                search.isFieldVisible = true
+            } else {
+                search.isFieldVisible.toggle()
+            }
+        }
+        .accessibilityValue(Text(search.isFieldVisible ? "expanded" : "collapsed"))
     }
 
     private var folderRootControl: some View {
@@ -331,7 +391,10 @@ extension FolderBrowserView {
         if #available(iOS 26.0, macOS 26.0, *) {
             if !isSidebarVisible {
                 ToolbarItem(id: "kissmark.sidebar.toggle", placement: .navigation) {
-                    windowSidebarToggle
+                    HStack(spacing: KissmarkMetrics.iconLabelGap) {
+                        windowSidebarToggle
+                        documentSearchToggle
+                    }
                 }
                 .sharedBackgroundVisibility(.hidden)
             }
@@ -348,7 +411,10 @@ extension FolderBrowserView {
         } else {
             if !isSidebarVisible {
                 ToolbarItem(id: "kissmark.sidebar.toggle", placement: .navigation) {
-                    windowSidebarToggle
+                    HStack(spacing: KissmarkMetrics.iconLabelGap) {
+                        windowSidebarToggle
+                        documentSearchToggle
+                    }
                 }
             }
 

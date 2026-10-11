@@ -15,6 +15,8 @@ struct DocumentEditorScreen: View {
     @AppStorage(DocumentReview.expansionStorageKey) private var isReviewExpanded = true
     @AppStorage(KissmarkTextSize.storageKey) private var textSizeID = KissmarkTextSize.medium.rawValue
     @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
+    /// The session's find model; the toolbar button opens the same one.
+    private var find: DocumentFindModel { session.find }
 
     var body: some View {
         DocumentSurfaceView(
@@ -25,8 +27,20 @@ struct DocumentEditorScreen: View {
             onInfoExpanded: { isInfoExpanded = $0 },
             review: review.map { var card = $0; card.expanded = isReviewExpanded; return card },
             onReviewExpanded: { isReviewExpanded = $0 },
-            onReviewAction: onReviewAction
+            onReviewAction: onReviewAction,
+            find: find
         )
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if find.isPresented { DocumentFindBar(model: find) }
+        }
+        // The current native window owns its search commands.
+        .focusedSceneValue(\.documentFind, find)
+        #if os(macOS)
+        .background(KissmarkSearchShortcutBridge(find: find))
+        #endif
+        // A different Document gets a new screen (`.id(session.id)`) and its own find model;
+        // leaving closes this one so returning never shows a bar without highlights.
+        .onDisappear { find.close() }
         #if os(iOS)
         // The iOS navigation bar would otherwise repeat the Folder name; the
         // macOS window title is owned by the root Folder-browser view, so an

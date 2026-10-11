@@ -85,17 +85,6 @@ final class AgentConnectionsModel {
     }
     private func accept(_ reply: BrokerReply) {
         guard let updated = reply.snapshot else { message = String.kissmarkLocalized("검색 결과 형식을 확인할 수 없습니다."); return }
-        // 화면에 그려지는 내용이 이전 스냅샷과 같으면 아무것도 대입하지 않는다.
-        // @Observable는 같은 값의 대입도 재렌더링을 일으키고, 폴링이 5초마다
-        // 들어오므로 무변화 대입은 설정 창 전체의 주기적 버벅임이 된다.
-        if let current = snapshot,
-           current.installationID == updated.installationID,
-           current.candidates == updated.candidates,
-           current.providers == updated.providers,
-           current.instances == updated.instances,
-           serviceAvailable, message == nil {
-            return
-        }
         if snapshot?.installationID != updated.installationID {
             selections = store.load(for: updated.installationID)
             verifiedKeys.removeAll()
@@ -130,7 +119,7 @@ final class AgentConnectionsModel {
             }
         } catch {
             guard !Task.isCancelled, generation == requestGeneration else { return }
-            if serviceAvailable || message == nil { serviceAvailable = false; message = Self.explanation(error) }
+            serviceAvailable = false; message = Self.explanation(error)
         }
     }
     func probe(_ id: UUID) async {
@@ -140,14 +129,11 @@ final class AgentConnectionsModel {
             guard !Task.isCancelled, snapshot?.installationID == installationID,
                   let updated = reply.instance, updated.id == id,
                   let index = snapshot?.instances.firstIndex(where: { $0.id == id }) else { return }
-            if snapshot?.instances[index] != updated {
-                snapshot?.instances[index] = updated
-            }
+            snapshot?.instances[index] = updated
             if updated.isConnected() { verifiedKeys.insert(updated.key) }
         } catch {
             guard (error as? ConnectionFailure) != .busy else { return }
-            if snapshot?.installationID == installationID, let index = snapshot?.instances.firstIndex(where: { $0.id == id }),
-               snapshot?.instances[index].lastPeerResponse != nil {
+            if snapshot?.installationID == installationID, let index = snapshot?.instances.firstIndex(where: { $0.id == id }) {
                 snapshot?.instances[index].lastPeerResponse = nil
             }
         }

@@ -22,6 +22,8 @@ enum DocumentCloseRequest: Equatable {
 @Observable
 final class DocumentSession: Identifiable, Hashable {
     let id = UUID()
+    /// The one find model for this Document; the toolbar button and the screen share it.
+    let find = DocumentFindModel()
     private(set) var sourceURL: URL?
     private(set) var title: String
     private(set) var originalText: String

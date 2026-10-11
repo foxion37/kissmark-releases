@@ -118,7 +118,7 @@ struct AppRootView: View {
             await updateController.refresh()
         }
         .onReceive(NotificationCenter.default.publisher(for: .kissmarkChooseFolder)) { _ in
-            requestFolderPicker()
+            isFolderImporterPresented = true
         }
         .onReceive(NotificationCenter.default.publisher(for: .kissmarkOpenParentFolder)) { _ in
             model.requestParentGrant()
@@ -167,23 +167,9 @@ struct AppRootView: View {
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: appearanceID)
     }
 
-    /// Presents the Folder picker. A presentation that never surfaced (a dismissed
-    /// panel still tearing down, a lost panel) leaves the flag `true`, and every later
-    /// set would be a no-op with the button appearing dead. Resetting and re-presenting
-    /// on the next runloop tick un-sticks it; a panel that is genuinely up is replaced.
-    private func requestFolderPicker() {
-        guard isFolderImporterPresented else {
-            isFolderImporterPresented = true
-            return
-        }
-        isFolderImporterPresented = false
-        Task { @MainActor in
-            self.isFolderImporterPresented = true
-        }
-    }
-
     @ViewBuilder
-    private var folderSelectionBody: some View {        if let folder = model.selectedFolder {
+    private var folderSelectionBody: some View {
+        if let folder = model.selectedFolder {
             FolderBrowserView(
                 folder: folder,
                 initialDocumentURL: model.pendingDocumentURL,
@@ -196,6 +182,7 @@ struct AppRootView: View {
                 // re-roots the tree at the Document's parent. ⌘R bumps the generation,
                 // which rebuilds the whole browser from disk.
                 .id("\(folder.rootURL.path)#\(model.reloadGeneration)")
+                .onAppear { _ = model.consumePendingDocument() }
         } else {
             KissmarkEmptyState(
                 icon: .folderOpen,

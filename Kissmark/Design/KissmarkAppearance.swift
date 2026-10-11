@@ -115,11 +115,11 @@ enum KissmarkTextSize: String, CaseIterable, Identifiable {
     /// `--km-font-size` and the derived heading tokens follow it.
     var scale: Double {
         switch self {
-        case .xSmall: return 12.0 / 18.0
-        case .small: return 13.0 / 18.0
-        case .medium: return 14.0 / 18.0
-        case .large: return 1.0
-        case .xLarge: return 21.0 / 18.0
+        case .xSmall: return 13.0 / 18.0
+        case .small: return 15.0 / 18.0
+        case .medium: return 1.0
+        case .large: return 21.0 / 18.0
+        case .xLarge: return 24.0 / 18.0
         }
     }
 }
@@ -149,80 +149,16 @@ enum KissmarkTextLint {
     static let storageKey = "kissmark.textLint"
 }
 
-/// 설정 Form의 섹션 머리글(본문, 글꼴, 간격…). 본문 텍스트와 구분되도록
-/// 작은 크기에 굵게, 테마 포인트 색을 입힌다.
-struct KissmarkSettingsSectionHeader: View {
-    let title: LocalizedStringKey
-    @Environment(\.chromePalette) private var chromePalette
-
-    var body: some View {
-        Text(title)
-            .font(KissmarkType.font(.caption, weight: .semibold))
-            .foregroundStyle(chromePalette?.chromeAccent ?? Color.accentColor)
-            .textCase(nil)
-    }
-}
-
-#if os(macOS)
-extension View {
-    /// macOS 설정 창의 제목은 탭과 무관하게 "설정"으로 유지한다. 탭마다
-    /// navigationTitle이 바뀌면 창 제목이 함께 바뀌고, macOS 26 글래스 헤더가
-    /// 제목 교체마다 다시 배치되어 탭 바가 흔들린다. iOS는 탭이 내비게이션
-    /// 행이라 제목이 필요하다.
-    @ViewBuilder
-    func kissmarkSettingsNavigationTitle(_ title: LocalizedStringKey) -> some View {
-        #if os(iOS)
-        self.navigationTitle(title)
-        #else
-        self
-        #endif
-    }
-
-    /// Grouped 설정 행(박스)의 안쪽 여백. 모든 설정 탭의 Section에 붙여 텍스트가
-    /// 박스에 바짝 붙지 않게 한다.
-    func kissmarkSettingsRowInsets() -> some View {
-        listRowInsets(KissmarkMetrics.settingsRowInsets)
-    }
-}
-#endif
-
-/// A settings section on macOS. The header is a static box of labels with a
-/// glass capsule behind the selected one; nothing else in the header moves.
-nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
-    case general, typography, theme, connections, shortcuts, mirror
-
-    var id: Int { rawValue }
-
-    var title: LocalizedStringKey {
-        switch self {
-        case .general: "일반"
-        case .typography: "타이포그래피"
-        case .theme: "테마"
-        case .connections: "연결"
-        case .shortcuts: "단축키"
-        case .mirror: "미러"
-        }
-    }
-}
-
-/// Settings root. macOS shows the sections in a static header box and swaps the
-/// pane below it; iOS uses navigation rows for the shared sections (ADR 0021).
-///
-/// The header is deliberately calm: the box and the labels never move or resize
-/// (labels keep one font regardless of selection), and only the glass capsule
-/// behind the selected section glides — a system TabView instead plays its
-/// title-bar selection morph on every click, which read as the header wobbling.
+/// Settings root. macOS has resizable tabs, including local agent connections.
+/// iOS uses navigation rows for the shared sections (ADR 0021).
 ///
 /// On macOS Settings is its own `Window` scene, outside `AppRootView`, so it
 /// resolves the theme itself. The 화면 모드 (Appearance) always decides the scheme;
-/// the selected theme adapts its palette to it, and every pane's Form background,
+/// the selected theme adapts its palette to it, and every tab's Form background,
 /// text, and accent follow. 시스템 keeps the native Settings look. iOS inherits
 /// all of it from the presenter.
 struct KissmarkSettingsView: View {
-    @State private var selection = SettingsSection.general
-    @Namespace private var headerSelection
     #if os(macOS)
-    @Environment(\.dismiss) private var dismiss
     @AppStorage(KissmarkAppearance.storageKey) private var appearanceID = KissmarkAppearance.system.rawValue
     @AppStorage(DocumentTheme.storageKey) private var themeID = DocumentTheme.system.rawValue
     @AppStorage(ThemeAccentOverrides.storageKey) private var accentJSON = ""
@@ -261,28 +197,26 @@ struct KissmarkSettingsView: View {
 
     var body: some View {
         #if os(macOS)
-        VStack(spacing: 0) {
-            settingsHeader
-            Divider().kissmarkChromeDivider(palette)
-            Group {
-                switch selection {
-                case .general: themedPane(KissmarkGeneralSettingsView())
-                case .typography: themedPane(DesignSettingsView())
-                case .theme: themedPane(ThemeSettingsView())
-                case .connections: themedPane(AgentConnectionsSettingsView())
-                case .shortcuts: themedPane(ShortcutsSettingsView())
-                case .mirror: themedPane(MirrorSettingsView())
-                }
-            }
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .top)
-            .background(palette?.chromeBackground ?? .clear)
+        TabView {
+            themedTab(KissmarkGeneralSettingsView())
+                .tabItem { Label("일반", systemImage: "gearshape") }
+            themedTab(DesignSettingsView())
+                .tabItem { Label("디자인", systemImage: "textformat") }
+            themedTab(CodeSettingsView())
+                .tabItem { Label("코드", systemImage: "chevron.left.forwardslash.chevron.right") }
+            themedTab(ThemeSettingsView())
+                .tabItem { Label("테마", systemImage: "paintpalette") }
+            themedTab(AgentConnectionsSettingsView())
+                .tabItem { Label("settings.tab.connections", systemImage: "link").help("연결") }
+            themedTab(ShortcutsSettingsView())
+                .tabItem { Label("settings.tab.shortcuts", systemImage: "command").help("단축키") }
+            themedTab(MirrorSettingsView())
+                .tabItem { Label("미러", systemImage: "arrow.triangle.2.circlepath") }
         }
         .frame(
             minWidth: KissmarkMetrics.settingsMinimumSize.width,
-            idealWidth: KissmarkMetrics.settingsDefaultSize.width,
             maxWidth: .infinity,
             minHeight: KissmarkMetrics.settingsMinimumSize.height,
-            idealHeight: KissmarkMetrics.settingsDefaultSize.height,
             maxHeight: .infinity
         )
         .background(palette?.chromeBackground ?? .clear)
@@ -309,85 +243,16 @@ struct KissmarkSettingsView: View {
     }
 
     #if os(macOS)
-    /// The static header box. The box, the labels, and their spacing never
-    /// change; the only moving part is the glass capsule behind the selected
-    /// section, which glides between labels on the spring.
-    private var settingsHeader: some View {
-        HStack(spacing: KissmarkMetrics.settingsRowGap) {
-            // 섹션 알약들을 감싸는 캡슐 DIV. 안의 알약은 닫기 아이콘 버튼과
-            // 같은 28pt 높이로 맞춘다.
-            HStack(spacing: KissmarkMetrics.settingsHeaderInset) {
-                ForEach(SettingsSection.allCases) { section in
-                    headerLabel(section)
-                }
-            }
-            .padding(KissmarkMetrics.settingsHeaderInset)
-            .overlay {
-                Capsule()
-                    .strokeBorder(
-                        Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
-                        lineWidth: KissmarkMetrics.iconButtonOutlineWidth
-                    )
-            }
-
-            Spacer(minLength: KissmarkMetrics.settingsHeaderLabelPad)
-
-            KissmarkIconButton(
-                title: "닫기",
-                lucide: .x,
-                accessibilityIdentifier: "settings-header-close"
-            ) {
-                dismiss()
-            }
-        }
-        .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
-        .padding(.horizontal, KissmarkMetrics.settingsHeaderBlockPad)
-    }
-
-    private func headerLabel(_ section: SettingsSection) -> some View {
-        Button {
-            guard selection != section else { return }
-            withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
-                selection = section
-            }
-        } label: {
-            Text(section.title)
-                .font(KissmarkType.font(.body))
-                .foregroundStyle(
-                    selection == section
-                        ? (palette?.chromePrimary ?? Color.primary)
-                        : (palette?.chromeMuted ?? Color.secondary)
-                )
-                .padding(.horizontal, KissmarkMetrics.settingsHeaderLabelPad)
-                .frame(maxHeight: .infinity)
-                .background {
-                    if selection == section {
-                        Capsule()
-                            .kissmarkGlass(in: Capsule())
-                        Capsule()
-                            .fill(
-                                (palette?.chromePrimary ?? Color.primary)
-                                    .opacity(KissmarkMetrics.treeSelectionOpacity / 2)
-                            )
-                    }
-                }
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .frame(height: KissmarkMetrics.toolbarButtonSize)
-        .accessibilityAddTraits(selection == section ? [.isSelected] : [])
-        .accessibilityIdentifier("settings-section-\(String(describing: section).lowercased())")
-    }
-
-    /// A theme paints each pane's Form: the grouped scroll background is hidden
+    /// A theme paints each tab's Form: the grouped scroll background is hidden
     /// over the palette background and text takes the palette color. 시스템 leaves
-    /// the Form untouched. The app adds no width cap of its own: the grouped Form
-    /// follows the window (the system style centers a readable column), so the
-    /// row washes and scrollbar never stop short of the margins.
-    private func themedPane<Content: View>(_ content: Content) -> some View {
+    /// the Form untouched.
+    private func themedTab<Content: View>(_ content: Content) -> some View {
         content
             .scrollContentBackground(palette == nil ? .automatic : .hidden)
             .foregroundStyle(palette.map { AnyShapeStyle($0.chromePrimary) } ?? AnyShapeStyle(.primary))
+            .frame(maxWidth: KissmarkMetrics.settingsContentMaxWidth)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(palette?.chromeBackground ?? .clear)
     }
     #endif
 }
@@ -397,6 +262,7 @@ struct KissmarkSettingsView: View {
 struct KissmarkGeneralSettingsView: View {
     @AppStorage(KissmarkTextLint.storageKey) private var isTextLintEnabled = true
     @State private var language = KissmarkLanguage.preference(in: .standard, domain: Bundle.main.bundleIdentifier ?? "")
+    @AppStorage(KissmarkEnglishFont.storageKey) private var englishFontID = KissmarkEnglishFont.system.rawValue
     @State private var inboxPath: String = ""
     @State private var archivePath: String = ""
     @State private var folderToConfigure: FolderBookmarkKind?
@@ -414,16 +280,29 @@ struct KissmarkGeneralSettingsView: View {
                     }
                 }
                 .accessibilityIdentifier("settings-language")
+                Picker("영문 글꼴", selection: $englishFontID) {
+                    ForEach(KissmarkEnglishFont.allCases) { font in
+                        Text(font.displayName).tag(font.rawValue)
+                    }
+                }
+                .accessibilityIdentifier("settings-english-font")
+                if KissmarkLocalization.languageCode == "en", KissmarkEnglishFont.active == .inter,
+                   !KissmarkType.interAvailable {
+                    Text("Inter 글꼴을 불러오지 못해 OS 기본 글꼴을 사용합니다.")
+                        .font(KissmarkType.caption)
+                        .foregroundStyle(.secondary)
+                }
             } header: {
-                KissmarkSettingsSectionHeader(title: "언어")
+                Text("언어")
             } footer: {
-                Text("선택한 언어는 앱을 다시 열면 적용됩니다. 글꼴은 타이포그래피에서 고릅니다.")
+                Text("선택한 언어와 영문 글꼴은 앱을 다시 열면 적용됩니다.")
             }
-            .kissmarkSettingsRowInsets()
             #if os(iOS)
             Section {
-                NavigationLink("타이포그래피") { DesignSettingsView() }
+                NavigationLink("디자인") { DesignSettingsView() }
                     .accessibilityIdentifier("settings-design-link")
+                NavigationLink("코드") { CodeSettingsView() }
+                    .accessibilityIdentifier("settings-code-link")
                 NavigationLink("테마") { ThemeSettingsView() }
                     .accessibilityIdentifier("settings-theme-link")
                 NavigationLink("단축키") { ShortcutsSettingsView() }
@@ -432,14 +311,13 @@ struct KissmarkGeneralSettingsView: View {
             #endif
 
             Section {
-                Toggle("슬롭 제거", isOn: $isTextLintEnabled)
+                Toggle("텍스트 정리", isOn: $isTextLintEnabled)
                     .accessibilityIdentifier("settings-text-lint-toggle")
             } header: {
-                KissmarkSettingsSectionHeader(title: "AI 슬롭 검사")
+                Text("텍스트 정리")
             } footer: {
                 Text("편집 메뉴의 텍스트 정리(⌘⇧L)가 본문의 em 대시와 인 대시를 하이픈으로, 가운뎃점을 쉼표로 바꿉니다. 코드 블록과 인라인 코드는 건드리지 않고, 편집 모드에서만 동작하며 실행 취소(⌘Z)할 수 있습니다. 끄면 명령이 동작하지 않습니다.")
             }
-            .kissmarkSettingsRowInsets()
 
             Section {
                 pathRow(
@@ -463,11 +341,10 @@ struct KissmarkGeneralSettingsView: View {
                     .accessibilityIdentifier("settings-mirror-link")
                 #endif
             } header: {
-                KissmarkSettingsSectionHeader(title: "폴더")
+                Text("폴더")
             } footer: {
                 Text("기본 Folder는 iCloud Kissmark입니다. 보관은 문서를 보관 폴더로 복사하고 원본은 남깁니다.")
             }
-            .kissmarkSettingsRowInsets()
             #if os(macOS)
             MarkdownDefaultAppSettings()
             #endif
@@ -499,14 +376,13 @@ struct KissmarkGeneralSettingsView: View {
                 .disabled(updateController.isChecking || !updateController.isEnabled)
                 .accessibilityIdentifier("settings-check-updates")
             } header: {
-                KissmarkSettingsSectionHeader(title: "앱")
+                Text("앱")
             } footer: {
                 Text("Mac과 iPhone은 같은 GitHub 배포를 확인합니다. iPhone 앱 스토어 배포 전에는 저장소 릴리스로 업데이트합니다.")
             }
-            .kissmarkSettingsRowInsets()
         }
         .formStyle(.grouped)
-        .kissmarkSettingsNavigationTitle("설정")
+        .navigationTitle("설정")
         .onAppear { reloadPaths() }
         .onChange(of: language) { _, selected in selected.store(in: .standard) }
         .fileImporter(

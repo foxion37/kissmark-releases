@@ -1,10 +1,10 @@
-# Kissmark 2.3.5 (21): 설치 / Installation
+# Kissmark: 설치 / Installation
 
 ## 한국어
 
 ### 다운로드와 설치
 
-1. [2.3.5 릴리스](https://github.com/foxion37/kissmark-releases/releases/tag/v2.3.5)에서 DMG와 `SHA256SUMS`를 받습니다. 파일 이름에 있는 짧은 커밋 값과 전체 소스 커밋은 같은 릴리스의 `release-manifest.json`으로 확인할 수 있습니다.
+1. [최신 릴리스](https://github.com/foxion37/kissmark-releases/releases/latest)에서 DMG와 `SHA256SUMS`를 받습니다. 버전·빌드 번호와 파일 이름의 커밋 값은 같은 릴리스의 `release-manifest.json`으로 확인할 수 있습니다.
 2. 다운로드한 폴더에서 아래 명령으로 DMG의 체크섬을 확인합니다. 결과가 `OK`일 때만 계속합니다. 소스 ZIP도 받았다면 같은 명령으로 함께 검사합니다.
 3. 기존 Kissmark에서 편집을 저장하고 앱을 종료합니다. DMG를 열고 `Kissmark.app`을 Applications로 복사합니다. 기존 설치본이 있다면 앱만 교체하며, 문서나 설정을 초기화할 필요는 없습니다.
 4. Applications의 Kissmark를 실행합니다. 설정 → 일반에서 한국어·영어와 영문 글꼴을 선택할 수 있습니다. 언어와 영문 글꼴 변경은 다음 실행부터 적용됩니다.
@@ -28,6 +28,8 @@ xattr -dr com.apple.quarantine /Applications/Kissmark.app
 설정 → 연결에서 이 Mac의 후보를 검색하고 필요한 항목만 추가합니다. CLI 설치나 MCP 등록은 표시된 명령과 대상 에이전트, 사용자 공통(global) 또는 프로젝트 범위를 확인한 뒤 직접 승인합니다. 검색과 목록 추가만으로 설치하거나 기존 세션을 강제로 바꾸지 않습니다.
 
 직접 MCP 클라이언트를 설정할 때의 실행 파일은 다음과 같습니다. Claude Desktop 확장 파일은 `/Applications/Kissmark.app/Contents/Resources/kissmark.mcpb`에 있습니다.
+앱 업데이트 후 Claude Desktop 확장을 사용한다면 새 `kissmark.mcpb`를 다시 설치하세요. Desktop은 확장을 복사해 보관하므로 앱 교체만으로 그 복사본이 갱신되지는 않습니다.
+
 
 ```text
 /Applications/Kissmark.app/Contents/Helpers/kissmark-mcp
@@ -44,7 +46,7 @@ xattr -dr com.apple.quarantine /Applications/Kissmark.app
 
 ### Download and install
 
-1. Download the DMG and `SHA256SUMS` from the [2.3.5 release](https://github.com/foxion37/kissmark-releases/releases/tag/v2.3.5). The release's `release-manifest.json` records the full source commit corresponding to the short commit in the filename.
+1. Download the DMG and `SHA256SUMS` from the [latest release](https://github.com/foxion37/kissmark-releases/releases/latest). Its `release-manifest.json` records the version, build and full source commit corresponding to the filename.
 2. Run the command below in the download directory to verify the DMG. Continue only when it reports `OK`. If you also downloaded the source ZIP, the same command checks it too.
 3. Save edits and quit the existing Kissmark app. Open the DMG and copy `Kissmark.app` to Applications. Replace only the existing app; documents and settings do not need to be reset.
 4. Launch Kissmark from Applications. Settings → General lets you choose Korean/English and an English font. Language and English-font changes take effect on the next launch.
@@ -68,6 +70,8 @@ xattr -dr com.apple.quarantine /Applications/Kissmark.app
 Use Settings → Connect to search this Mac and add only the candidates you need. Explicitly approve CLI installation or MCP registration after checking the displayed command, agent, and global or project scope. Searching and adding a list entry do not install anything or forcibly modify existing sessions.
 
 For manual MCP client setup, use the executable below. The Claude Desktop extension is at `/Applications/Kissmark.app/Contents/Resources/kissmark.mcpb`.
+After updating the app, reinstall the new `kissmark.mcpb` if you use the Claude Desktop extension. Desktop keeps its own copy, which replacing the app alone does not update.
+
 
 ```text
 /Applications/Kissmark.app/Contents/Helpers/kissmark-mcp

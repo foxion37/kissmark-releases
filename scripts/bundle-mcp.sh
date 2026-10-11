@@ -53,5 +53,5 @@ cat > "$bundle_dir/manifest.json" <<JSON
 JSON
 swift -e 'import Foundation; _ = try JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[1])))' "$bundle_dir/manifest.json"
 rm -f "$app/Contents/Resources/kissmark.mcpb"
-ditto -c -k "$bundle_dir" "$app/Contents/Resources/kissmark.mcpb"
+ditto -c -k --norsrc --noextattr "$bundle_dir" "$app/Contents/Resources/kissmark.mcpb"
 echo "Bundled signed MCP helper and kissmark.mcpb"

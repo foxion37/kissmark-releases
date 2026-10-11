@@ -19,6 +19,8 @@ struct DocumentSurfaceView: View {
     var review: DocumentReview? = nil
     var onReviewExpanded: ((Bool) -> Void)? = nil
     var onReviewAction: ((ReviewAction) -> Void)? = nil
+    /// Find-in-Document state (`nil` = no find). Its requests are sent to the surface.
+    var find: DocumentFindModel? = nil
     @State private var surfaceError: String?
     @State private var surfaceOpacity = 0.0
     @State private var isSurfaceReady = false
@@ -55,6 +57,8 @@ struct DocumentSurfaceView: View {
                 onReviewExpanded: onReviewExpanded,
                 onReviewAction: onReviewAction,
                 onInfoExpanded: onInfoExpanded,
+                findRequest: find?.request ?? DocumentFindRequest(),
+                onFindResult: { find?.receive($0) },
                 textSize: KissmarkTextSize(rawValue: textSizeID) ?? .medium,
                 textAlign: KissmarkTextAlignment(rawValue: textAlignID) ?? .start,
                 design: DesignOverrides.decode(designJSON),
@@ -142,6 +146,8 @@ private struct DocumentSurfaceRepresentable: PlatformViewRepresentable {
     var onReviewExpanded: ((Bool) -> Void)?
     var onReviewAction: ((ReviewAction) -> Void)?
     var onInfoExpanded: ((Bool) -> Void)?
+    var findRequest = DocumentFindRequest()
+    var onFindResult: ((DocumentFindResult) -> Void)?
     var textSize: KissmarkTextSize
     var textAlign: KissmarkTextAlignment
     var design: DesignOverrides
@@ -189,6 +195,8 @@ private struct DocumentSurfaceRepresentable: PlatformViewRepresentable {
         context.coordinator.onInfoExpanded = onInfoExpanded
         context.coordinator.onReviewExpanded = onReviewExpanded
         context.coordinator.onReviewAction = onReviewAction
+        context.coordinator.onFindResult = onFindResult
+        context.coordinator.update(find: findRequest)
         context.coordinator.update(text: text, mode: mode, viewMode: viewMode, style: style, info: info, review: review)
         applyPaperColor(to: webView)
     }
@@ -241,6 +249,9 @@ private struct DocumentSurfaceRepresentable: PlatformViewRepresentable {
         var onInfoExpanded: ((Bool) -> Void)?
         var onReviewExpanded: ((Bool) -> Void)?
         var onReviewAction: ((ReviewAction) -> Void)?
+        var onFindResult: ((DocumentFindResult) -> Void)?
+        private var findRequest = DocumentFindRequest()
+        private var sentFindID = 0
         private var readyTimeoutTask: Task<Void, Never>?
         /// Runs 텍스트 정리 (Edit Mode only — the surface's JS guards the mode).
         /// The 일반 tab's toggle gates the whole feature.
@@ -265,7 +276,10 @@ private struct DocumentSurfaceRepresentable: PlatformViewRepresentable {
                 commands: self,
                 onTextChange: { [textBinding] in textBinding.wrappedValue = $0 },
                 onError: { [surfaceError] in surfaceError.wrappedValue = $0 },
-                onReady: { [isReady] in isReady.wrappedValue = true }
+                onReady: { [isReady, weak self] in
+                    isReady.wrappedValue = true
+                    self?.resendFind()
+                }
             )
         }
 
@@ -360,6 +374,28 @@ private struct DocumentSurfaceRepresentable: PlatformViewRepresentable {
         func cleanTypography() {
             guard isTextLintEnabled else { return }
             evaluate("window.KissmarkEditor && window.KissmarkEditor.cleanTypography();")
+        }
+
+        // MARK: Find
+
+        /// Latest find command from the model; sent once per `id`, after the surface is ready.
+        func update(find request: DocumentFindRequest) {
+            findRequest = request
+            sendFindIfNeeded()
+        }
+
+        /// A (re)loaded page knows no query: re-send the current command.
+        private func resendFind() {
+            sentFindID = 0
+            sendFindIfNeeded()
+        }
+
+        private func sendFindIfNeeded() {
+            guard bridge.isReady, findRequest.id != sentFindID else { return }
+            sentFindID = findRequest.id
+            guard let data = try? JSONEncoder().encode(findRequest),
+                  let json = String(data: data, encoding: .utf8) else { return }
+            evaluate("window.KissmarkEditor && window.KissmarkEditor.find(\(json));")
         }
 
         // MARK: Loading
@@ -461,6 +497,14 @@ private struct DocumentSurfaceRepresentable: PlatformViewRepresentable {
             case "reviewExpanded":
                 guard let expanded = body["expanded"] as? Bool else { return }
                 onReviewExpanded?(expanded)
+            case "find":
+                guard let id = (body["id"] as? NSNumber)?.intValue,
+                      let total = (body["total"] as? NSNumber)?.intValue,
+                      let active = (body["active"] as? NSNumber)?.intValue else { return }
+                onFindResult?(DocumentFindResult(
+                    id: id, total: total, active: active,
+                    invalidRegex: (body["error"] as? String) == "invalid-regex"
+                ))
             default:
                 break
             }

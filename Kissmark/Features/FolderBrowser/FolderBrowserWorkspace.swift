@@ -178,6 +178,15 @@ final class FolderBrowserWorkspace {
         recentDocuments = memory?.recentDocuments(limit: 8) ?? []
     }
 
+    /// Memory search over previously opened Documents; throws without an injected memory store.
+    func searchMemory(query: String, project: String = "", agent: String = "") throws -> [DocumentSearchResult] {
+        struct Unavailable: Error, LocalizedError {
+            nonisolated var errorDescription: String? { String.kissmarkLocalized("메모리를 사용할 수 없습니다.") }
+        }
+        guard let memory else { throw Unavailable() }
+        return try memory.searchDocuments(query: query, project: project, agent: agent)
+    }
+
     func selectDocument(_ url: URL, undoManager: UndoManager? = nil, recordsOpen: Bool = false) {
         var isDirectory: ObjCBool = false
         if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory),
@@ -213,25 +222,13 @@ final class FolderBrowserWorkspace {
             session = nil
             selectedDocumentURL = nil
             errorMessage = String.kissmarkLocalized("iCloud에서 문서를 내려받는 중입니다.")
-            recordFailedOpen(url)
         } catch {
             session = nil
             selectedDocumentURL = nil
             errorMessage = String.kissmarkLocalized("이 문서를 열 수 없습니다.")
-            recordFailedOpen(url)
         }
         syncTitleDraft()
         refreshReview()
-    }
-
-    /// An open request whose load failed (not-yet-downloaded iCloud copy, unreadable
-    /// bytes) still counts as an open: the agent or the user asked for this file, so it
-    /// stays at the top of the recents list and can be retried from there after the
-    /// workspace is replaced.
-    private func recordFailedOpen(_ url: URL) {
-        guard FileManager.default.fileExists(atPath: url.path) else { return }
-        memory?.recordOpen(url: url, text: nil)
-        refreshRecents()
     }
 
     /// ⌘R gate: the window is about to be rebuilt from disk. Unsaved edits win: a dirty

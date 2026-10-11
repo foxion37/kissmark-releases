@@ -13,11 +13,10 @@ struct ShortcutsSettingsView: View {
                 shortcutRow("다시 실행", "⇧⌘Z")
                 shortcutRow("텍스트 정리", "⇧⌘L")
             } header: {
-                KissmarkSettingsSectionHeader(title: "문서")
+                Text("문서")
             } footer: {
                 Text("새로고침은 창 전체를 디스크에서 다시 불러오고 열린 문서를 다시 엽니다. 저장되지 않은 변경이 있으면 새로고침하지 않습니다. 텍스트 정리는 설정 › 일반에서 끌 수 있습니다. 편집 모드에서만 동작합니다.")
             }
-            .kissmarkSettingsRowInsets()
 
             Section {
                 shortcutRow("블록 메뉴", "⌘/")
@@ -29,21 +28,19 @@ struct ShortcutsSettingsView: View {
                 shortcutRow("기울임", "⌘I")
                 shortcutRow("인라인 코드", "⌘E")
             } header: {
-                KissmarkSettingsSectionHeader(title: "편집 모드")
+                Text("편집 모드")
             } footer: {
                 Text("블록 전환 단축키는 커서가 놓인 블록에 적용됩니다.")
             }
-            .kissmarkSettingsRowInsets()
 
             Section {
                 shortcutRow("설정", "⌘,")
             } header: {
-                KissmarkSettingsSectionHeader(title: "앱")
+                Text("앱")
             }
-            .kissmarkSettingsRowInsets()
         }
         .formStyle(.grouped)
-        .kissmarkSettingsNavigationTitle("단축키")
+        .navigationTitle("단축키")
     }
 
     private func shortcutRow(_ action: LocalizedStringKey, _ keys: String) -> some View {

@@ -1208,6 +1208,23 @@
         }
       }
     },
+    "디자인" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Design"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "디자인"
+          }
+        }
+      }
+    },
     "테마" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3520,125 +3537,6 @@
         }
       }
     },
-    "코드 기본값으로" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Reset Code"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "코드 기본값으로"
-          }
-        }
-      }
-    },
-    "글꼴 목록은 설치된 고정폭 글꼴이며, 다른 글꼴은 이름을 직접 입력해 씁니다. 없는 글자는 Jetendard로 표시됩니다. 행간, 장폭, 자동 줄바꿈은 코드 블록에, 글꼴과 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭의 기본은 본문 폭이며, 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The font list shows installed monospaced fonts; type any other font's name to use it. Characters a font lacks fall back to Jetendard. Line height, measure and wrapping apply to code blocks; font and letter spacing also apply to inline code and Source View. Measure defaults to the text column, and with wrapping off long lines scroll horizontally."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "글꼴 목록은 설치된 고정폭 글꼴이며, 다른 글꼴은 이름을 직접 입력해 씁니다. 없는 글자는 Jetendard로 표시됩니다. 행간, 장폭, 자동 줄바꿈은 코드 블록에, 글꼴과 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭의 기본은 본문 폭이며, 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다."
-          }
-        }
-      }
-    },
-    "타이포그래피" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Typography"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "타이포그래피"
-          }
-        }
-      }
-    },
-    "요소 색" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Element Colors"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "요소 색"
-          }
-        }
-      }
-    },
-    "요소별 크기와 굵기를 조절합니다. 요소 색은 테마에서 바꿉니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Adjust size and weight per element. Element colors are in Theme."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "요소별 크기와 굵기를 조절합니다. 요소 색은 테마에서 바꿉니다."
-          }
-        }
-      }
-    },
-    "테마에서 고른 요소 색은 유지합니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Element colors chosen in Theme are kept."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "테마에서 고른 요소 색은 유지합니다."
-          }
-        }
-      }
-    },
-    "라이트와 다크에 따로 저장하며 모든 테마에 공통으로 적용됩니다. 테마 색으로 되돌리면 선택한 화면 모드의 그 요소 색만 초기화합니다." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saved separately for Light and Dark and shared by every theme. Use Theme Color resets only that element's color for the selected mode."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "라이트와 다크에 따로 저장하며 모든 테마에 공통으로 적용됩니다. 테마 색으로 되돌리면 선택한 화면 모드의 그 요소 색만 초기화합니다."
-          }
-        }
-      }
-    },
     "코드 글꼴" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3754,6 +3652,74 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "긴 줄 자동 줄바꿈"
+          }
+        }
+      }
+    },
+    "코드 설정 기본값으로" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reset Code Settings"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "코드 설정 기본값으로"
+          }
+        }
+      }
+    },
+    "목록은 설치된 고정폭 글꼴입니다. 글꼴 추가…로 서체 관리자에서 글꼴을 설치하면 목록에 나타나고, 고정폭이 아닌 글꼴은 이름을 직접 입력해 쓸 수 있습니다. 없는 글자는 Jetendard로 표시됩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The list shows installed monospaced fonts. Fonts installed in Font Book through Add Fonts… appear here; type the name of any other font to use it. Characters a font lacks fall back to Jetendard."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목록은 설치된 고정폭 글꼴입니다. 글꼴 추가…로 서체 관리자에서 글꼴을 설치하면 목록에 나타나고, 고정폭이 아닌 글꼴은 이름을 직접 입력해 쓸 수 있습니다. 없는 글자는 Jetendard로 표시됩니다."
+          }
+        }
+      }
+    },
+    "목록은 설치된 고정폭 글꼴입니다. 다른 글꼴은 이름을 직접 입력해 쓸 수 있고, 없는 글자는 Jetendard로 표시됩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The list shows installed monospaced fonts. Type the name of any other font to use it; characters a font lacks fall back to Jetendard."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "목록은 설치된 고정폭 글꼴입니다. 다른 글꼴은 이름을 직접 입력해 쓸 수 있고, 없는 글자는 Jetendard로 표시됩니다."
+          }
+        }
+      }
+    },
+    "행간, 장폭, 자동 줄바꿈은 코드 블록에 적용되고, 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭은 코드 블록의 최대 너비로, 기본은 본문 폭이며 본문 폭을 넘지 않습니다. 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Line height, measure and wrapping apply to code blocks; letter spacing also applies to inline code and Source View. Measure is the maximum code block width; by default it is the text column, which it never exceeds. With wrapping off, long lines scroll horizontally."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "행간, 장폭, 자동 줄바꿈은 코드 블록에 적용되고, 자간은 인라인 코드와 코드 보기에도 적용됩니다. 장폭은 코드 블록의 최대 너비로, 기본은 본문 폭이며 본문 폭을 넘지 않습니다. 자동 줄바꿈을 끄면 긴 줄은 가로로 스크롤합니다."
           }
         }
       }
@@ -3941,6 +3907,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "요소"
+          }
+        }
+      }
+    },
+    "색은 라이트와 다크에 따로 저장됩니다." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Colors are saved separately for Light and Dark."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "색은 라이트와 다크에 따로 저장됩니다."
           }
         }
       }
@@ -6495,7 +6478,39 @@
         "en" : { "stringUnit" : { "state" : "translated", "value" : "Keys" } },
         "ko" : { "stringUnit" : { "state" : "translated", "value" : "단축키" } }
       }
-    }
+    },
+    "문서에서 찾기…" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Find in Document…" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "문서에서 찾기…" } } } },
+    "다음 찾기" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Find Next" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "다음 찾기" } } } },
+    "이전 찾기" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Find Previous" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "이전 찾기" } } } },
+    "상세 검색…" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Advanced Search…" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "상세 검색…" } } } },
+    "문서에서 찾기" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Find in Document" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "문서에서 찾기" } } } },
+    "문서 내 검색" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Find in Document" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "문서 내 검색" } } } },
+    "대소문자 구분" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Match Case" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "대소문자 구분" } } } },
+    "단어" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Word" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "단어" } } } },
+    "단어 단위" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Whole Word" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "단어 단위" } } } },
+    "정규식" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Regular Expression" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "정규식" } } } },
+    "이전" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Previous" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "이전" } } } },
+    "이전 결과" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Previous Match" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "이전 결과" } } } },
+    "다음 결과" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Next Match" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "다음 결과" } } } },
+    "찾기 닫기" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Close Find" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "찾기 닫기" } } } },
+    "올바르지 않은 정규식" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Invalid regular expression" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "올바르지 않은 정규식" } } } },
+    "%lld/%lld" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld of %lld" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "%lld/%lld" } } } },
+    "문서 검색" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search Documents" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "문서 검색" } } } },
+    "제목과 본문 검색" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search titles and text" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "제목과 본문 검색" } } } },
+    "범위" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Scope" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "범위" } } } },
+    "이 문서" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "This Document" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "이 문서" } } } },
+    "열어 본 문서" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Opened Documents" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "열어 본 문서" } } } },
+    "프로젝트 (정확히 일치)" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Project (exact match)" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "프로젝트 (정확히 일치)" } } } },
+    "에이전트 (정확히 일치)" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Agent (exact match)" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "에이전트 (정확히 일치)" } } } },
+    "검색어를 입력하세요." : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter a search term." } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "검색어를 입력하세요." } } } },
+    "검색 중…" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Searching…" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "검색 중…" } } } },
+    "일치하는 문서가 없습니다." : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "No matching documents." } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "일치하는 문서가 없습니다." } } } },
+    "%lld개 결과" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld results" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "%lld개 결과" } } } },
+    "검색하지 못했습니다." : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search failed." } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "검색하지 못했습니다." } } } },
+    "문서 검색…" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Search Documents…" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "문서 검색…" } } } },
+    "읽지 못한 항목 %lld개: %@" : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not read %lld items: %@" } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "읽지 못한 항목 %lld개: %@" } } } },
+    "메모리를 사용할 수 없습니다." : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Memory is unavailable." } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "메모리를 사용할 수 없습니다." } } } },
+    "일부 항목을 읽지 못했습니다." : { "extractionState" : "manual", "localizations" : { "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not read some items." } }, "ko" : { "stringUnit" : { "state" : "translated", "value" : "일부 항목을 읽지 못했습니다." } } } }
   },
   "version" : "1.0"
 }
