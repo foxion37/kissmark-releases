@@ -87,7 +87,7 @@ struct AgentConnectionsSettingsView: View {
 
                 if diagnosticsExpanded {
                     VStack(alignment: .leading, spacing: KissmarkMetrics.settingsContentGap) {
-                        // 상태는 뱃지로 라벨 옆에, 검색 동작은 행 오른쪽 끝에.
+                        // 상태는 뱃지로 라벨 옆에. 검색은 맨 위 행의 연결 검색 하나로 한다.
                         HStack(spacing: KissmarkMetrics.settingsRowGap) {
                             Text("연결 검색 기능")
                             Text(model.serviceAvailable ? String.kissmarkLocalized("응답 확인됨") : String.kissmarkLocalized("확인 필요"))
@@ -103,8 +103,6 @@ struct AgentConnectionsSettingsView: View {
                                 )
                                 .accessibilityIdentifier("settings-connections-service-badge")
                             Spacer(minLength: 0)
-                            Button("검색") { searching = true }
-                                .accessibilityIdentifier("settings-connections-diagnostics-search")
                         }
                         if let message = model.message { Text(message).font(KissmarkType.caption).foregroundStyle(.secondary) }
                         if let snapshot = model.snapshot {

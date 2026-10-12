@@ -1,3 +1,27 @@
+# Kissmark 2.3.24 (40)
+
+## 한국어
+
+설정 › 연결의 검색 버튼을 하나로 정리했습니다.
+
+### 변경 사항
+
+- `진단` 안의 `검색` 버튼을 없앴습니다. 맨 위 `연결 검색`과 같은 창을 여는 중복 버튼이었습니다. 진단은 연결 검색 기능의 상태 뱃지만 보여줍니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다. Claude Desktop을 사용하면 앱에 포함된 새 `kissmark.mcpb`를 다시 설치하세요.
+
+## English
+
+Settings › Connections now has a single search entry.
+
+- The Search button inside Diagnostics is removed; it opened the same sheet as Search Connections in the first row. Diagnostics only shows the search-service status badge.
+
+Follow [INSTALL.md](INSTALL.md) to replace only the app. Reinstall the bundled `kissmark.mcpb` in Claude Desktop because Desktop keeps its own copied extension.
+
+---
+
 # Kissmark 2.3.23 (39)
 
 ## 한국어
