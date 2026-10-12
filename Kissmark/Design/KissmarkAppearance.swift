@@ -149,6 +149,59 @@ enum KissmarkTextLint {
     static let storageKey = "kissmark.textLint"
 }
 
+/// Shared settings section header used by the Typography and Theme panes.
+struct KissmarkSettingsSectionHeader: View {
+    let title: LocalizedStringKey
+    @Environment(\.chromePalette) private var chromePalette
+
+    var body: some View {
+        Text(title)
+            .font(KissmarkType.font(.caption, weight: .semibold))
+            .foregroundStyle(chromePalette?.chromePrimary ?? Color.primary)
+            .textCase(nil)
+    }
+}
+
+#if os(macOS)
+extension View {
+    @ViewBuilder
+    func kissmarkSettingsNavigationTitle(_ title: LocalizedStringKey) -> some View {
+        self
+    }
+
+    func kissmarkSettingsRowInsets() -> some View {
+        listRowInsets(KissmarkMetrics.settingsRowInsets)
+    }
+}
+#else
+extension View {
+    @ViewBuilder
+    func kissmarkSettingsNavigationTitle(_ title: LocalizedStringKey) -> some View {
+        navigationTitle(title)
+    }
+
+    func kissmarkSettingsRowInsets() -> some View {
+        listRowInsets(KissmarkMetrics.settingsRowInsets)
+    }
+}
+#endif
+
+nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
+    case general, typography, theme, connections, shortcuts, mirror
+
+    var id: Int { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .general: "일반"
+        case .typography: "타이포그래피"
+        case .theme: "테마"
+        case .connections: "연결"
+        case .shortcuts: "단축키"
+        case .mirror: "미러"
+        }
+    }
+}
+
 /// Settings root. macOS has resizable tabs, including local agent connections.
 /// iOS uses navigation rows for the shared sections (ADR 0021).
 ///
@@ -159,6 +212,8 @@ enum KissmarkTextLint {
 /// all of it from the presenter.
 struct KissmarkSettingsView: View {
     #if os(macOS)
+    @Environment(\.dismiss) private var dismiss
+    @State private var selection = SettingsSection.general
     @AppStorage(KissmarkAppearance.storageKey) private var appearanceID = KissmarkAppearance.system.rawValue
     @AppStorage(DocumentTheme.storageKey) private var themeID = DocumentTheme.system.rawValue
     @AppStorage(ThemeAccentOverrides.storageKey) private var accentJSON = ""
@@ -197,26 +252,28 @@ struct KissmarkSettingsView: View {
 
     var body: some View {
         #if os(macOS)
-        TabView {
-            themedTab(KissmarkGeneralSettingsView())
-                .tabItem { Label("일반", systemImage: "gearshape") }
-            themedTab(DesignSettingsView())
-                .tabItem { Label("디자인", systemImage: "textformat") }
-            themedTab(CodeSettingsView())
-                .tabItem { Label("코드", systemImage: "chevron.left.forwardslash.chevron.right") }
-            themedTab(ThemeSettingsView())
-                .tabItem { Label("테마", systemImage: "paintpalette") }
-            themedTab(AgentConnectionsSettingsView())
-                .tabItem { Label("settings.tab.connections", systemImage: "link").help("연결") }
-            themedTab(ShortcutsSettingsView())
-                .tabItem { Label("settings.tab.shortcuts", systemImage: "command").help("단축키") }
-            themedTab(MirrorSettingsView())
-                .tabItem { Label("미러", systemImage: "arrow.triangle.2.circlepath") }
+        VStack(spacing: 0) {
+            settingsHeader
+            Divider().kissmarkChromeDivider(palette)
+            Group {
+                switch selection {
+                case .general: themedPane(KissmarkGeneralSettingsView())
+                case .typography: themedPane(DesignSettingsView())
+                case .theme: themedPane(ThemeSettingsView())
+                case .connections: themedPane(AgentConnectionsSettingsView())
+                case .shortcuts: themedPane(ShortcutsSettingsView())
+                case .mirror: themedPane(MirrorSettingsView())
+                }
+            }
+            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .top)
+            .background(palette?.chromeBackground ?? .clear)
         }
         .frame(
             minWidth: KissmarkMetrics.settingsMinimumSize.width,
+            idealWidth: KissmarkMetrics.settingsDefaultSize.width,
             maxWidth: .infinity,
             minHeight: KissmarkMetrics.settingsMinimumSize.height,
+            idealHeight: KissmarkMetrics.settingsDefaultSize.height,
             maxHeight: .infinity
         )
         .background(palette?.chromeBackground ?? .clear)
@@ -233,7 +290,6 @@ struct KissmarkSettingsView: View {
                 ThemeAccentOverrides.migrateLegacy(in: .standard, theme: theme, scheme: scheme)
             }
         }
-        // Chrome colors crossfade with the Document's own theme transition.
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: themeID)
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: accentHex)
         .animation(KissmarkMotion.theme(reduceMotion: reduceMotion), value: appearanceID)
@@ -243,10 +299,59 @@ struct KissmarkSettingsView: View {
     }
 
     #if os(macOS)
-    /// A theme paints each tab's Form: the grouped scroll background is hidden
-    /// over the palette background and text takes the palette color. 시스템 leaves
-    /// the Form untouched.
-    private func themedTab<Content: View>(_ content: Content) -> some View {
+    private var settingsHeader: some View {
+        HStack(spacing: KissmarkMetrics.settingsRowGap) {
+            HStack(spacing: KissmarkMetrics.settingsHeaderInset) {
+                ForEach(SettingsSection.allCases) { section in
+                    headerLabel(section)
+                }
+            }
+            .padding(KissmarkMetrics.settingsHeaderInset)
+            .overlay {
+                Capsule().strokeBorder(
+                    Color.secondary.opacity(KissmarkMetrics.iconButtonOutlineOpacity),
+                    lineWidth: KissmarkMetrics.iconButtonOutlineWidth
+                )
+            }
+            Spacer(minLength: KissmarkMetrics.settingsHeaderLabelPad)
+            KissmarkIconButton(
+                title: "닫기",
+                lucide: .x,
+                accessibilityIdentifier: "settings-header-close",
+                action: dismiss.callAsFunction
+            )
+        }
+        .padding(.vertical, KissmarkMetrics.settingsHeaderVerticalPad)
+        .padding(.horizontal, KissmarkMetrics.settingsHeaderBlockPad)
+    }
+
+    private func headerLabel(_ section: SettingsSection) -> some View {
+        Button {
+            guard selection != section else { return }
+            withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
+                selection = section
+            }
+        } label: {
+            Text(section.title)
+                .font(KissmarkType.font(.body))
+                .foregroundStyle(selection == section ? (palette?.chromePrimary ?? .primary) : (palette?.chromeMuted ?? .secondary))
+                .padding(.horizontal, KissmarkMetrics.settingsHeaderLabelPad)
+                .frame(maxHeight: .infinity)
+                .background {
+                    if selection == section {
+                        Capsule().kissmarkGlass(in: Capsule())
+                        Capsule().fill((palette?.chromePrimary ?? .primary).opacity(KissmarkMetrics.treeSelectionOpacity / 2))
+                    }
+                }
+                .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .frame(height: KissmarkMetrics.toolbarButtonSize)
+        .accessibilityAddTraits(selection == section ? [.isSelected] : [])
+        .accessibilityIdentifier("settings-section-\(String(describing: section).lowercased())")
+    }
+
+    private func themedPane<Content: View>(_ content: Content) -> some View {
         content
             .scrollContentBackground(palette == nil ? .automatic : .hidden)
             .foregroundStyle(palette.map { AnyShapeStyle($0.chromePrimary) } ?? AnyShapeStyle(.primary))
@@ -299,10 +404,8 @@ struct KissmarkGeneralSettingsView: View {
             }
             #if os(iOS)
             Section {
-                NavigationLink("디자인") { DesignSettingsView() }
-                    .accessibilityIdentifier("settings-design-link")
-                NavigationLink("코드") { CodeSettingsView() }
-                    .accessibilityIdentifier("settings-code-link")
+                NavigationLink("타이포그래피") { DesignSettingsView() }
+                    .accessibilityIdentifier("settings-typography-link")
                 NavigationLink("테마") { ThemeSettingsView() }
                     .accessibilityIdentifier("settings-theme-link")
                 NavigationLink("단축키") { ShortcutsSettingsView() }

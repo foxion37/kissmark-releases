@@ -102,6 +102,7 @@ struct ThemeSettingsView: View {
             } footer: {
                 Text("현재 테마의 현재 화면 모드에만 저장합니다. 선택한 색을 그대로 사용하며 다른 테마와 다른 화면 모드의 색은 바꾸지 않습니다. 테마 색으로 되돌리면 이 설정만 초기화합니다.")
             }
+            ThemeElementColorsSection(initialScheme: scheme)
         }
         .formStyle(.grouped)
         .navigationTitle("테마")
