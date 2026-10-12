@@ -103,7 +103,10 @@ final class MemoryStore {
         if let db { sqlite3_close(db) }
     }
 
-    func recordOpen(url: URL, text: String, at: Date = .now) {
+    /// `text` is the loaded body; `nil` records the open without rewriting the indexed
+    /// text (a Document whose load failed, e.g. a not-yet-downloaded iCloud copy), so
+    /// the open still lands in the recents list and earlier indexed text survives.
+    func recordOpen(url: URL, text: String?, at: Date = .now) {
         guard let db else { return }
         do {
             let path = normalize(url)
@@ -117,7 +120,9 @@ final class MemoryStore {
             try run {
                 try upsertDocument(path: path, title: title, at: at, bookmark: bookmark)
                 try insertOpen(path: path, at: at, provenance: drained.provenance)
-                try replaceText(path: path, title: title, body: text)
+                if let text {
+                    try replaceText(path: path, title: title, body: text)
+                }
                 for point in drained.points {
                     try insertPoint(
                         path: path, source: "agent", kind: "agent",
@@ -125,7 +130,9 @@ final class MemoryStore {
                         at: at, host: point.host, agent: point.agent, session: point.session
                     )
                 }
-                try refreshRulePoints(path: path, text: text, at: at)
+                if let text {
+                    try refreshRulePoints(path: path, text: text, at: at)
+                }
             }
             // Only after the commit: a failed write leaves the entries for the next open.
             for file in drained.consumed {

@@ -105,6 +105,16 @@ enum KissmarkWindowChrome {
         let unbounded = NSSize(width: 100_000, height: 100_000)
         window.contentMaxSize = unbounded
         window.maxSize = unbounded
+        // Grouped Form은 무한 제안에서 전체 콘텐츠 높이를 최소 크기로 보고하므로,
+        // 화면 전체로 열린 설정 창을 첫 표현 시 1회 기본 크기로 되돌린다. 사용자가
+        // 이후 키운 창은 이 경로를 이미 지났기 때문에 그대로 둔다.
+        if let screen = window.screen ?? NSScreen.main {
+            let visible = screen.visibleFrame
+            if window.frame.width >= visible.width - 1 || window.frame.height >= visible.height - 1 {
+                window.setContentSize(KissmarkMetrics.settingsDefaultSize)
+                window.center()
+            }
+        }
     }
     #endif
 }

@@ -1,3 +1,41 @@
+# Kissmark 2.3.23 (39)
+
+## 한국어
+
+2.3.20 배포에서 빠졌던 2.3.2~2.3.16 기능과 설정 화면 정렬을 다시 반영했습니다.
+
+### 변경 사항
+
+- 설정 › 연결: 행을 클릭할 때 겹쳐 보이던 선택 박스를 없앴습니다. 진단 행은 오른쪽 꺽쇠와 상태 뱃지로 표시하고, 안내 문구와 `연결 검색`·`CLI 설치`를 한 줄에 둡니다.
+- 모든 설정 섹션의 안쪽 여백과 섹션 제목 색을 되살리고, 설정 창 너비 제한을 없앴습니다.
+- 툴바에 `경로 복사`를 다시 추가했습니다. 열린 문서의 파일 경로를 복사합니다.
+- 최근 문서 순서와 멈춘 폴더 선택 창 다시 띄우기를 복구했습니다.
+- 글자 크기 단계(아주 작게~아주 크게)와 폴더 컨트롤 표시를 2.3.16 기준으로 되돌렸습니다.
+- 코드 블록에 언어 표시와 복사 버튼, VS Code Light+/Dark+ 구문 색을 다시 적용했습니다.
+- `영문 글꼴`을 타이포그래피 › 글꼴로 옮기고, 일반의 텍스트 정리 항목을 `AI 슬롭 검사`로 표시합니다.
+- 설정값은 기존 키를 그대로 사용하므로 업데이트 후에도 유지됩니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다. Claude Desktop을 사용하면 앱에 포함된 새 `kissmark.mcpb`를 다시 설치하세요.
+
+## English
+
+Restores the 2.3.2–2.3.16 features and Settings alignment that were missing from the 2.3.20 release.
+
+- Settings › Connections no longer draws a second selection box; Diagnostics shows a trailing chevron and status badge, and the empty help shares one row with Search and Install CLI.
+- Every Settings section regains its row padding and accent section header; the Settings content width cap is removed.
+- The Copy Path toolbar action is back.
+- Recents ordering and re-presenting a stuck folder prompt are restored.
+- The text size ladder and folder control styling match 2.3.16.
+- Code blocks regain the language label, Copy button and VS Code Light+/Dark+ syntax colors.
+- English Font moves to Typography › Font; the text lint section is labelled AI Slop Check.
+- Settings keep their existing keys and survive the upgrade.
+
+Follow [INSTALL.md](INSTALL.md) to replace only the app. Reinstall the bundled `kissmark.mcpb` in Claude Desktop because Desktop keeps its own copied extension.
+
+---
+
 # Kissmark 2.3.22 (38)
 
 ## 한국어

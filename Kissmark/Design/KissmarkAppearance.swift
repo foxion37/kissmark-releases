@@ -115,11 +115,11 @@ enum KissmarkTextSize: String, CaseIterable, Identifiable {
     /// `--km-font-size` and the derived heading tokens follow it.
     var scale: Double {
         switch self {
-        case .xSmall: return 13.0 / 18.0
-        case .small: return 15.0 / 18.0
-        case .medium: return 1.0
-        case .large: return 21.0 / 18.0
-        case .xLarge: return 24.0 / 18.0
+        case .xSmall: return 12.0 / 18.0
+        case .small: return 13.0 / 18.0
+        case .medium: return 14.0 / 18.0
+        case .large: return 1.0
+        case .xLarge: return 21.0 / 18.0
         }
     }
 }
@@ -149,7 +149,8 @@ enum KissmarkTextLint {
     static let storageKey = "kissmark.textLint"
 }
 
-/// Shared settings section header used by the Typography and Theme panes.
+/// 설정 Form의 섹션 머리글(본문, 글꼴, 간격…). 본문 텍스트와 구분되도록
+/// 작은 크기에 굵게, 테마 포인트 색을 입힌다.
 struct KissmarkSettingsSectionHeader: View {
     let title: LocalizedStringKey
     @Environment(\.chromePalette) private var chromePalette
@@ -157,7 +158,7 @@ struct KissmarkSettingsSectionHeader: View {
     var body: some View {
         Text(title)
             .font(KissmarkType.font(.caption, weight: .semibold))
-            .foregroundStyle(chromePalette?.chromePrimary ?? Color.primary)
+            .foregroundStyle(chromePalette?.chromeAccent ?? Color.accentColor)
             .textCase(nil)
     }
 }
@@ -207,13 +208,14 @@ nonisolated enum SettingsSection: Int, CaseIterable, Identifiable {
 ///
 /// On macOS Settings is its own `Window` scene, outside `AppRootView`, so it
 /// resolves the theme itself. The 화면 모드 (Appearance) always decides the scheme;
-/// the selected theme adapts its palette to it, and every tab's Form background,
+/// the selected theme adapts its palette to it, and every pane's Form background,
 /// text, and accent follow. 시스템 keeps the native Settings look. iOS inherits
 /// all of it from the presenter.
 struct KissmarkSettingsView: View {
+    @State private var selection = SettingsSection.general
+    @Namespace private var headerSelection
     #if os(macOS)
     @Environment(\.dismiss) private var dismiss
-    @State private var selection = SettingsSection.general
     @AppStorage(KissmarkAppearance.storageKey) private var appearanceID = KissmarkAppearance.system.rawValue
     @AppStorage(DocumentTheme.storageKey) private var themeID = DocumentTheme.system.rawValue
     @AppStorage(ThemeAccentOverrides.storageKey) private var accentJSON = ""
@@ -355,7 +357,6 @@ struct KissmarkSettingsView: View {
         content
             .scrollContentBackground(palette == nil ? .automatic : .hidden)
             .foregroundStyle(palette.map { AnyShapeStyle($0.chromePrimary) } ?? AnyShapeStyle(.primary))
-            .frame(maxWidth: KissmarkMetrics.settingsContentMaxWidth)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .background(palette?.chromeBackground ?? .clear)
     }
@@ -367,7 +368,6 @@ struct KissmarkSettingsView: View {
 struct KissmarkGeneralSettingsView: View {
     @AppStorage(KissmarkTextLint.storageKey) private var isTextLintEnabled = true
     @State private var language = KissmarkLanguage.preference(in: .standard, domain: Bundle.main.bundleIdentifier ?? "")
-    @AppStorage(KissmarkEnglishFont.storageKey) private var englishFontID = KissmarkEnglishFont.system.rawValue
     @State private var inboxPath: String = ""
     @State private var archivePath: String = ""
     @State private var folderToConfigure: FolderBookmarkKind?
@@ -385,23 +385,12 @@ struct KissmarkGeneralSettingsView: View {
                     }
                 }
                 .accessibilityIdentifier("settings-language")
-                Picker("영문 글꼴", selection: $englishFontID) {
-                    ForEach(KissmarkEnglishFont.allCases) { font in
-                        Text(font.displayName).tag(font.rawValue)
-                    }
-                }
-                .accessibilityIdentifier("settings-english-font")
-                if KissmarkLocalization.languageCode == "en", KissmarkEnglishFont.active == .inter,
-                   !KissmarkType.interAvailable {
-                    Text("Inter 글꼴을 불러오지 못해 OS 기본 글꼴을 사용합니다.")
-                        .font(KissmarkType.caption)
-                        .foregroundStyle(.secondary)
-                }
             } header: {
-                Text("언어")
+                KissmarkSettingsSectionHeader(title: "언어")
             } footer: {
-                Text("선택한 언어와 영문 글꼴은 앱을 다시 열면 적용됩니다.")
+                Text("선택한 언어는 앱을 다시 열면 적용됩니다. 글꼴은 타이포그래피에서 고릅니다.")
             }
+            .kissmarkSettingsRowInsets()
             #if os(iOS)
             Section {
                 NavigationLink("타이포그래피") { DesignSettingsView() }
@@ -414,13 +403,14 @@ struct KissmarkGeneralSettingsView: View {
             #endif
 
             Section {
-                Toggle("텍스트 정리", isOn: $isTextLintEnabled)
+                Toggle("슬롭 제거", isOn: $isTextLintEnabled)
                     .accessibilityIdentifier("settings-text-lint-toggle")
             } header: {
-                Text("텍스트 정리")
+                KissmarkSettingsSectionHeader(title: "AI 슬롭 검사")
             } footer: {
                 Text("편집 메뉴의 텍스트 정리(⌘⇧L)가 본문의 em 대시와 인 대시를 하이픈으로, 가운뎃점을 쉼표로 바꿉니다. 코드 블록과 인라인 코드는 건드리지 않고, 편집 모드에서만 동작하며 실행 취소(⌘Z)할 수 있습니다. 끄면 명령이 동작하지 않습니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 pathRow(
@@ -444,10 +434,11 @@ struct KissmarkGeneralSettingsView: View {
                     .accessibilityIdentifier("settings-mirror-link")
                 #endif
             } header: {
-                Text("폴더")
+                KissmarkSettingsSectionHeader(title: "폴더")
             } footer: {
                 Text("기본 Folder는 iCloud Kissmark입니다. 보관은 문서를 보관 폴더로 복사하고 원본은 남깁니다.")
             }
+            .kissmarkSettingsRowInsets()
             #if os(macOS)
             MarkdownDefaultAppSettings()
             #endif
@@ -479,13 +470,14 @@ struct KissmarkGeneralSettingsView: View {
                 .disabled(updateController.isChecking || !updateController.isEnabled)
                 .accessibilityIdentifier("settings-check-updates")
             } header: {
-                Text("앱")
+                KissmarkSettingsSectionHeader(title: "앱")
             } footer: {
                 Text("Mac과 iPhone은 같은 GitHub 배포를 확인합니다. iPhone 앱 스토어 배포 전에는 저장소 릴리스로 업데이트합니다.")
             }
+            .kissmarkSettingsRowInsets()
         }
         .formStyle(.grouped)
-        .navigationTitle("설정")
+        .kissmarkSettingsNavigationTitle("설정")
         .onAppear { reloadPaths() }
         .onChange(of: language) { _, selected in selected.store(in: .standard) }
         .fileImporter(

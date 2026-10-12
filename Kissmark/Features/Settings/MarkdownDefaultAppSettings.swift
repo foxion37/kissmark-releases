@@ -41,10 +41,11 @@ struct MarkdownDefaultAppSettings: View {
                     .accessibilityIdentifier("settings-markdown-default-error")
             }
         } header: {
-            Text("Markdown 기본 앱")
+            KissmarkSettingsSectionHeader(title: "Markdown 기본 앱")
         } footer: {
             Text(".md와 .markdown 파일을 Finder에서 열 때 Kissmark를 사용합니다. 일반 텍스트 파일의 기본 앱은 바꾸지 않습니다.")
         }
+        .kissmarkSettingsRowInsets()
         .onAppear(perform: refresh)
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             refresh()
