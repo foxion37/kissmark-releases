@@ -16,6 +16,10 @@ enum KissmarkLucide: String, CaseIterable, Identifiable {
     case fileText = "file-text"
     case chevronsUpDown = "chevrons-up-down"
     case code
+    case copy
+    case rotateCcw = "rotate-ccw"
+    case check
+    case save
     case bot
     case search
     case fileSearch = "file-search"

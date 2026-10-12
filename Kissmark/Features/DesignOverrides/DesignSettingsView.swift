@@ -1,10 +1,13 @@
 import SwiftUI
 
-/// Settings › 타이포그래피. Edits text size and typography overrides; each change applies immediately.
+/// Settings › 타이포그래피. Edits the text size, English font and `DesignOverrides`
+/// (all but the element colors, which live in 테마); every change applies to the
+/// open Document immediately (the English font on next launch).
 struct DesignSettingsView: View {
     @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
     @AppStorage(KissmarkTextSize.storageKey) private var textSizeID = KissmarkTextSize.medium.rawValue
     @AppStorage(KissmarkTextAlignment.storageKey) private var textAlignID = KissmarkTextAlignment.start.rawValue
+    @AppStorage(KissmarkEnglishFont.storageKey) private var englishFontID = KissmarkEnglishFont.system.rawValue
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var expandedElements: Set<DesignOverrides.ElementKey> = []
 
@@ -32,10 +35,31 @@ struct DesignSettingsView: View {
                 }
                 .accessibilityIdentifier("settings-design-alignment")
             } header: {
-                Text("본문")
+                KissmarkSettingsSectionHeader(title: "본문")
             } footer: {
                 Text("글자 크기는 읽기와 편집 모두에 적용됩니다. 정렬은 문서 전체에 적용되고, 어절 단위로 줄이 바뀝니다.")
             }
+            .kissmarkSettingsRowInsets()
+
+            Section {
+                Picker("영문 글꼴", selection: $englishFontID) {
+                    ForEach(KissmarkEnglishFont.allCases) { font in
+                        Text(font.displayName).tag(font.rawValue)
+                    }
+                }
+                .accessibilityIdentifier("settings-english-font")
+                if KissmarkLocalization.languageCode == "en", KissmarkEnglishFont.active == .inter,
+                   !KissmarkType.interAvailable {
+                    Text("Inter 글꼴을 불러오지 못해 OS 기본 글꼴을 사용합니다.")
+                        .font(KissmarkType.caption)
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                KissmarkSettingsSectionHeader(title: "글꼴")
+            } footer: {
+                Text("한글은 Pretendard로 표시되고, 코드 글꼴은 아래 코드에서 고릅니다. 영문 글꼴 선택은 앱을 다시 열면 적용됩니다.")
+            }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 ForEach(DesignOverrides.SpacingField.body) { field in DesignSpacingRow(field: field) }
@@ -47,10 +71,11 @@ struct DesignSettingsView: View {
                 .accessibilityIdentifier("settings-design-spacing-reset")
                 .disabled(DesignOverrides.SpacingField.body.allSatisfy { $0.value(in: overrides.spacing) == nil })
             } header: {
-                Text("간격")
+                KissmarkSettingsSectionHeader(title: "간격")
             } footer: {
                 Text("바를 움직여 일정한 단위로 조절합니다. 다섯 표시는 참고 체크포인트이며 그 사이 값도 선택할 수 있습니다. 행간은 배수, 장폭은 ch, 나머지는 em입니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             CodeSettingsSection()
 
@@ -59,10 +84,11 @@ struct DesignSettingsView: View {
                     DisclosureGroup(key.displayName, isExpanded: expansionBinding(key)) { elementControls(key) }
                 }
             } header: {
-                Text("요소")
+                KissmarkSettingsSectionHeader(title: "요소")
             } footer: {
                 Text("요소의 크기와 굵기는 타이포그래피에 저장됩니다. 요소 색은 테마에서 라이트와 다크에 따로 저장합니다.")
             }
+            .kissmarkSettingsRowInsets()
 
             Section {
                 Button("모두 초기화", role: .destructive) {
@@ -177,9 +203,8 @@ struct DesignSettingsView: View {
         .disabled(element.sizeScale == nil && element.weight == nil)
     }
 }
-
 /// One compact spacing row: name left, actual value right, then a full-width
-/// numeric slider with its five checkpoint names. Shared by 디자인 and 코드.
+/// numeric slider with its five checkpoint names. Used by the 간격 and 코드 sections.
 struct DesignSpacingRow: View {
     let field: DesignOverrides.SpacingField
     @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
@@ -252,17 +277,6 @@ struct DesignSpacingRow: View {
         case .indent: "settings-design-indent"
         case .codeLineHeight: "settings-design-code-line-height"
         case .codeMeasure: "settings-design-code-measure"
-        }
-    }
-}
-
-private extension DesignOverrides.ElementKey {
-    /// Shown in the picker while no color override exists; not written anywhere.
-    var placeholderColor: Color {
-        switch self {
-        case .link: .accentColor
-        case .blockquote, .h5, .h6, .rule: .secondary
-        default: .primary
         }
     }
 }

@@ -15,8 +15,8 @@ set -euo pipefail
 # Limitation (honest): this is a local ad-hoc signed build and reuses the
 # reduced-entitlements procedure (sandbox + user-selected files + network
 # client). It deliberately does NOT carry the production iCloud/ubiquity
-# entitlements, so a copy installed this way cannot use the built-in iCloud
-# Kissmark folder the way the notarized release does.
+# entitlements, so this build does not provide the built-in iCloud
+# Kissmark folder.
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 DERIVED="${KISSMARK_DERIVED:-$ROOT/DerivedData}"
@@ -25,8 +25,8 @@ STAGE="${DEST}.staged.$$"
 BACKUP="${DEST}.previous.$$"
 ENTITLEMENTS="${TMPDIR:-/tmp}/kissmark-local-entitlements.$$.plist"
 
-EXPECTED_MARKETING="${KISSMARK_EXPECTED_MARKETING:-2.3.22}"
-EXPECTED_BUILD="${KISSMARK_EXPECTED_BUILD:-38}"
+EXPECTED_MARKETING="${KISSMARK_EXPECTED_MARKETING:-2.3.23}"
+EXPECTED_BUILD="${KISSMARK_EXPECTED_BUILD:-39}"
 
 LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 INSTALLED_EXECUTABLE="$DEST/Contents/MacOS/Kissmark"

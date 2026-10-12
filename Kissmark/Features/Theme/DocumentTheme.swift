@@ -35,6 +35,7 @@ extension ThemePalette {
     var chromeMuted: Color { Color(kissmarkHex: muted) ?? .secondary }
     var chromeBorder: Color { Color(kissmarkHex: border) ?? .clear }
     var chromeAccentSoft: Color { Color(kissmarkHex: DocumentThemeResolver.blend(accent, over: bg, ratio: 0.14)) ?? .accentColor }
+    var chromeAccent: Color { Color(kissmarkHex: accent) ?? .accentColor }
 }
 
 private struct ChromePaletteKey: EnvironmentKey {
