@@ -1,3 +1,35 @@
+# Kissmark 2.3.22 (38)
+
+## 한국어
+
+타이포그래피 설정이 복원되고, 설정값이 앱 버전 변경 뒤에도 유지됩니다.
+
+### 변경 사항
+
+- 설정의 `디자인`·`코드` 분리 탭을 `타이포그래피` 하나로 통합했습니다. 코드 글꼴·간격·줄바꿈 설정은 타이포그래피 안에 있습니다.
+- 요소 색상은 `테마`에서 라이트·다크별로 관리합니다.
+- 타이포그래피 초기화는 테마 요소 색상을 보존합니다.
+- `kissmark.textSize`, `kissmark.textAlign`, `kissmark.design-overrides`, `kissmark.theme`, `kissmark.theme-accents`의 안정적인 설정 키를 유지해 다음 앱 버전에도 설정을 이어갑니다.
+- 폴더 전환 뒤 같은 문서에 연속으로 들어오는 MCP 검토 요청도 모두 처리합니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다. Claude Desktop을 사용하면 앱에 포함된 새 `kissmark.mcpb`를 다시 설치하세요.
+
+## English
+
+Typography settings are restored and preferences persist across app-version upgrades.
+
+- The separate Design and Code panes are unified as Typography; code font, spacing and wrapping live inside it.
+- Element colors are managed in Theme per Light/Dark appearance.
+- Typography Reset All preserves theme element colors.
+- Stable UserDefaults keys preserve text size, alignment, design overrides, theme and accent settings across versions.
+- Repeated MCP review requests for the same document after switching folders are delivered correctly.
+
+Follow [INSTALL.md](INSTALL.md) to replace only the app. Reinstall the bundled `kissmark.mcpb` in Claude Desktop because Desktop keeps its own copied extension.
+
+---
+
 # Kissmark 2.3.21 (37)
 
 ## 한국어

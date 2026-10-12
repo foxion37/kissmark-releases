@@ -133,6 +133,19 @@ struct DesignOverridesTests {
         #expect(Set(body).isDisjoint(with: code))
         #expect(Set(body).union(code) == Set(DesignOverrides.SpacingField.allCases))
     }
+    @Test("Typography reset preserves theme-owned element colors")
+    func typographyResetPreservesElementColors() {
+        var o = DesignOverrides()
+        o.spacing.lineHeight = 1.9
+        o.code.wrapsLines = false
+        o[element: .h1] = .init(sizeScale: 1.2, weight: 700, color: .init(light: "#112233", dark: "#445566"))
+        let reset = o.keepingOnlyElementColors()
+        #expect(reset.spacing == .init())
+        #expect(reset.code == .init())
+        #expect(reset[element: .h1].color?.light == "#112233")
+        #expect(reset[element: .h1].sizeScale == nil)
+        #expect(reset[element: .h1].weight == nil)
+    }
 
     @Test("Round trip and corrupt JSON")
     func corruptJSONFallsBackToNoOverrides() {

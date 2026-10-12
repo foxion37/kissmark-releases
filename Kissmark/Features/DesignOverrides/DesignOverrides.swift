@@ -226,6 +226,12 @@ nonisolated struct DesignOverrides: Codable, Equatable {
     }
 
     var isEmpty: Bool { self == DesignOverrides() }
+    /// Typography reset preserves element colors, which are owned by Theme settings.
+    func keepingOnlyElementColors() -> DesignOverrides {
+        var kept = DesignOverrides()
+        kept.elements = elements.compactMapValues { $0.color.map { Element(color: $0) } }
+        return kept
+    }
 
     static func decode(_ raw: String) -> DesignOverrides {
         guard let data = raw.data(using: .utf8),

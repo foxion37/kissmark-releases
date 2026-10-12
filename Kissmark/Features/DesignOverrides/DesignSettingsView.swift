@@ -1,14 +1,11 @@
 import SwiftUI
 
-/// Settings › 디자인. Edits the text size and `DesignOverrides`; every change applies
-/// to the open Document immediately.
+/// Settings › 타이포그래피. Edits text size and typography overrides; each change applies immediately.
 struct DesignSettingsView: View {
     @AppStorage(DesignOverrides.storageKey) private var designJSON = ""
     @AppStorage(KissmarkTextSize.storageKey) private var textSizeID = KissmarkTextSize.medium.rawValue
     @AppStorage(KissmarkTextAlignment.storageKey) private var textAlignID = KissmarkTextAlignment.start.rawValue
-    @Environment(\.colorScheme) private var colorScheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @State private var editingScheme: ColorScheme = .light
     @State private var expandedElements: Set<DesignOverrides.ElementKey> = []
 
     private var overrides: DesignOverrides { DesignOverrides.decode(designJSON) }
@@ -47,42 +44,40 @@ struct DesignSettingsView: View {
                         update { o in DesignOverrides.SpacingField.body.forEach { $0.clear(in: &o.spacing) } }
                     }
                 }
-                    .accessibilityIdentifier("settings-design-spacing-reset")
-                    .disabled(DesignOverrides.SpacingField.body.allSatisfy { $0.value(in: overrides.spacing) == nil })
+                .accessibilityIdentifier("settings-design-spacing-reset")
+                .disabled(DesignOverrides.SpacingField.body.allSatisfy { $0.value(in: overrides.spacing) == nil })
             } header: {
                 Text("간격")
             } footer: {
                 Text("바를 움직여 일정한 단위로 조절합니다. 다섯 표시는 참고 체크포인트이며 그 사이 값도 선택할 수 있습니다. 행간은 배수, 장폭은 ch, 나머지는 em입니다.")
             }
 
-            Section {
-                Picker("색상 편집 대상", selection: $editingScheme) {
-                    Text("라이트").tag(ColorScheme.light)
-                    Text("다크").tag(ColorScheme.dark)
-                }
-                .pickerStyle(.segmented)
-                .accessibilityIdentifier("settings-design-scheme")
+            CodeSettingsSection()
 
-                ForEach(DesignOverrides.ElementKey.allCases) { key in
+            Section {
+                ForEach(DesignOverrides.ElementKey.allCases.filter { $0.supportsSize || $0.supportsWeight }) { key in
                     DisclosureGroup(key.displayName, isExpanded: expansionBinding(key)) { elementControls(key) }
                 }
             } header: {
                 Text("요소")
             } footer: {
-                Text("색은 라이트와 다크에 따로 저장됩니다.")
+                Text("요소의 크기와 굵기는 타이포그래피에 저장됩니다. 요소 색은 테마에서 라이트와 다크에 따로 저장합니다.")
             }
 
             Section {
                 Button("모두 초기화", role: .destructive) {
-                    withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) { designJSON = "" }
+                    withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
+                        update { $0 = $0.keepingOnlyElementColors() }
+                    }
                 }
-                    .accessibilityIdentifier("settings-design-reset-all")
-                    .disabled(overrides.isEmpty)
+                .accessibilityIdentifier("settings-design-reset-all")
+                .disabled(overrides.keepingOnlyElementColors() == overrides)
+            } footer: {
+                Text("테마에서 고른 요소 색은 유지합니다.")
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("디자인")
-        .onAppear { editingScheme = colorScheme }
+        .kissmarkSettingsNavigationTitle("타이포그래피")
     }
 
     /// Element accordions open and close with the shared spring.
@@ -168,29 +163,18 @@ struct DesignSettingsView: View {
             }
             .accessibilityIdentifier("settings-design-\(key.cssName)-weight")
         }
-        ColorPicker(
-            "색",
-            selection: Binding(
-                get: { Color(kissmarkHex: editingScheme == .dark ? element.color?.dark : element.color?.light) ?? key.placeholderColor },
-                set: { color in
-                    let hex = color.kissmarkHex
-                    update {
-                        var pair = $0[element: key].color ?? .init()
-                        if editingScheme == .dark { pair.dark = hex } else { pair.light = hex }
-                        $0[element: key].color = pair
-                    }
-                }
-            ),
-            supportsOpacity: false
-        )
-        .accessibilityIdentifier("settings-design-\(key.cssName)-color")
         Button("기본값으로") {
             withAnimation(KissmarkMotion.spring(reduceMotion: reduceMotion)) {
-                update { $0[element: key] = .init() }
+                update {
+                    var next = $0[element: key]
+                    next.sizeScale = nil
+                    next.weight = nil
+                    $0[element: key] = next
+                }
             }
         }
-            .accessibilityIdentifier("settings-design-\(key.cssName)-reset")
-            .disabled(element == .init())
+        .accessibilityIdentifier("settings-design-\(key.cssName)-reset")
+        .disabled(element.sizeScale == nil && element.weight == nil)
     }
 }
 

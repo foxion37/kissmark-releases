@@ -25,8 +25,8 @@ STAGE="${DEST}.staged.$$"
 BACKUP="${DEST}.previous.$$"
 ENTITLEMENTS="${TMPDIR:-/tmp}/kissmark-local-entitlements.$$.plist"
 
-EXPECTED_MARKETING="${KISSMARK_EXPECTED_MARKETING:-2.3.21}"
-EXPECTED_BUILD="${KISSMARK_EXPECTED_BUILD:-37}"
+EXPECTED_MARKETING="${KISSMARK_EXPECTED_MARKETING:-2.3.22}"
+EXPECTED_BUILD="${KISSMARK_EXPECTED_BUILD:-38}"
 
 LSREGISTER="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 INSTALLED_EXECUTABLE="$DEST/Contents/MacOS/Kissmark"

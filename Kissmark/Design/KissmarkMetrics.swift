@@ -23,7 +23,17 @@ enum KissmarkMetrics {
     /// One readable column, with room for longer panes to scroll.
     static let settingsDefaultSize = CGSize(width: settingsContentMaxWidth, height: 600)
     static let settingsRowGap = KissmarkSpacing.space8
+    static let settingsHeaderInset = KissmarkSpacing.space4
+    static let settingsHeaderVerticalPad = KissmarkSpacing.space8
+    static let settingsHeaderBlockPad = KissmarkSpacing.space12
+    static let settingsHeaderLabelPad = KissmarkSpacing.space8
     static let settingsConnectionTextGap = KissmarkSpacing.space4
+    static let settingsRowInsets = EdgeInsets(
+        top: KissmarkSpacing.space16,
+        leading: KissmarkSpacing.space20,
+        bottom: KissmarkSpacing.space16,
+        trailing: KissmarkSpacing.space20
+    )
     static let settingsSheetInset = KissmarkSpacing.space20
     static let iconButtonOutlineWidth: CGFloat = 1
     static let iconButtonOutlineOpacity: CGFloat = 0.35
