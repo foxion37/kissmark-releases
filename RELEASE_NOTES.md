@@ -1,3 +1,27 @@
+# Kissmark 2.3.25 (41)
+
+## 한국어
+
+설정 › 연결의 CLI 설치 버튼을 하나로 정리했습니다.
+
+### 변경 사항
+
+- `연결 검색` 창 안의 `CLI 설치` 버튼을 없앴습니다. 설정 › 연결 맨 위 줄의 `CLI 설치`가 유일한 진입점입니다. 추가한 연결의 `CLI 설치 안내…`는 그 연결의 도구와 프로필을 미리 채우므로 그대로 둡니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다. Claude Desktop을 사용하면 앱에 포함된 새 `kissmark.mcpb`를 다시 설치하세요.
+
+## English
+
+Settings › Connections now has a single Install CLI entry.
+
+- The Install CLI button inside the Search Connections sheet is removed; the first-row Install CLI is the single entry. Per-connection CLI setup guidance stays because it prefills that connection's client and profile.
+
+Follow [INSTALL.md](INSTALL.md) to replace only the app. Reinstall the bundled `kissmark.mcpb` in Claude Desktop because Desktop keeps its own copied extension.
+
+---
+
 # Kissmark 2.3.24 (40)
 
 ## 한국어

@@ -208,8 +208,6 @@ struct AgentConnectionsSettingsView: View {
                         if model.scanning { model.cancelSearch() } else { model.startSearch() }
                     }
                     if model.scanning { ProgressView().controlSize(.small) }
-                    Spacer(minLength: 0)
-                    Button("CLI 설치") { searching = false; installing = true }
                 }
                 if let message = model.message {
                     Text(message).font(KissmarkType.caption).foregroundStyle(.secondary)
