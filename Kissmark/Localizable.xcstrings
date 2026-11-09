@@ -18,6 +18,23 @@
         }
       }
     },
+    "Finder에서 열기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reveal in Finder"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finder에서 열기"
+          }
+        }
+      }
+    },
     "Read" : {
       "extractionState" : "manual",
       "localizations" : {
