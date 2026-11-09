@@ -89,6 +89,7 @@ enum KissmarkMetrics {
     static let toolbarLockOpticalScale: CGFloat = 0.9
     static let toolbarSettingsOpticalScale: CGFloat = 0.9
     static let toolbarCopyOpticalScale: CGFloat = 0.9
+    static let toolbarFolderOpticalScale: CGFloat = 0.9
     static let toolbarPanelOpticalScale: CGFloat = 0.95
     static let toolbarChevronOpticalScale: CGFloat = 1.1
 

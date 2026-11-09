@@ -113,6 +113,24 @@ enum KissmarkDocumentToolbarItems {
                 workspace.requestClose(undoManager: undoManager)
             },
         ]
+        #if os(macOS)
+        // FolderControl의 폴더 열기(워크스페이스 전환)와 구별되는 Finder 공개.
+        items.insert(
+            .init(
+                id: "kissmark.document.openInFinder",
+                title: "Finder에서 열기",
+                icon: .lucide(.folderOpen),
+                disabled: !hasDocument,
+                opticalScale: KissmarkMetrics.toolbarFolderOpticalScale,
+                accessibilityIdentifier: "document-open-in-finder-button"
+            ) {
+                if let url = session?.sourceURL {
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
+                }
+            },
+            at: items.count - 1
+        )
+        #endif
         if let settings {
             // ADR 0020: 설정 sits immediately left of 닫기, which stays rightmost.
             items.insert(

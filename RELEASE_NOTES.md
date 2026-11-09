@@ -1,3 +1,31 @@
+# Kissmark 2.3.26 (42)
+
+## 한국어
+
+문서 툴바에 `Finder에서 열기` 버튼을 추가했습니다.
+
+### 변경 사항
+
+- `경로 복사` 바로 다음에 `Finder에서 열기` 버튼이 붙습니다. Finder에서 문서가 들어 있는 폴더를 열고 해당 문서를 선택해 줍니다.
+- FolderControl의 `현재 문서의 폴더 열기…`(앱 안에서 폴더를 워크스페이스로 여는 것)와 이름이 겹치지 않도록 `Finder에서 열기`로 불립니다.
+- 문서가 열려 있지 않으면 다른 문서 동작과 마찬가지로 비활성 상태로 보입니다.
+
+### 설치와 지원 범위
+
+[설치 안내](INSTALL.md)를 따라 앱만 교체하세요. 문서, 설정, 검토 기록이나 에이전트 연결 설정을 초기화할 필요가 없습니다.
+
+## English
+
+The document toolbar gains a `Reveal in Finder` button.
+
+- It sits right after `Copy Path` and opens the document's containing folder in Finder with the document selected.
+- It is named `Finder에서 열기` (Reveal in Finder) to stay distinct from FolderControl's `현재 문서의 폴더 열기…`, which opens the folder as a workspace inside the app.
+- Like the other document actions it stays visible but disabled while no document is open.
+
+Follow [INSTALL.md](INSTALL.md) to replace only the app. No documents, settings, review records, or agent connections need to be reset.
+
+---
+
 # Kissmark 2.3.25 (41)
 
 ## 한국어
